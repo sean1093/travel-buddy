@@ -55,8 +55,6 @@
 
 | 項目 | 說明 |
 |---|---|
-| repo 改名 | 在 GitHub 把 repo 改成 `travel-buddy`，然後重新部署一次（見 [development.md](development.md#repo-改名)）。 |
-| 舊網址轉址 | 改名後 `/daijoubu/` 會失效。可以另建一個 `daijoubu` repo，放一個帶著 `#` 轉到新網址的頁面，讓舊的分享連結和 QR code 繼續能用。 |
 | 退稅新制再查證 | 2026-11-01 上路後，依實際經驗核對「出境退稅新制」的步驟和注意事項。 |
 | 推薦工具的 Google Play 連結 | Safety tips 和 GO 的 Google Play 網址還沒查證，目前用官方網站代替。 |
 | 醫療頁症狀名稱換行 | 截圖環境的字型較寬，「呼吸困難」等會斷成兩行；需要在實機上確認。 |

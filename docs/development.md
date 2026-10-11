@@ -129,10 +129,12 @@ https://sean1093.github.io/travel-buddy/japan/#/s/1.<資料>   分享連結
 
 ### repo 改名
 
+repo 已在 2026-10-11 從 `daijoubu` 改名為 `travel-buddy`，舊網址 `/daijoubu/` 不做轉址（決定見 [spec.md §9](spec.md#9-決定紀錄)）。以後若要再改名：
+
 1. GitHub → Settings → General → Repository name。
-2. 本機更新遠端網址：`git remote set-url origin <新網址>`（不改也可以，GitHub 會自動轉）。
+2. 本機更新遠端網址：`git remote set-url origin <新網址>`。
 3. 重新部署一次：推一個 commit 到 `main`，或在 Actions → pages 按 **Run workflow**。確認新網址能打開。
-4. 舊網址會失效：GitHub Pages 不會自動轉址。需要的話另建一個舊名的 repo，放一個帶著 `#` 轉到新網址的頁面。
+4. GitHub Pages 不會自動轉址，舊網址會失效；要保留舊連結，就得另建一個舊名的 repo 放轉址頁。
 
 ## 工作流程
 

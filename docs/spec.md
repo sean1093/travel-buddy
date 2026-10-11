@@ -343,7 +343,7 @@ https://sean1093.github.io/travel-buddy/japan/#/s/1.<payload>
 | 項目 | 決定 |
 |---|---|
 | 名稱 | 隨身旅伴 TravelBuddy（2026-10-11 由「日本旅遊小幫手 (Daijoubu)」改名，為之後加入其他國家做準備） |
-| 網址 | 依國家區分，日本版在 `/japan/`；根目錄轉址並保留 `#` |
+| 網址 | `sean1093.github.io/travel-buddy/`，依國家區分，日本版在 `/japan/`；根目錄轉址並保留 `#`。舊網址 `/daijoubu/` 停用、不做轉址，舊分享連結要重新產生 |
 | 儲存鍵 | 沿用 `daijoubu.`，資料不會遺失 |
 | 用詞 | 給所有人用的服務，不使用針對特定年齡層的稱呼 |
 | 語言 | UI 用華語（台灣用語），不做台語；程式、issue、PR 用英文 |
