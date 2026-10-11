@@ -5,32 +5,33 @@
 ## 2026-10-11
 
 ### 網址與名稱
-- **日本版搬到 `/japan/`**（[#37](https://github.com/sean1093/daijoubu/pull/37)）：日本版建置到 `dist/japan/`；網站根目錄放一個轉址頁，帶著 `#` 轉到日本版，舊分享連結和主畫面捷徑都能用。之後根目錄會改成選擇國家。
-- **改名為「隨身旅伴 TravelBuddy」**（[#35](https://github.com/sean1093/daijoubu/pull/35)）：原名「日本旅遊小幫手 (Daijoubu)」。為了之後加入其他國家，名稱拿掉「日本」，國家放在後面（隨身旅伴・日本）。本機儲存鍵刻意沿用 `daijoubu.`，資料不會遺失。
+- **repo 改名為 `travel-buddy`，舊網址停用**：網站改在 `sean1093.github.io/travel-buddy/japan/`。舊網址 `/daijoubu/` 不做轉址，之前傳出去的分享連結和 QR code 要重新產生；手機裡已存的資料不受影響。
+- **日本版搬到 `/japan/`**（[#37](https://github.com/sean1093/travel-buddy/pull/37)）：日本版建置到 `dist/japan/`；網站根目錄放一個轉址頁，帶著 `#` 轉到日本版，舊分享連結和主畫面捷徑都能用。之後根目錄會改成選擇國家。
+- **改名為「隨身旅伴 TravelBuddy」**（[#35](https://github.com/sean1093/travel-buddy/pull/35)）：原名「日本旅遊小幫手 (Daijoubu)」。為了之後加入其他國家，名稱拿掉「日本」，國家放在後面（隨身旅伴・日本）。本機儲存鍵刻意沿用 `daijoubu.`，資料不會遺失。
 
 ### 依競品分析與論壇痛點補強（[research.md §5](research.md#5-競品分析與擴充評估2026-10-11)）
-- **推薦工具加上直接連結**（[#33](https://github.com/sean1093/daijoubu/pull/33)）：App Store、Google Play、官方網站按鈕；只放查證過的網址。
-- **看病與保險理賠、推薦的免費工具**（[#31](https://github.com/sean1093/daijoubu/pull/31)）：旅遊小抄新增理賠步驟（含健保自墊醫療費用核退）；緊急情境新增英文診斷書、費用明細、刷卡等句子；新增推薦工具頁。
-- **行李情境、新幹線大型行李、出口與轉乘**（[#30](https://github.com/sean1093/daijoubu/pull/30)）：新增第十個情境「行李」（寄放、宅配、新幹線大行李）；旅遊小抄新增新幹線大型行李規定；交通新增出口與轉乘問句。
-- **餐廳：手機點餐與高湯**（[#29](https://github.com/sean1093/daijoubu/pull/29)）：手機不能用時請店員直接點、請店員幫忙用手機點；高湯問句加上答案按鈕，新增「不要用柴魚高湯」。
-- **出境退稅新制與旅遊小抄**（[#28](https://github.com/sean1093/daijoubu/pull/28)）：新增「旅遊小抄」（附來源與查證日期的步驟說明），第一篇是 2026-11-01 起的退稅新制；購物情境分組並新增退稅相關句子。
+- **推薦工具加上直接連結**（[#33](https://github.com/sean1093/travel-buddy/pull/33)）：App Store、Google Play、官方網站按鈕；只放查證過的網址。
+- **看病與保險理賠、推薦的免費工具**（[#31](https://github.com/sean1093/travel-buddy/pull/31)）：旅遊小抄新增理賠步驟（含健保自墊醫療費用核退）；緊急情境新增英文診斷書、費用明細、刷卡等句子；新增推薦工具頁。
+- **行李情境、新幹線大型行李、出口與轉乘**（[#30](https://github.com/sean1093/travel-buddy/pull/30)）：新增第十個情境「行李」（寄放、宅配、新幹線大行李）；旅遊小抄新增新幹線大型行李規定；交通新增出口與轉乘問句。
+- **餐廳：手機點餐與高湯**（[#29](https://github.com/sean1093/travel-buddy/pull/29)）：手機不能用時請店員直接點、請店員幫忙用手機點；高湯問句加上答案按鈕，新增「不要用柴魚高湯」。
+- **出境退稅新制與旅遊小抄**（[#28](https://github.com/sean1093/travel-buddy/pull/28)）：新增「旅遊小抄」（附來源與查證日期的步驟說明），第一篇是 2026-11-01 起的退稅新制；購物情境分組並新增退稅相關句子。
 
 ### 視覺設計
-- **設計方向 C：和紙・柔和**（[#23](https://github.com/sean1093/daijoubu/pull/23)）：從四個設計稿中選定。暖色紙張底色、去掉外框、細線圖示、安靜的段落標題。見 [design.md](design.md)。
-- **清單分組、一個畫面一個實心按鈕**（[#21](https://github.com/sean1093/daijoubu/pull/21)）。
-- **全螢幕卡片打開時，後面的頁面不能操作**（[#19](https://github.com/sean1093/daijoubu/pull/19)）：`inert` 加 `aria-hidden`，螢幕閱讀器和鍵盤只會碰到最上層。
-- **標題列、分享頁、電話號碼不斷行**（[#18](https://github.com/sean1093/daijoubu/pull/18)）：電話改成結構化資料，所有卡片共用一個顯示方式。
-- **車站標示設計語言、拿掉 emoji**（[#14](https://github.com/sean1093/daijoubu/pull/14)）：所有 emoji 換成線條圖示。
+- **設計方向 C：和紙・柔和**（[#23](https://github.com/sean1093/travel-buddy/pull/23)）：從四個設計稿中選定。暖色紙張底色、去掉外框、細線圖示、安靜的段落標題。見 [design.md](design.md)。
+- **清單分組、一個畫面一個實心按鈕**（[#21](https://github.com/sean1093/travel-buddy/pull/21)）。
+- **全螢幕卡片打開時，後面的頁面不能操作**（[#19](https://github.com/sean1093/travel-buddy/pull/19)）：`inert` 加 `aria-hidden`，螢幕閱讀器和鍵盤只會碰到最上層。
+- **標題列、分享頁、電話號碼不斷行**（[#18](https://github.com/sean1093/travel-buddy/pull/18)）：電話改成結構化資料，所有卡片共用一個顯示方式。
+- **車站標示設計語言、拿掉 emoji**（[#14](https://github.com/sean1093/travel-buddy/pull/14)）：所有 emoji 換成線條圖示。
 
 ### 內容
-- **帶小孩情境**（[#15](https://github.com/sean1093/daijoubu/pull/15)）：走失・生病、外出・電車、吃飯、尿布・哺乳・廁所，共 21 句。
-- **電梯問句與電梯筆記**（[#11](https://github.com/sean1093/daijoubu/pull/11)）：評估後不做站內電梯地圖（資料分散、會過期、不好讀、Google 地圖已有輪椅路線），改做電梯問句和每站的電梯筆記（`Place.note`）。
-- **依旅客痛點補強**（[#10](https://github.com/sean1093/daijoubu/pull/10)）：垃圾桶、刷卡被拒、平板點餐、搭錯車、計程車收據、遺失物、走散、地震、不走樓梯。見 [research.md §1–4](research.md)。
+- **帶小孩情境**（[#15](https://github.com/sean1093/travel-buddy/pull/15)）：走失・生病、外出・電車、吃飯、尿布・哺乳・廁所，共 21 句。
+- **電梯問句與電梯筆記**（[#11](https://github.com/sean1093/travel-buddy/pull/11)）：評估後不做站內電梯地圖（資料分散、會過期、不好讀、Google 地圖已有輪椅路線），改做電梯問句和每站的電梯筆記（`Place.note`）。
+- **依旅客痛點補強**（[#10](https://github.com/sean1093/travel-buddy/pull/10)）：垃圾桶、刷卡被拒、平板點餐、搭錯車、計程車收據、遺失物、走散、地震、不走樓梯。見 [research.md §1–4](research.md)。
 
 ## 2026-10-08
 
-- **飲食習慣：全素、蛋奶素、五辛素、不吃海鮮**（[#9](https://github.com/sean1093/daijoubu/pull/9)）：日文不寫名稱，直接列出不能吃的食材，並特別寫出魚高湯和肉萃取物。
-- **UX 改版**（[#8](https://github.com/sean1093/daijoubu/pull/8)，issues #1–#7）：
+- **飲食習慣：全素、蛋奶素、五辛素、不吃海鮮**（[#9](https://github.com/sean1093/travel-buddy/pull/9)）：日文不寫名稱，直接列出不能吃的食材，並特別寫出魚高湯和肉萃取物。
+- **UX 改版**（[#8](https://github.com/sean1093/travel-buddy/pull/8)，issues #1–#7）：
   - 首頁：求救鈕下方緊接「回飯店」「醫療卡」；有當天行程時顯示「今天要去」。
   - 情境頁：精簡清單＋全螢幕單句詳情；交通分組（頁面高度約從 10,600 px 降到 3,400 px）。
   - 對方說：中文第一行、最大字，回答按鈕緊接在下。
