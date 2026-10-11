@@ -69,8 +69,8 @@ const SHOTS = [
     await p.goto("http://localhost:4173/");
     await p.evaluate(
       ([data, size, empty]) => {
-        if (!empty) localStorage.setItem("daijoubu.profile", JSON.stringify({ v: 1, data: JSON.parse(data) }));
-        localStorage.setItem("daijoubu.settings", JSON.stringify({ v: 1, data: { theme: "system", textSize: size, voice: null } }));
+        if (!empty) localStorage.setItem("travelbuddy.japan.profile", JSON.stringify({ v: 1, data: JSON.parse(data) }));
+        localStorage.setItem("travelbuddy.japan.settings", JSON.stringify({ v: 1, data: { theme: "system", textSize: size, voice: null } }));
       },
       [profile, shot.size ?? "large", Boolean(shot.empty)],
     );

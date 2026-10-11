@@ -8,8 +8,8 @@
  * from a GitHub Pages subpath as well as from the domain root.
  */
 const CACHE = "travel-buddy-v1";
-/** Cache names this app has used, including from before the rename (Daijoubu). */
-const OWN_CACHE = /^(travel-buddy|daijoubu)-/;
+/** This app's cache names; other projects on the same origin keep theirs. */
+const OWN_CACHE = /^travel-buddy-/;
 const SHELL = ["./", "./index.html"];
 /** Hashed assets referenced by index.html; see `precache`. */
 const ASSET_HREF = /(?:src|href)="(\.\/assets\/[^"]+)"/g;

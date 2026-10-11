@@ -22,8 +22,8 @@
       // Mirrors applySettings() in src/state.ts. It has to run before the first
       // paint, or opening the app in dark mode flashes the light paper.
       try {
-        // Storage keys keep the old prefix (see src/lib/store.ts).
-        const saved = JSON.parse(localStorage.getItem("daijoubu.settings") || "null");
+        // Same key as the settings store (STORE_PREFIX in src/lib/store.ts).
+        const saved = JSON.parse(localStorage.getItem("travelbuddy.japan.settings") || "null");
         const s = (saved && saved.data) || {};
         const theme =
           s.theme === "light" || s.theme === "dark"

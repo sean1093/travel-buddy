@@ -5,9 +5,8 @@ import { describe, expect, it } from "vitest";
 const root = readFileSync(new URL("../site/index.html", import.meta.url), "utf8");
 
 describe("root page", () => {
-  it("forwards to the Japan edition and keeps the hash, so old share links still open", () => {
-    expect(root).toContain('"./japan/" + location.hash');
-    expect(root).toContain("location.replace(target)");
+  it("forwards to the Japan edition and keeps the hash", () => {
+    expect(root).toContain('location.replace("./japan/" + location.hash)');
   });
 
   it("works without JavaScript", () => {
