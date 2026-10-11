@@ -25,7 +25,7 @@ src/
     jp.ts                日文標記 {漢字|かな} 的解析、插槽 $dest/$stop/$hotel
     romaji.ts            拼音
     speech.ts            Web Speech API：挑語音、念句子、偵測沒有日文語音
-    store.ts             localStorage 存取（前綴 daijoubu.）
+    store.ts             localStorage 存取（前綴 travelbuddy.japan.）
     phone.ts             電話正規化（台灣 +886、從日本撥 010-886、日本國內）
   profile/
     profile.ts           Profile 型別、parseProfile、目前飯店、今天的行程
@@ -113,28 +113,28 @@ https://sean1093.github.io/travel-buddy/japan/      日本版（dist/japan/）
 https://sean1093.github.io/travel-buddy/japan/#/s/1.<資料>   分享連結
 ```
 
-- 根目錄的轉址頁會保留 `#` 後面的內容，所以舊格式的分享連結和舊的主畫面捷徑都能用；它也會移除舊版在根目錄註冊的 service worker。
+- 根目錄的轉址頁會保留 `#` 後面的內容，所以指向根目錄的分享連結也能匯入資料。
 - 之後有第二個國家時，根目錄改成選擇國家的頁面（見 [roadmap.md](roadmap.md)）。
 
 ### 本機儲存
 
 | key | 內容 |
 |---|---|
-| `daijoubu.profile` | 旅客資料（Profile，版本 1） |
-| `daijoubu.settings` | 字體大小、顏色、語音 |
+| `travelbuddy.japan.profile` | 旅客資料（Profile，版本 1） |
+| `travelbuddy.japan.settings` | 字體大小、顏色、語音 |
 
-前綴 `daijoubu.` 是舊產品名，**刻意保留**：網址從 `/daijoubu/` 改到 `/travel-buddy/japan/` 都在同一個網域（`sean1093.github.io`），沿用同一組 key，使用者的資料就不會遺失。之後新增的國家版本要用自己的前綴。
+所有國家版本都在同一個網域（`sean1093.github.io`），所以每個版本用自己的前綴（`src/lib/store.ts` 的 `STORE_PREFIX`）。`index.html` 會在畫面出現前直接讀設定的 key，改前綴時兩邊要一起改。
 
-離線快取名稱是 `travel-buddy-v1`（`public/sw.js`）；啟用時會清掉這個 App 舊的快取（`travel-buddy-` 或 `daijoubu-` 開頭）。
+離線快取名稱是 `travel-buddy-v1`（`public/sw.js`）；啟用時只清掉這個 App 自己的舊快取（`travel-buddy-` 開頭），同網域的其他專案不受影響。
 
 ### repo 改名
 
-repo 已在 2026-10-11 從 `daijoubu` 改名為 `travel-buddy`，舊網址 `/daijoubu/` 不做轉址（決定見 [spec.md §9](spec.md#9-決定紀錄)）。以後若要再改名：
+以後若要改 repo 名稱：
 
 1. GitHub → Settings → General → Repository name。
 2. 本機更新遠端網址：`git remote set-url origin <新網址>`。
 3. 重新部署一次：推一個 commit 到 `main`，或在 Actions → pages 按 **Run workflow**。確認新網址能打開。
-4. GitHub Pages 不會自動轉址，舊網址會失效；要保留舊連結，就得另建一個舊名的 repo 放轉址頁。
+4. GitHub Pages 不會自動轉址，舊網址和舊的分享連結會失效。
 
 ## 工作流程
 

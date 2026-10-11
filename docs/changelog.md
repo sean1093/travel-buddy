@@ -5,6 +5,7 @@
 ## 2026-10-11
 
 ### 網址與名稱
+- **拿掉舊名的相容處理**（[#42](https://github.com/sean1093/travel-buddy/issues/42)）：還沒有使用者，所以本機儲存改用日本版自己的前綴 `travelbuddy.japan.`，並移除為舊版本保留的快取清理與 service worker 處理。
 - **repo 改名為 `travel-buddy`，舊網址停用**：網站改在 `sean1093.github.io/travel-buddy/japan/`。舊網址 `/daijoubu/` 不做轉址，之前傳出去的分享連結和 QR code 要重新產生；手機裡已存的資料不受影響。
 - **日本版搬到 `/japan/`**（[#37](https://github.com/sean1093/travel-buddy/pull/37)）：日本版建置到 `dist/japan/`；網站根目錄放一個轉址頁，帶著 `#` 轉到日本版，舊分享連結和主畫面捷徑都能用。之後根目錄會改成選擇國家。
 - **改名為「隨身旅伴 TravelBuddy」**（[#35](https://github.com/sean1093/travel-buddy/pull/35)）：原名「日本旅遊小幫手 (Daijoubu)」。為了之後加入其他國家，名稱拿掉「日本」，國家放在後面（隨身旅伴・日本）。本機儲存鍵刻意沿用 `daijoubu.`，資料不會遺失。

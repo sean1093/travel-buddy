@@ -5,7 +5,7 @@
 >
 > 這是給所有人用的服務：UI 與文件都不使用針對特定年齡層或族群的稱呼。大字、大按鈕、不打字，是為了讓任何人在慌亂時都能用。
 
-狀態：日本版已上線。舊名「日本旅遊小幫手 (Daijoubu)」。改了什麼見 [changelog.md](changelog.md)；之後的方向見 [roadmap.md](roadmap.md)。
+狀態：日本版已上線。改了什麼見 [changelog.md](changelog.md)；之後的方向見 [roadmap.md](roadmap.md)。
 
 ---
 
@@ -294,10 +294,10 @@ interface Health {
 
 | key | 內容 |
 |---|---|
-| `daijoubu.profile` | Profile（版本 1） |
-| `daijoubu.settings` | 字體大小、顏色、語音 |
+| `travelbuddy.japan.profile` | Profile（版本 1） |
+| `travelbuddy.japan.settings` | 字體大小、顏色、語音 |
 
-前綴是舊產品名，刻意保留，讓改名、搬網址後資料不會遺失（見 [development.md](development.md#本機儲存)）。
+每個國家版本用自己的前綴（見 [development.md](development.md#本機儲存)）。
 
 ---
 
@@ -342,9 +342,9 @@ https://sean1093.github.io/travel-buddy/japan/#/s/1.<payload>
 
 | 項目 | 決定 |
 |---|---|
-| 名稱 | 隨身旅伴 TravelBuddy（2026-10-11 由「日本旅遊小幫手 (Daijoubu)」改名，為之後加入其他國家做準備） |
-| 網址 | `sean1093.github.io/travel-buddy/`，依國家區分，日本版在 `/japan/`；根目錄轉址並保留 `#`。舊網址 `/daijoubu/` 停用、不做轉址，舊分享連結要重新產生 |
-| 儲存鍵 | 沿用 `daijoubu.`，資料不會遺失 |
+| 名稱 | 隨身旅伴 TravelBuddy，國家放在名稱後面（隨身旅伴・日本），為之後加入其他國家做準備 |
+| 網址 | `sean1093.github.io/travel-buddy/`，依國家區分，日本版在 `/japan/`；根目錄轉址並保留 `#` |
+| 儲存鍵 | 每個國家自己的前綴，日本版 `travelbuddy.japan.` |
 | 用詞 | 給所有人用的服務，不使用針對特定年齡層的稱呼 |
 | 語言 | UI 用華語（台灣用語），不做台語；程式、issue、PR 用英文 |
 | 視覺 | 設計方向 C「和紙・柔和」（從四個設計稿選出），不用 emoji |

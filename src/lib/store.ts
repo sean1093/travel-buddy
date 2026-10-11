@@ -9,21 +9,23 @@ export interface Store<T> {
   clear(): void;
 }
 
+/** Storage key prefix of the Japan edition; index.html reads the settings key directly. */
+export const STORE_PREFIX = "travelbuddy.japan.";
+
 /**
- * Defines the store `daijoubu.<name>`. `parse` receives whatever was saved (or
- * `undefined`) with the version it was saved under, and must always return a
- * well-formed value: storage is user-editable and may hold anything.
+ * Defines the store `travelbuddy.japan.<name>`. `parse` receives whatever was
+ * saved (or `undefined`) with the version it was saved under, and must always
+ * return a well-formed value: storage is user-editable and may hold anything.
  *
- * The prefix is the product's old name and stays on purpose: the site moved
- * from /daijoubu/ to /travel-buddy/ on the same origin, and keeping the keys
- * carries every saved profile and setting over.
+ * Every country edition shares the origin (sean1093.github.io), so each one
+ * keeps its data under its own prefix.
  */
 export function defineStore<T>(
   name: string,
   version: number,
   parse: (data: unknown, savedVersion: number) => T,
 ): Store<T> {
-  const key = `daijoubu.${name}`;
+  const key = `${STORE_PREFIX}${name}`;
   return {
     load() {
       const wrapped = asRecord(parseJson(read(key)));

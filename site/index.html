@@ -7,34 +7,9 @@
     <meta name="theme-color" content="#f4efe6" />
     <script>
       // Each country edition lives under its own path (./japan/, later others).
-      // With one edition so far, go straight to it. The hash goes along, so a
-      // link shared before the country paths existed (#/s/…) still opens with
-      // its data, and a home-screen icon installed from the old root still works.
-      (function () {
-        var target = "./japan/" + location.hash;
-        var go = function () {
-          location.replace(target);
-        };
-        // Earlier versions registered a service worker at this root scope; drop
-        // it so it stops serving the old app shell here.
-        var sw = navigator.serviceWorker;
-        var root = new URL("./", location.href).href;
-        if (!sw) return go();
-        setTimeout(go, 1500);
-        sw.getRegistrations()
-          .then(function (registrations) {
-            return Promise.all(
-              registrations
-                .filter(function (registration) {
-                  return registration.scope === root;
-                })
-                .map(function (registration) {
-                  return registration.unregister();
-                }),
-            );
-          })
-          .then(go, go);
-      })();
+      // With one edition so far, go straight to it, keeping the hash so a link
+      // like …/travel-buddy/#/s/… still opens its data in the Japan edition.
+      location.replace("./japan/" + location.hash);
     </script>
     <style>
       body {
