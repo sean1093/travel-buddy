@@ -23,6 +23,7 @@ export default {
         // 藍 indigo: actions. 朱 vermilion: help and emergencies.
         ai: { DEFAULT: token("ai"), soft: token("ai-soft") },
         shu: { DEFAULT: token("shu"), soft: token("shu-soft") },
+        sos: { DEFAULT: token("sos"), on: token("on-sos") },
         ok: { DEFAULT: token("ok"), soft: token("ok-soft") },
         warn: { soft: token("warn-soft") },
         // Exit-sign yellow, for exits and elevators.

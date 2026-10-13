@@ -476,8 +476,9 @@ export function renderSetup(root: HTMLElement): void {
       h(
         "div",
         { class: "grid grid-cols-2 gap-2" },
-        h("a", { href: "#/", class: `${BUTTON.secondary} min-h-14` }, icon("check"), "完成"),
-        h("a", { href: "#/share", class: `${BUTTON.primary} min-h-14` }, icon("share"), "分享"),
+        // 完成 is what everyone does; 分享 is for family filling it in for someone else, so it stays soft.
+        h("a", { href: "#/share", class: `${BUTTON.soft} min-h-14` }, icon("share"), "分享"),
+        h("a", { href: "#/", class: `${BUTTON.primary} min-h-14` }, icon("check"), "完成"),
       ),
     ),
   ]);

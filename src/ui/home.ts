@@ -74,14 +74,15 @@ export function renderHome(root: HTMLElement): void {
         "a",
         {
           href: "#/help",
-          class: "mt-3 flex min-h-28 items-center gap-4 rounded-2xl bg-shu px-5 py-4 text-on-accent transition active:scale-[0.98]",
+          class: "mt-3 flex min-h-28 items-center gap-4 rounded-2xl bg-sos px-5 py-4 text-sos-on transition active:scale-[0.98]",
         },
         icon("help", "h-11 w-11 shrink-0"),
         h(
           "span",
           { class: "text-left" },
           h("span", { class: "block whitespace-nowrap text-[min(2rem,9vw)] font-bold leading-tight" }, "我需要幫忙"),
-          h("span", { class: "block text-lg opacity-90" }, "迷路・找家人・急病"),
+          // One line even at the largest text size: it shrinks with the screen before it wraps.
+          h("span", { class: "block whitespace-nowrap text-[min(1.125rem,6vw)] opacity-90" }, "迷路・找家人・急病"),
         ),
       ),
       empty &&

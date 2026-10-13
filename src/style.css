@@ -18,6 +18,12 @@
   --ai-soft: 230 233 241;
   --shu: 168 64 47;
   --shu-soft: 247 229 222;
+  /*
+   * Solid emergency fills (我需要幫忙, 110/119) keep a deep vermilion with white
+   * text in both themes: a pale salmon with dark text no longer reads as urgent.
+   */
+  --sos: 168 64 47;
+  --on-sos: 255 255 255;
   --ok: 56 100 66;
   --ok-soft: 228 238 225;
   --warn-soft: 245 234 205;
@@ -42,6 +48,8 @@
   --ai-soft: 44 49 66;
   --shu: 232 140 118;
   --shu-soft: 72 40 34;
+  --sos: 170 58 40;
+  --on-sos: 255 255 255;
   --ok: 130 200 145;
   --ok-soft: 34 52 38;
   --warn-soft: 68 56 28;

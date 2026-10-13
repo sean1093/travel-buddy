@@ -161,8 +161,10 @@ const BUTTON_BASE =
 /** Shared button looks; every one is at least 4rem tall. */
 export const BUTTON = {
   primary: `${BUTTON_BASE} bg-ai text-on-accent`,
-  danger: `${BUTTON_BASE} bg-shu text-on-accent`,
+  danger: `${BUTTON_BASE} bg-sos text-sos-on`,
   secondary: `${BUTTON_BASE} bg-sand text-ink`,
+  /** A second action that still matters, e.g. 分享 next to 完成. */
+  soft: `${BUTTON_BASE} bg-ai-soft text-ai`,
 };
 
 /** Small caption above a section. */
