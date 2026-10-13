@@ -145,9 +145,9 @@ const PICTOGRAM_TONES = {
  * A fine-line pictogram in its tone's colour, without a plate (the washi
  * look, docs/design.md). Decorative: the label next to it carries the meaning.
  */
-export function pictogram(name: IconName, tone: keyof typeof PICTOGRAM_TONES = "ai", size: "sm" | "md" | "lg" = "md"): HTMLElement {
-  const box = { sm: "h-9 w-9", md: "h-10 w-10", lg: "h-12 w-12" }[size];
-  const glyph = { sm: "h-7 w-7", md: "h-8 w-8", lg: "h-9 w-9" }[size];
+export function pictogram(name: IconName, tone: keyof typeof PICTOGRAM_TONES = "ai", size: "xs" | "sm" | "md" | "lg" = "md"): HTMLElement {
+  const box = { xs: "h-8 w-8", sm: "h-9 w-9", md: "h-10 w-10", lg: "h-12 w-12" }[size];
+  const glyph = { xs: "h-7 w-7", sm: "h-7 w-7", md: "h-8 w-8", lg: "h-9 w-9" }[size];
   const mark = h("span", { class: `inline-flex shrink-0 items-center justify-center ${box} ${PICTOGRAM_TONES[tone]}`, "aria-hidden": "true" });
   const svg = icon(name, glyph);
   svg.setAttribute("stroke-width", tone === "exit" ? "2" : "1.6");

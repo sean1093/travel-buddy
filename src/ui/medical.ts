@@ -45,10 +45,14 @@ function cardWithActions(blocks: CardBlock[], label: string): HTMLElement {
 /** Toggle buttons for symptoms; the chosen ones become one card. */
 function symptomPicker(): HTMLElement {
   const chosen = new Set<string>();
-  const show = h("button", { type: "button", class: `${BUTTON.danger} mt-3`, disabled: true }, "先點選症狀");
+  const show = h("button", { type: "button", class: BUTTON.danger, disabled: true }, "先點選症狀");
+  // Once something is ticked, the button follows the list down, so the next step is always on screen.
+  const showBar = h("div", { class: "mt-3" }, show);
   function refresh(): void {
     show.disabled = chosen.size === 0;
-    show.textContent = chosen.size === 0 ? "先點選症狀" : `給對方看（${chosen.size} 項）`;
+    show.replaceChildren(...(chosen.size === 0 ? ["先點選症狀"] : [icon("expand"), `給對方看（${chosen.size} 項）`]));
+    showBar.className =
+      chosen.size === 0 ? "mt-3" : "pb-safe sticky bottom-0 z-10 -mx-4 mt-3 bg-paper/95 px-4 pt-2 backdrop-blur";
   }
   show.addEventListener("click", () => {
     const picked = SYMPTOMS.filter((s) => chosen.has(s.id));
@@ -67,7 +71,8 @@ function symptomPicker(): HTMLElement {
             type: "button",
             "aria-pressed": "false",
             class:
-              "group flex min-h-16 items-center gap-3 rounded-lg bg-card px-3 py-2 text-left text-xl font-bold active:scale-95 aria-pressed:bg-shu-soft aria-pressed:ring-2 aria-pressed:ring-shu",
+              // Room for four characters per line; balance splits a longer label evenly (呼吸／困難, not 呼吸困／難).
+              "group flex min-h-16 items-center gap-2.5 rounded-lg bg-card px-2.5 py-2 text-left text-xl font-semibold leading-tight [text-wrap:balance] active:scale-95 aria-pressed:bg-shu-soft aria-pressed:ring-2 aria-pressed:ring-shu",
           },
           // A check box that fills in, like ticking a form at a clinic's reception.
           h(
@@ -90,7 +95,7 @@ function symptomPicker(): HTMLElement {
         return button;
       }),
     ),
-    show,
+    showBar,
   );
 }
 

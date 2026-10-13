@@ -64,7 +64,7 @@ export function renderHelp(root: HTMLElement): void {
         "a",
         { href: "#/", class: "inline-flex min-h-14 items-center gap-1 rounded-lg px-3 text-lg font-bold active:bg-black/10" },
         icon("back", "h-6 w-6"),
-        "回首頁",
+        "首頁",
       ),
       h("h1", { class: "flex items-center gap-2 text-2xl font-bold" }, icon("help", "h-7 w-7"), "我需要幫忙"),
     ),

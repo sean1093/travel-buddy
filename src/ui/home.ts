@@ -6,10 +6,12 @@ import { guideRows } from "./guide";
 import { heading } from "./layout";
 import { pickPlace } from "./scene";
 
+// Pictogram beside the label: two columns of short buttons fit all ten scenes on about one screen.
 const TILE =
-  "flex min-h-28 flex-col items-start justify-between gap-3 rounded-2xl bg-card px-4 py-4 text-left text-xl font-bold text-ink transition active:scale-[0.97] active:bg-ai-soft";
+  "flex min-h-16 items-center gap-2 rounded-2xl bg-card px-3 py-2 text-left text-lg font-semibold leading-tight text-ink [text-wrap:balance] transition active:scale-[0.97] active:bg-ai-soft";
+// The two shortcuts share one card, split by a dashed line like a printed form.
 const SHORTCUT =
-  "flex min-h-16 items-center gap-3 rounded-2xl bg-sand px-3 py-2 text-xl font-bold leading-tight text-ink transition active:scale-[0.97] active:bg-ai-soft";
+  "flex min-h-16 items-center gap-2 whitespace-nowrap px-3 py-2 text-xl font-semibold leading-tight text-ink transition-colors active:bg-ai-soft focus-visible:[outline-offset:-3px]";
 
 /** One short line: the app greets by name when it has one. */
 export function greeting(profile: Profile): string {
@@ -59,7 +61,8 @@ export function renderHome(root: HTMLElement): void {
     h(
       "main",
       { class: "pt-safe px-4 pb-10" },
-      h("h1", { class: "mt-2 truncate text-2xl font-bold" }, greeting(profile)),
+      h("p", { class: "mt-2 px-0.5 text-sm tracking-[0.3em] text-muted", "aria-hidden": "true" }, "隨身旅伴・日本"),
+      h("h1", { class: "truncate font-title text-3xl font-semibold leading-snug" }, greeting(profile)),
       voiceStatus() === "missing" &&
         h(
           "a",
@@ -78,7 +81,7 @@ export function renderHome(root: HTMLElement): void {
           "span",
           { class: "text-left" },
           h("span", { class: "block whitespace-nowrap text-[min(2rem,9vw)] font-bold leading-tight" }, "我需要幫忙"),
-          h("span", { class: "block text-lg" }, "迷路・找家人・急病"),
+          h("span", { class: "block text-lg opacity-90" }, "迷路・找家人・急病"),
         ),
       ),
       empty &&
@@ -103,9 +106,9 @@ export function renderHome(root: HTMLElement): void {
         ),
       h(
         "div",
-        { class: "mt-3 grid grid-cols-2 gap-3" },
-        h("a", { href: "#/hotel", class: SHORTCUT }, pictogram("taxi", "ai", "sm"), "回飯店"),
-        h("a", { href: "#/medical", class: SHORTCUT }, pictogram("medcard", "shu", "sm"), "醫療卡"),
+        { class: "mt-3 grid grid-cols-2 divide-x divide-dashed divide-hair overflow-hidden rounded-2xl bg-card" },
+        h("a", { href: "#/hotel", class: SHORTCUT }, pictogram("taxi", "ai", "xs"), "回飯店"),
+        h("a", { href: "#/medical", class: SHORTCUT }, pictogram("medcard", "shu", "xs"), "醫療卡"),
       ),
       places.length > 0 && todayRow(places),
       h(
@@ -114,7 +117,7 @@ export function renderHome(root: HTMLElement): void {
         heading("情境"),
         h(
           "div",
-          { class: "grid grid-cols-2 gap-3" },
+          { class: "grid grid-cols-2 gap-2" },
           SCENES.map((scene, i) =>
             h(
               "a",
@@ -123,7 +126,7 @@ export function renderHome(root: HTMLElement): void {
                 // With an odd number of scenes the last tile spans the row, so the grid has no gap.
                 class: i === SCENES.length - 1 && SCENES.length % 2 === 1 ? `${TILE} col-span-2` : TILE,
               },
-              pictogram(scene.icon, scene.id === "emergency" ? "shu" : "ai"),
+              pictogram(scene.icon, scene.id === "emergency" ? "shu" : "ai", "xs"),
               scene.title,
             ),
           ),
@@ -132,13 +135,34 @@ export function renderHome(root: HTMLElement): void {
       h("section", { class: "mt-6" }, heading("旅遊小抄"), guideRows()),
       h(
         "nav",
-        { class: "mt-8 flex flex-wrap justify-center gap-x-2 gap-y-1 text-lg", "aria-label": "其他" },
-        [
-          ["#/settings", "字體與聲音"],
-          ["#/setup", "設定資料"],
-          ["#/print", "列印小卡"],
-        ].map(([href, label]) =>
-          h("a", { href, class: "inline-flex min-h-12 items-center rounded-lg px-3 font-bold text-ai underline underline-offset-4" }, label),
+        { class: "mt-6", "aria-label": "其他" },
+        heading("設定"),
+        h(
+          "div",
+          { class: "divide-y divide-dashed divide-hair overflow-hidden rounded-2xl bg-card" },
+          (
+            [
+              ["#/setup", "edit", "設定資料", "飯店、行程、聯絡人、健康"],
+              ["#/settings", "sliders", "字體與聲音", null],
+              ["#/print", "print", "列印小卡", "手機沒電也能用"],
+            ] as const
+          ).map(([href, glyph, label, note]) =>
+            h(
+              "a",
+              {
+                href,
+                class: "flex min-h-14 items-center gap-3 px-4 py-2 text-lg transition-colors active:bg-ai-soft focus-visible:[outline-offset:-3px]",
+              },
+              icon(glyph, "h-6 w-6 shrink-0 text-muted"),
+              h(
+                "span",
+                { class: "min-w-0 flex-1" },
+                h("span", { class: "block font-semibold" }, label),
+                note && h("span", { class: "block text-base text-muted" }, note),
+              ),
+              icon("next", "h-5 w-5 shrink-0 text-ai"),
+            ),
+          ),
         ),
       ),
     ),

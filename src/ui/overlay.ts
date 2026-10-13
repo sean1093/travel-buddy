@@ -127,11 +127,25 @@ export function armsLength(text: string): string {
   return `font-size: clamp(1.5rem, min(${vw}vw, ${vw * 1.5}vh), 5rem)`;
 }
 
+const HINT_TONES = {
+  // What to do next, for whoever is holding the phone.
+  action: "text-lg font-bold leading-snug text-ai",
+  // Just where you are, e.g. the scene a phrase belongs to.
+  quiet: "text-base text-muted",
+};
+
 /**
  * The bar on top of every layer: a close button anyone can find in a hurry,
- * and one line telling the traveller what to do next.
+ * and one line on the right. `lang` marks a hint written for the Japanese
+ * person the phone has been handed to.
  */
-export function overlayBar(close: () => void, hint: string): HTMLElement {
+export function overlayBar(
+  close: () => void,
+  hint: string,
+  tone: keyof typeof HINT_TONES = "action",
+  lang?: string,
+  hintClass = "",
+): HTMLElement {
   return h(
     "div",
     { class: "pt-safe flex items-center gap-3 border-b border-hair bg-card px-3 pb-2" },
@@ -146,7 +160,7 @@ export function overlayBar(close: () => void, hint: string): HTMLElement {
       icon("close", "h-6 w-6"),
       "關閉",
     ),
-    h("p", { class: "min-w-0 flex-1 text-right text-lg font-bold leading-snug text-ai" }, hint),
+    h("p", { lang, class: `min-w-0 flex-1 text-right ${HINT_TONES[tone]} ${hintClass}` }, hint),
   );
 }
 
@@ -170,13 +184,18 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
     return h(
       "div",
       { class: "flex min-h-0 flex-1 flex-col" },
-      overlayBar(close, "請把畫面拿給對方看"),
+      overlayBar(close, "請把畫面拿給對方看", "action", undefined, "landscape-hide"),
       h(
         "div",
         {
-          class: `flex min-h-0 flex-1 flex-col ${many ? "justify-start" : "justify-center"} gap-6 overflow-y-auto px-5 py-4 text-center`,
+          class: "flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4 text-center",
         },
-        blocks.map((block) =>
+        // Centred with auto margins, not justify-center: when the text is taller than the
+        // screen (a phone held sideways), it scrolls from its first line instead of being cut.
+        h(
+          "div",
+          { class: `${many ? "" : "my-auto"} space-y-6` },
+          blocks.map((block) =>
           h(
             "div",
             null,
@@ -188,12 +207,14 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
             block.extra?.map((line) => h("div", { lang: "ja" }, lineNode(line, "mt-2 text-3xl font-bold leading-snug"))),
             block.zh && h("p", { class: "mt-3 text-xl font-bold text-ink/80" }, block.zh),
           ),
+          ),
         ),
       ),
       // One row, so a phone held sideways still shows the actions.
       h(
         "div",
-        { class: "pb-safe flex items-center justify-center gap-3 px-5 pt-3" },
+        // On a phone held sideways this row moves up into the bar (see .landscape-dock), so the text gets the height.
+        { class: "landscape-dock pb-safe flex items-center justify-center gap-3 px-5 pt-3" },
         playButton(blocks.map((b) => b.jp)),
         playButton(
           blocks.map((b) => b.jp),
@@ -203,6 +224,9 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
     );
   });
 }
+
+/** "Please take a look at this screen", for the person the phone is handed to. */
+const LOOK_PLEASE: Jp = "こちら を ご{覧|らん} ください";
 
 /** Asks the person in front of you to tap one of `replies`. */
 const TAP_PLEASE: Jp = "{下|した} の {答|こた}え を {指|ゆび} で {押|お}して ください。";
@@ -223,14 +247,15 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
             type: "button",
             lang: "ja",
             class:
-              "min-h-16 rounded-2xl bg-card px-3 py-3 text-2xl font-bold text-ink ring-1 ring-ai/40 transition active:scale-95 active:bg-ai-soft",
+              "min-h-16 rounded-2xl bg-ai-soft px-3 py-3 text-2xl font-bold text-ink transition active:scale-95 active:bg-ai active:text-on-accent",
             onclick: () => answered(reply),
           },
           plain(reply.jp),
         ),
       );
       root.replaceChildren(
-        overlayBar(close, "把手機交給對方，請對方點答案"),
+        // From here on the phone is in the other person's hands: the bar speaks Japanese.
+        overlayBar(close, plain(LOOK_PLEASE), "action", "ja"),
         h(
           "div",
           { class: "min-h-0 flex-1 overflow-y-auto px-5 pb-safe pt-4" },
@@ -250,11 +275,14 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
         overlayBar(close, "對方的回答"),
         h(
           "div",
-          { class: "flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-y-auto px-5 text-center" },
-          h("p", { class: "text-lg text-muted" }, `你問：${question.zh}`),
-          h("p", { class: "text-lg font-bold text-muted" }, "對方的回答是"),
-          h("p", { class: "font-bold leading-tight", style: armsLength(reply.zh) }, reply.zh),
-          h("p", { lang: "ja", class: "text-2xl text-muted" }, plain(reply.jp)),
+          { class: "flex min-h-0 flex-1 flex-col overflow-y-auto px-5 text-center" },
+          h(
+            "div",
+            { class: "my-auto space-y-3 py-4" },
+            h("p", { class: "text-lg text-muted" }, `你問：${question.zh}`),
+            h("p", { class: "font-bold leading-tight", style: armsLength(reply.zh) }, reply.zh),
+            h("p", { lang: "ja", class: "text-2xl text-muted" }, plain(reply.jp)),
+          ),
         ),
         h(
           "div",

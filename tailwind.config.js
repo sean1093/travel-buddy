@@ -9,6 +9,8 @@ export default {
   content: ["./index.html", "./src/**/*.ts"],
   theme: {
     extend: {
+      // Titles in a Mincho-style serif, like a printed ryokan guide; everything else in the page font.
+      fontFamily: { title: ["var(--font-title)"] },
       colors: {
         paper: token("paper"),
         card: token("card"),
