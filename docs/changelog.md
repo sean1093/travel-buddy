@@ -1,63 +1,63 @@
-# 改版紀錄
+# Changelog
 
-由新到舊。每一項都走「issue → 開發 → PR → review → 測試 → merge」流程，PR 連結裡有完整的改動與驗證方式。
+Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
 ## 2026-10-13
 
-### 視覺設計：旅館說明卡
-UX 檢視後選定的方向（質感「旅館說明卡」、頁首 A、情境格子 B、對方說 A），見 [design.md](design.md) 第 10～13 條。
-- **統一頁首**：一般頁面左上「‹ 首頁」加靠左大標題，往下捲時縮進頂列；覆蓋層一律左上「× 關閉」。
-- **明體標題、字重分層**：頁面標題改用明體半粗，清單和情境按鈕用半粗，粗體只留給按鈕。段落小標後面加一條細線。
-- **首頁**：情境改成兩欄橫向按鈕，十個情境差不多一屏看完；「回飯店／醫療卡」併成一張卡片；底部的文字連結改成設定清單。
-- **句子頁**：日文放在上緣磚紅線的便條上，拼音改成整句一行；「播放／慢速／給對方點選答案」併成一排，實心「給對方看」固定在底部。
-- **對方說**：回答按鈕變大成為主角；播放收成一個喇叭，再按一次是慢速。一屏放得下三題。
-- **拿掉多餘外框**：回答選項、目的地按鈕、給對方點選都不再有外框；「我要說／對方說」改成分段切換。
+### Visual design: inn instruction card
+The direction chosen after the UX review (texture "inn instruction card", header A, scene grid B, 對方說 (They say) A). See items 10–13 in [design.md](design.md).
+- **Single page header style**: regular pages have 「‹ 首頁」 (‹ Home) in the top left plus a large left-aligned title, which shrinks into the top bar when you scroll down. Overlays always have 「× 關閉」 (× Close) in the top left.
+- **Mincho headings, font weight hierarchy**: page titles now use semi-bold Mincho, lists and scene buttons use semi-bold, and bold is only for buttons. Section labels are followed by a thin line.
+- **Home screen**: scenes are now two columns of horizontal buttons, so all ten scenes fit on about one screen. 「回飯店／醫療卡」 (Back to hotel / Medical card) are merged into one card. The text links at the bottom are now a settings list.
+- **Phrase page**: the Japanese sits on a note with a brick-red line along the top edge, and romaji is now one line for the whole sentence. 「播放／慢速／給對方點選答案」 (Play / Slow / Let them tap an answer) are merged into one row, and the solid 「給對方看」 (Show them) button is fixed to the bottom.
+- **對方說 (They say)**: reply buttons are larger and are now the focus. Playback is reduced to one speaker; press again for slow. Three questions fit on one screen.
+- **Removed unneeded borders**: answer options, destination buttons and let-them-tap no longer have borders. 「我要說／對方說」 (I say / They say) is now a segmented toggle.
 
-### 修正
-- **振假名與拼音排版**：拼音一個字一欄、換行時假名貼到上一行的問題；振假名比漢字寬時，漢字不再被拉開（新 宿）。
-- **橫拿時文字被切掉**：「給對方看」橫拿時，播放按鈕移到頂列；文字太長時從第一行開始捲，不會上下都被裁掉。
-- **給對方點選**：手機交給對方後，頂列說明改成日文「こちらをご覧ください」；回答畫面拿掉重複的「對方的回答是」。日文在片語之間換行（ください 不會拆成 くださ／い）。
-- **深色模式的求救按鈕**：「我需要幫忙」、求救頁頂列和 110／119 改用新的 `sos` 色（深紅底白字），深色模式下不再是淡粉紅配黑字。
-- **設定資料**：底部實心按鈕改成「完成」，「分享」改成淡藍底，一個畫面只有一個實心按鈕的原則不變。
-- **特大字**：首頁「迷路・找家人・急病」不再換行。
-- **症狀卡**：勾了症狀後，「給對方看（N 項）」固定在畫面底部；症狀名稱不會在詞中間斷行。
+### Fixes
+- **Furigana and romaji layout**: fixed romaji taking one column per character, and kana sticking to the previous line on wrap. When furigana are wider than the kanji, the kanji are no longer spread apart (新 宿).
+- **Text cut off in landscape**: in 「給對方看」 (Show them) in landscape, the play button moves to the top bar. Long text scrolls from the first line instead of being clipped at top and bottom.
+- **給對方點選 (Let them tap)**: after the phone is handed over, the top bar text is now the Japanese 「こちらをご覧ください」. The repeated 「對方的回答是」 (Their answer is) was removed from the answer screen. Japanese now wraps between phrases (ください is no longer split into くださ／い).
+- **Help button in dark mode**: 「我需要幫忙」 (I need help), the help page top bar and 110/119 now use the new `sos` colour (white on dark red). In dark mode they are no longer black on pale pink.
+- **Settings data**: the solid bottom button is now 「完成」 (Done), and 「分享」 (Share) now has a pale blue background. The one-solid-button-per-screen rule still holds.
+- **Extra-large text**: 「迷路・找家人・急病」 (Lost, finding family, sudden illness) on the home screen no longer wraps.
+- **Symptom card**: after you tick symptoms, 「給對方看（N 項）」 (Show them (N items)) is fixed to the bottom of the screen. Symptom names no longer break mid-word.
 
 ## 2026-10-11
 
-### 網址與名稱
-- **拿掉舊名的相容處理**（[#42](https://github.com/sean1093/travel-buddy/issues/42)）：還沒有使用者，所以本機儲存改用日本版自己的前綴 `travelbuddy.japan.`，並移除為舊版本保留的快取清理與 service worker 處理。
-- **repo 改名為 `travel-buddy`，舊網址停用**：網站改在 `sean1093.github.io/travel-buddy/japan/`。舊網址 `/daijoubu/` 不做轉址，之前傳出去的分享連結和 QR code 要重新產生；手機裡已存的資料不受影響。
-- **日本版搬到 `/japan/`**（[#37](https://github.com/sean1093/travel-buddy/pull/37)）：日本版建置到 `dist/japan/`；網站根目錄放一個轉址頁，帶著 `#` 轉到日本版，舊分享連結和主畫面捷徑都能用。之後根目錄會改成選擇國家。
-- **改名為「隨身旅伴 TravelBuddy」**（[#35](https://github.com/sean1093/travel-buddy/pull/35)）：原名「日本旅遊小幫手 (Daijoubu)」。為了之後加入其他國家，名稱拿掉「日本」，國家放在後面（隨身旅伴・日本）。本機儲存鍵刻意沿用 `daijoubu.`，資料不會遺失。
+### URLs and name
+- **Removed compatibility handling for the old name** ([#42](https://github.com/sean1093/travel-buddy/issues/42)): there are no users yet, so local storage now uses the Japan edition's own prefix `travelbuddy.japan.`. Cache cleanup and service worker handling kept for old versions were removed.
+- **Repo renamed to `travel-buddy`, old URL retired**: the site is now at `sean1093.github.io/travel-buddy/japan/`. The old URL `/daijoubu/` does not redirect, so share links and QR codes sent earlier must be regenerated. Data already saved on phones is not affected.
+- **Japan edition moved to `/japan/`** ([#37](https://github.com/sean1093/travel-buddy/pull/37)): the Japan edition builds to `dist/japan/`. The site root has a redirect page that carries the `#` over to the Japan edition, so old share links and home screen shortcuts still work. Later the root will become a country picker.
+- **Renamed to "隨身旅伴 TravelBuddy"** ([#35](https://github.com/sean1093/travel-buddy/pull/35)): formerly "日本旅遊小幫手 (Daijoubu)" (Japan Travel Helper). To make room for other countries, "Japan" was dropped from the name and the country goes after it (隨身旅伴・日本, TravelBuddy · Japan). The local storage key deliberately keeps `daijoubu.` so no data is lost.
 
-### 依競品分析與論壇痛點補強（[research.md §5](research.md#5-競品分析與擴充評估2026-10-11)）
-- **推薦工具加上直接連結**（[#33](https://github.com/sean1093/travel-buddy/pull/33)）：App Store、Google Play、官方網站按鈕；只放查證過的網址。
-- **看病與保險理賠、推薦的免費工具**（[#31](https://github.com/sean1093/travel-buddy/pull/31)）：旅遊小抄新增理賠步驟（含健保自墊醫療費用核退）；緊急情境新增英文診斷書、費用明細、刷卡等句子；新增推薦工具頁。
-- **行李情境、新幹線大型行李、出口與轉乘**（[#30](https://github.com/sean1093/travel-buddy/pull/30)）：新增第十個情境「行李」（寄放、宅配、新幹線大行李）；旅遊小抄新增新幹線大型行李規定；交通新增出口與轉乘問句。
-- **餐廳：手機點餐與高湯**（[#29](https://github.com/sean1093/travel-buddy/pull/29)）：手機不能用時請店員直接點、請店員幫忙用手機點；高湯問句加上答案按鈕，新增「不要用柴魚高湯」。
-- **出境退稅新制與旅遊小抄**（[#28](https://github.com/sean1093/travel-buddy/pull/28)）：新增「旅遊小抄」（附來源與查證日期的步驟說明），第一篇是 2026-11-01 起的退稅新制；購物情境分組並新增退稅相關句子。
+### Improvements from competitor analysis and forum pain points ([research.md §5](research.md#5-competitor-analysis-and-expansion-review-2026-10-11))
+- **Direct links for recommended tools** ([#33](https://github.com/sean1093/travel-buddy/pull/33)): App Store, Google Play and official website buttons. Only verified URLs are included.
+- **Seeing a doctor and insurance claims, recommended free tools** ([#31](https://github.com/sean1093/travel-buddy/pull/31)): added claim steps to the travel cheat sheets (including National Health Insurance reimbursement of self-paid medical costs). Added phrases to the emergency scene for an English medical certificate, an itemised bill, paying by card and more. Added a recommended tools page.
+- **Luggage scene, large luggage on the Shinkansen, exits and transfers** ([#30](https://github.com/sean1093/travel-buddy/pull/30)): added a tenth scene, "Luggage" (storage, delivery, large luggage on the Shinkansen). Added the Shinkansen large luggage rules to the travel cheat sheets. Added exit and transfer questions to Transport.
+- **Restaurant: phone ordering and dashi** ([#29](https://github.com/sean1093/travel-buddy/pull/29)): when your phone doesn't work, ask staff to take your order directly, or ask them to help you order on your phone. Added answer buttons to the dashi question, and added "no bonito dashi, please".
+- **New departure tax refund system and travel cheat sheets** ([#28](https://github.com/sean1093/travel-buddy/pull/28)): added "travel cheat sheets" (step-by-step guides with sources and verification dates). The first one covers the new tax refund system starting 2026-11-01. Grouped the shopping scene and added tax refund phrases.
 
-### 視覺設計
-- **設計方向 C：和紙・柔和**（[#23](https://github.com/sean1093/travel-buddy/pull/23)）：從四個設計稿中選定。暖色紙張底色、去掉外框、細線圖示、安靜的段落標題。見 [design.md](design.md)。
-- **清單分組、一個畫面一個實心按鈕**（[#21](https://github.com/sean1093/travel-buddy/pull/21)）。
-- **全螢幕卡片打開時，後面的頁面不能操作**（[#19](https://github.com/sean1093/travel-buddy/pull/19)）：`inert` 加 `aria-hidden`，螢幕閱讀器和鍵盤只會碰到最上層。
-- **標題列、分享頁、電話號碼不斷行**（[#18](https://github.com/sean1093/travel-buddy/pull/18)）：電話改成結構化資料，所有卡片共用一個顯示方式。
-- **車站標示設計語言、拿掉 emoji**（[#14](https://github.com/sean1093/travel-buddy/pull/14)）：所有 emoji 換成線條圖示。
+### Visual design
+- **Design direction C: washi, soft** ([#23](https://github.com/sean1093/travel-buddy/pull/23)): chosen from four design drafts. Warm paper background, no borders, thin-line icons, quiet section headings. See [design.md](design.md).
+- **Grouped lists, one solid button per screen** ([#21](https://github.com/sean1093/travel-buddy/pull/21)).
+- **Pages behind an open full-screen card can't be used** ([#19](https://github.com/sean1093/travel-buddy/pull/19)): `inert` plus `aria-hidden`, so screen readers and the keyboard only reach the top layer.
+- **Title bar, share page and phone numbers don't wrap** ([#18](https://github.com/sean1093/travel-buddy/pull/18)): phone numbers are now structured data, and all cards share one display format.
+- **Station signage design language, emoji removed** ([#14](https://github.com/sean1093/travel-buddy/pull/14)): all emoji replaced with line icons.
 
-### 內容
-- **帶小孩情境**（[#15](https://github.com/sean1093/travel-buddy/pull/15)）：走失・生病、外出・電車、吃飯、尿布・哺乳・廁所，共 21 句。
-- **電梯問句與電梯筆記**（[#11](https://github.com/sean1093/travel-buddy/pull/11)）：評估後不做站內電梯地圖（資料分散、會過期、不好讀、Google 地圖已有輪椅路線），改做電梯問句和每站的電梯筆記（`Place.note`）。
-- **依旅客痛點補強**（[#10](https://github.com/sean1093/travel-buddy/pull/10)）：垃圾桶、刷卡被拒、平板點餐、搭錯車、計程車收據、遺失物、走散、地震、不走樓梯。見 [research.md §1–4](research.md)。
+### Content
+- **Travelling with kids scene** ([#15](https://github.com/sean1093/travel-buddy/pull/15)): lost or sick, out and about and on trains, meals, nappies, breastfeeding and toilets; 21 phrases in total.
+- **Lift questions and lift notes** ([#11](https://github.com/sean1093/travel-buddy/pull/11)): after review, we decided not to build in-station lift maps (the data is scattered, goes out of date, is hard to read, and Google Maps already has wheelchair routes). Instead we added lift questions and per-station lift notes (`Place.note`).
+- **Improvements from traveller pain points** ([#10](https://github.com/sean1093/travel-buddy/pull/10)): rubbish bins, declined cards, tablet ordering, wrong train, taxi receipts, lost property, getting separated, earthquakes, avoiding stairs. See [research.md §1–4](research.md).
 
 ## 2026-10-08
 
-- **飲食習慣：全素、蛋奶素、五辛素、不吃海鮮**（[#9](https://github.com/sean1093/travel-buddy/pull/9)）：日文不寫名稱，直接列出不能吃的食材，並特別寫出魚高湯和肉萃取物。
-- **UX 改版**（[#8](https://github.com/sean1093/travel-buddy/pull/8)，issues #1–#7）：
-  - 首頁：求救鈕下方緊接「回飯店」「醫療卡」；有當天行程時顯示「今天要去」。
-  - 情境頁：精簡清單＋全螢幕單句詳情；交通分組（頁面高度約從 10,600 px 降到 3,400 px）。
-  - 對方說：中文第一行、最大字，回答按鈕緊接在下。
-  - 萬用句：每個情境頁底部常駐。
-  - 全螢幕卡片：可堆疊，返回鍵只關最上層。
-  - 求救頁：底部固定撥號列；地址前標「住所：」。
-  - 設定表單：6 段可收合卡片，顯示摘要與已儲存。
-- **第一版上線**：設定與分享、我需要幫忙、情境句庫、給對方看、給對方點選、對方說、萬用句、醫療卡、過敏卡、症狀指指卡、回飯店卡、列印小卡、離線使用。
+- **Dietary needs: vegan, lacto-ovo vegetarian, five-pungent-free vegetarian, no seafood** ([#9](https://github.com/sean1093/travel-buddy/pull/9)): the Japanese doesn't give the diet's name. It lists the ingredients you can't eat directly, and calls out fish stock and meat extract.
+- **UX redesign** ([#8](https://github.com/sean1093/travel-buddy/pull/8), issues #1–#7):
+  - Home screen: 「回飯店」 (Back to hotel) and 「醫療卡」 (Medical card) sit right below the help button. When there is an itinerary for the day, 「今天要去」 (Going today) is shown.
+  - Scene pages: a compact list plus full-screen single-phrase details. Transport is grouped (page height dropped from about 10,600 px to 3,400 px).
+  - 對方說 (They say): Chinese on the first line in the largest text, with reply buttons right below.
+  - 萬用句 (All-purpose phrases): always at the bottom of every scene page.
+  - Full-screen cards: can stack; the back button only closes the top one.
+  - Help page: fixed dial bar at the bottom; the address is labelled 「住所：」.
+  - Settings form: 6 collapsible section cards that show a summary and saved state.
+- **First release**: settings and sharing, 我需要幫忙 (I need help), scene phrasebook, 給對方看 (Show them), 給對方點選 (Let them tap), 對方說 (They say), 萬用句 (All-purpose phrases), medical card, allergy card, symptom pointing card, back-to-hotel card, printed cards, offline use.

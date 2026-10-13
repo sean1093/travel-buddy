@@ -1,222 +1,222 @@
-# 隨身旅伴 TravelBuddy — 產品規格
+# 隨身旅伴 TravelBuddy — Product Spec
 
-> 給不會當地語言的台灣旅客，出國時帶在手機裡的小幫手。現在提供日本版。
-> 不用學日文、也不用開口：App 替你**念出來**，或把日文**放大給對方看**，對方也可以**點答案**回你。
+> A small helper that Taiwanese travellers who don't speak the local language carry on their phone abroad. A Japan edition is available now.
+> No need to learn Japanese or even speak: the app **reads it aloud** for you, or **shows the Japanese in large text** to the other person, who can **tap an answer** to reply.
 >
-> 這是給所有人用的服務：UI 與文件都不使用針對特定年齡層或族群的稱呼。大字、大按鈕、不打字，是為了讓任何人在慌亂時都能用。
+> This service is for everyone: neither the UI nor the docs use terms aimed at a particular age group or demographic. Large text, large buttons and no typing are there so anyone can use it when flustered.
 
-狀態：日本版已上線。改了什麼見 [changelog.md](changelog.md)；之後的方向見 [roadmap.md](roadmap.md)。
+Status: the Japan edition is live. For what changed, see [changelog.md](changelog.md); for what's next, see [roadmap.md](roadmap.md).
 
 ---
 
-## 1. 使用者與核心流程
+## 1. Users and core flow
 
-| 角色 | 什麼時候用 | 做什麼 |
+| Role | When | What they do |
 |---|---|---|
-| **設定者**（旅客本人，或幫忙的家人朋友） | 出發前，在自己的手機或電腦 | 填資料後直接使用；或產生連結／QR code 傳給旅客 |
-| **旅客（使用者）** | 在當地，遇到狀況時 | 打開 → 點一個大按鈕 → 把手機拿給對方看或按播放 |
-| **當地人（對方）** | 被旅客拿手機問的時候 | 看日文卡片；在「給對方點選」模式下用手指點答案 |
+| **Setter-up** (the traveller, or a family member or friend helping out) | Before departure, on their own phone or computer | Fill in the details and use it directly; or generate a link / QR code and send it to the traveller |
+| **Traveller (user)** | In the destination, when something comes up | Open → tap one large button → hand the phone to the other person or press play |
+| **Local (the other person)** | When the traveller shows them the phone | Read the Japanese card; in 給對方點選 (Let them tap) mode, tap an answer with a finger |
 
 ```
-設定者：#/setup 填資料 ──► #/share 產生連結＋QR ──(LINE/當面)──► 旅客手機開啟 #/s/<資料>
+Setter-up: fill in #/setup ──► #/share generates link + QR ──(LINE / in person)──► traveller's phone opens #/s/<data>
                                                                 │
-                                                     匯入 localStorage，網址改成 #/imported
+                                                     imported into localStorage, URL changed to #/imported
                                                                 ▼
-旅客：首頁 ──► 「我需要幫忙」／情境大按鈕 ──► 一句話 ──► 播放 or 給對方看 or 給對方點選
+Traveller: home ──► 「我需要幫忙」(I need help) / big scene buttons ──► one phrase ──► play or 給對方看 (Show them) or 給對方點選 (Let them tap)
 ```
 
-設計底線：
+Design baseline:
 
-- **使用端零設定**：沒有登入、沒有選單樹、沒有搜尋。字體大小與深色模式放在首頁最下方的小連結。
-- **沒有填資料也能用**：所有情境句都能用；需要站名或飯店的句子改用「這裡」「這間飯店」，並提示「把地址拿給對方看」。
-- **只有設定頁要打字**：表單只出現在 `#/setup`，使用中的畫面完全不需要輸入。
+- **Zero setup on the user side**: no login, no menu tree, no search. Text size and dark mode are small links at the bottom of the home page.
+- **Works without any data filled in**: every scene phrase works; phrases that need a station or hotel name use 「這裡」 (here) or 「這間飯店」 (this hotel) instead, with the hint 「把地址拿給對方看」 (show them the address).
+- **Only the setup page needs typing**: forms appear only in `#/setup`; the in-use screens need no input at all.
 
 ---
 
-## 2. 功能
+## 2. Features
 
-### 2.1 設定與分享（`#/setup`、`#/share`、`#/s/…`）
+### 2.1 Setup and sharing (`#/setup`, `#/share`, `#/s/…`)
 
-**表單**：6 段可收合卡片，標題列顯示摘要；全部選填，自動儲存。
+**Form**: 6 collapsible cards, each with a summary in its title bar. Every field is optional and saves automatically.
 
-| 區塊 | 欄位 | 用在哪裡 |
+| Section | Fields | Used in |
 |---|---|---|
-| 旅客 | 稱呼、護照英文姓名、出生年 | 首頁問候（「媽媽，旅途平安」）、求救卡、醫療卡 |
-| 飯店（可多筆） | 日文名稱、讀音、地址、電話、入住日～退房日 | 依今天日期自動選「目前的飯店」；不在日期內就用第一筆 |
-| 每天的行程（可多筆） | 類型（車站／地點）、日文名稱、讀音、中文名稱、日期、電梯筆記 | 交通句子的站名插槽；首頁「今天要去」 |
-| 聯絡人 | 家人（關係、姓名、電話，可多筆，第一筆為主要）、日本當地聯絡人 | 求救卡、一鍵撥號 |
-| 健康 | 慢性病（勾選＋自填）、常用藥（成分名＋劑量）、血型 | 醫療卡 |
-| 過敏・飲食・保險 | 藥物過敏、食物過敏（日本「特定原材料」等）、飲食習慣（全素、蛋奶素、五辛素、不吃海鮮…）、旅遊保險 | 過敏卡、醫療卡 |
+| Traveller | Name to call them by, passport name in English, birth year | Home greeting (「媽媽，旅途平安」, "Mom, have a safe trip"), help card, medical card |
+| Hotels (multiple allowed) | Japanese name, reading, address, phone, check-in to check-out date | The "current hotel" is chosen from today's date; if no dates match, the first one is used |
+| Daily plans (multiple allowed) | Type (station / place), Japanese name, reading, Chinese name, date, elevator notes | Station slot in transport phrases; 「今天要去」 (Going today) on the home page |
+| Contacts | Family (relationship, name, phone; multiple allowed, the first is primary), local contact in Japan | Help card, one-tap calling |
+| Health | Chronic conditions (checkboxes + free text), regular medications (active ingredient + dose), blood type | Medical card |
+| Allergies, diet, insurance | Drug allergies, food allergies (Japan's "specified raw materials", etc.), dietary practice (vegan, lacto-ovo vegetarian, five-pungent-free vegetarian, no seafood…), travel insurance | Allergy card, medical card |
 
-**分享**：
+**Sharing**:
 
-- 資料編碼在網址 `#` 後面（`#/s/1.<payload>`），**不送到任何伺服器**（見 §6）。
-- 分享頁有：分享／複製連結、QR code、列印護貝小卡，以及不能收合的隱私提醒：「這個連結裡有飯店地址、電話和健康資料。只傳給本人，不要貼到群組或社群。」
+- The data is encoded in the URL after `#` (`#/s/1.<payload>`) and is **never sent to any server** (see §6).
+- The share page has: share / copy link, QR code, a printable card for laminating, and a privacy notice that cannot be collapsed: 「這個連結裡有飯店地址、電話和健康資料。只傳給本人，不要貼到群組或社群。」 ("This link contains hotel addresses, phone numbers and health information. Send it only to the traveller; don't post it in group chats or on social media.")
 
-**旅客打開連結**：
+**When the traveller opens the link**:
 
-1. 解碼、驗證。失敗 → 「這個連結好像不完整，請重新傳一次」。
-2. 本機已有不同的資料 → 「要換成新的資料嗎？」（換新的／保留原本的）。
-3. 存進 localStorage，網址改成 `#/imported`（地址列、書籤不留資料）。
-4. 顯示「設定完成」：之後直接打開網站就好，不用再點連結。
+1. Decode and validate. On failure → 「這個連結好像不完整，請重新傳一次」 ("This link seems incomplete. Please send it again.").
+2. If different data is already stored on the device → 「要換成新的資料嗎？」 ("Replace with the new data?") (換新的 Replace / 保留原本的 Keep existing).
+3. Save to localStorage and change the URL to `#/imported` (so no data stays in the address bar or bookmarks).
+4. Show 「設定完成」 ("Setup complete"): from now on, just open the site; no need to tap the link again.
 
-### 2.2 我需要幫忙（`#/help`）
+### 2.2 我需要幫忙 (I need help) (`#/help`)
 
-- 首頁最上方的紅色大按鈕。
-- 求救卡依資料自動組合，每段日文大字、下方小字中文給旅客自己看：
-  - 我不會說日文，從台灣來（附護照英文姓名）。
-  - 我迷路了，請幫忙。
-  - 我想回這間飯店（飯店名稱、地址、電話）。
-  - 請幫我打給家人（關係、姓名、電話，以及從日本撥打的方式）。
-- 播放、慢速、放大給對方看。
-- 「找警察（交番）」：派出所的說明與「附近的派出所在哪裡？」卡片。
-- 緊急電話：日本觀光局訪日旅客熱線、駐日代表處等，每個號碼附中文說明；更多電話收在「各地辦事處」。
-- 底部固定撥號列：家人（國際電話）、110、119。
+- The large red button at the top of the home page.
+- The help card is assembled from the data. Each section is in large Japanese, with small Chinese below for the traveller:
+  - I don't speak Japanese; I'm from Taiwan (with the passport name in English).
+  - I'm lost. Please help me.
+  - I want to go back to this hotel (hotel name, address, phone).
+  - Please call my family for me (relationship, name, phone, and how to dial from Japan).
+- Play, slow, show enlarged to the other person.
+- 「找警察（交番）」 ("Find the police (koban)"): an explanation of police boxes and a 「附近的派出所在哪裡？」 ("Where is the nearest police box?") card.
+- Emergency numbers: the Japan National Tourism Organization visitor hotline, the Taipei Economic and Cultural Representative Office in Japan, and others, each with a Chinese description. More numbers are under 「各地辦事處」 (Regional offices).
+- Fixed call bar at the bottom: family (international call), 110, 119.
 
-### 2.3 情境句庫（`#/scene/<id>`）
+### 2.3 Scene phrasebook (`#/scene/<id>`)
 
-情境依重要性排在首頁：
+Scenes are ordered on the home page by importance:
 
-| id | 名稱 | 分組 |
+| id | Name | Groups |
 |---|---|---|
-| `transport` | 交通 | 問路・去哪裡／電梯・不走樓梯／月台・搭車／車票・閘門・坐過站／公車・計程車／東西掉了 |
-| `hotel` | 飯店 | — |
-| `luggage` | 行李 | 寄放・置物櫃／宅配寄送／新幹線大行李 |
-| `restaurant` | 餐廳 | 過敏・素食・口味／進門・等位子／點餐／結帳 |
-| `konbini` | 便利商店 | — |
-| `shopping` | 購物 | 挑選／結帳・包裝・退換／免稅・退稅 |
-| `drugstore` | 藥妝店 | — |
-| `toilet` | 廁所・問路 | — |
-| `family` | 帶小孩 | 走失・生病／外出・電車／吃飯／尿布・哺乳・廁所 |
-| `emergency` | 緊急・醫療 | 身體不舒服・看醫生／東西掉了・被偷・找警察／跟同伴走散了／地震・颱風・停電 |
+| `transport` | 交通 (Transport) | Asking the way, where to go / Elevators, avoiding stairs / Platforms, boarding / Tickets, gates, missed stop / Buses, taxis / Lost items |
+| `hotel` | 飯店 (Hotel) | — |
+| `luggage` | 行李 (Luggage) | Storage, lockers / Luggage delivery / Oversized luggage on the Shinkansen |
+| `restaurant` | 餐廳 (Restaurant) | Allergies, vegetarian, taste / Entering, waiting for a table / Ordering / Paying |
+| `konbini` | 便利商店 (Convenience store) | — |
+| `shopping` | 購物 (Shopping) | Choosing / Paying, wrapping, returns / Tax-free, tax refunds |
+| `drugstore` | 藥妝店 (Drugstore) | — |
+| `toilet` | 廁所・問路 (Toilets, directions) | — |
+| `family` | 帶小孩 (With children) | Lost child, illness / Going out, trains / Meals / Diapers, nursing, toilets |
+| `emergency` | 緊急・醫療 (Emergency, medical) | Feeling unwell, seeing a doctor / Lost or stolen items, finding the police / Separated from companions / Earthquakes, typhoons, power outages |
 
-- 情境頁上方兩個分頁：「我要說」｜「對方說」。
-- 句子清單顯示中文＋日文預覽；點一句開全螢幕單句詳情：中文、日文（振假名，整句拼音在下面）、提示；底部固定一排「播放／慢速／給對方點選答案（有答案時）」和實心的「給對方看」，另有相關連結。
-- **站名插槽**：交通句子裡的 `$dest`／`$stop` 換成預先填好的站名。情境頁上方有一排目的地按鈕（今天的排前面），點一個就把句子換成那一站；選到的車站有電梯筆記時，會顯示在下方並可以放大給站務員看。沒有資料時改用 `fallback`（「這裡」）。
+- Two tabs at the top of the scene page: 「我要說」 (I want to say) | 「對方說」 (They say).
+- The phrase list shows Chinese plus a Japanese preview. Tapping a phrase opens a full-screen detail view: Chinese, Japanese (with furigana, and the full romanization below), and a tip. A fixed row at the bottom has 「播放」 (Play) / 「慢速」 (Slow) / 「給對方點選答案」 (Let them tap an answer) (when the phrase has answers) and a solid 「給對方看」 (Show them) button, plus related links.
+- **Station slot**: `$dest` / `$stop` in transport phrases are replaced with the pre-filled station name. A row of destination buttons sits at the top of the scene page (today's first); tapping one switches the phrases to that station. If the selected station has elevator notes, they appear below and can be enlarged to show station staff. Without data, the `fallback` is used (「這裡」, "here").
 
-### 2.4 雙向溝通
+### 2.4 Two-way communication
 
-**我問 → 對方點答案**（句子有 `answers`）：
+**I ask → they tap an answer** (phrases with `answers`):
 
 ```
 ┌──────────────────────────────┐
-│ この電車は新宿に止まりますか。  │  ← 日文問題（大字）
-│ 下の答えを指でタッチしてください │  ← 給對方的說明
+│ この電車は新宿に止まりますか。  │  ← Japanese question (large text)
+│ 下の答えを指でタッチしてください │  ← instructions for the other person
 ├──────────────────────────────┤
-│  [ はい ]      [ いいえ ]       │  ← 日文選項
+│  [ はい ]      [ いいえ ]       │  ← Japanese options
 │  [ わかりません ]               │
 └──────────────────────────────┘
-          ↓ 對方點「いいえ」
+          ↓ they tap 「いいえ」
 ┌──────────────────────────────┐
-│        不是／不對               │  ← 給自己看的中文，超大字
-│   [ 知道了 ]   [ 再問一次 ]     │
+│        不是／不對               │  ← Chinese for the traveller (No / Not right), extra-large text
+│   [ 知道了 ]   [ 再問一次 ]     │  ← Got it / Ask again
 └──────────────────────────────┘
 ```
 
-預設答案組：`yesNo`、`platform`、`direction`、`time`、`place`、`exit`（見 [content-guide.md](content-guide.md#答案給對方點選)）。
+Default answer sets: `yesNo`, `platform`, `direction`, `time`, `place`, `exit` (see [content-guide.md](content-guide.md)).
 
-**對方說 → 我看懂並回答**：每則顯示中文（最大字）和日文，右上角一個喇叭（第一次正常速度，再按一次慢速）；下方 2～4 個大的中文回答按鈕，點了就念出日文並放大顯示。
+**They say → I understand and reply**: each item shows Chinese (largest text) and Japanese, with a speaker icon in the top-right corner (normal speed the first time, slow on the second tap). Below are 2–4 large Chinese reply buttons; tapping one speaks the Japanese and shows it enlarged.
 
-**萬用句**：每個情境頁底部常駐，點開是全螢幕清單：不好意思、我不會說日文、請用是或不是回答、請寫在紙上、請說慢一點、請再說一次、請指給我看、請等一下、謝謝。
+**萬用句 (All-purpose phrases)**: always at the bottom of every scene page. Tapping opens a full-screen list: Excuse me; I don't speak Japanese; Please answer yes or no; Please write it on paper; Please speak more slowly; Please say that again; Please point to it; Please wait a moment; Thank you.
 
-### 2.5 醫療卡和過敏卡（`#/medical`）
+### 2.5 Medical card and allergy card (`#/medical`)
 
-- **症狀指指卡**：勾選症狀（像醫院掛號單），產生「我有以下症狀：…」給醫生看。
-- **過敏卡**（給餐廳看）：食物過敏與飲食習慣。台灣的素食分類在日本沒有通用說法，所以卡片直接列出不能吃的食材，並寫出魚高湯和肉萃取物。
-- **醫療卡**（給醫生、救護人員看）：姓名、出生年與年齡、國籍、慢性病、常用藥、藥物過敏、血型、家人電話、旅遊保險。
-- 常用句：叫救護車、帶我去醫院、我有旅遊保險、請給我診斷書和收據、可以開英文診斷書嗎。
+- **Symptom pointing card**: check off symptoms (like a hospital registration form) to produce 「我有以下症狀：…」 ("I have the following symptoms: …") to show the doctor.
+- **Allergy card** (for restaurants): food allergies and dietary practice. Taiwanese vegetarian categories have no common equivalent in Japan, so the card lists the ingredients the traveller can't eat directly, and spells out fish stock and meat extract.
+- **Medical card** (for doctors and paramedics): name, birth year and age, nationality, chronic conditions, regular medications, drug allergies, blood type, family phone number, travel insurance.
+- Common phrases: call an ambulance; take me to a hospital; I have travel insurance; please give me a medical certificate and a receipt; can you write the medical certificate in English?
 
-### 2.6 回飯店卡（`#/hotel`、`#/hotel/<n>`）
+### 2.6 Back-to-hotel card (`#/hotel`, `#/hotel/<n>`)
 
-給計程車司機或路人看的卡片：「請載我到這間飯店」＋名稱、地址、電話。可以播放、放大，也可以直接打電話給飯店；有多間飯店時可以切換。
+A card to show a taxi driver or passer-by: 「請載我到這間飯店」 ("Please take me to this hotel") plus the name, address and phone number. It can be played aloud, enlarged, or used to call the hotel directly. With more than one hotel, you can switch between them.
 
-### 2.7 旅遊小抄（`#/guide/<id>`）與推薦工具（`#/tools`）
+### 2.7 Travel cheat sheets (`#/guide/<id>`) and recommended tools (`#/tools`)
 
-- **旅遊小抄**：一步一步的手續說明，每篇都有編號步驟、注意事項、來源與查證日期。目前有：出境退稅新制、新幹線大型行李、看病與保險理賠。
-- **推薦的免費工具**：已經把那件事做好的 App（警報、翻譯、地圖、叫車、交通卡、入境手續），附用途、注意事項與下載連結。我們不重做這些功能。
+- **Travel cheat sheets**: step-by-step procedures. Each has numbered steps, things to watch for, sources and a verification date. Current topics: the new departure tax refund system, oversized luggage on the Shinkansen, and seeing a doctor and claiming insurance.
+- **Recommended free tools**: apps that already do the job well (alerts, translation, maps, ride-hailing, transit cards, entry procedures), with what they're for, caveats and download links. We don't rebuild these features.
 
-### 2.8 列印小卡（`#/print`）
+### 2.8 Printable cards (`#/print`)
 
-一張 A4 印出信用卡大小（85.6 × 54 mm）的卡片，含剪裁線，適合護貝放皮夾：求救卡、飯店卡（每間一張）、醫療卡、過敏卡（有填才印）、緊急電話卡。列印時一律淺色、黑字。
+One A4 sheet prints credit-card-sized (85.6 × 54 mm) cards with cut lines, suitable for laminating and keeping in a wallet: help card, hotel card (one per hotel), medical card, allergy card (only if filled in), emergency numbers card. Printing always uses the light theme with black text.
 
 ---
 
-## 3. 好讀好按的介面規則
+## 3. Interface rules for easy reading and tapping
 
-視覺細節見 [design.md](design.md)。
+For visual details, see [design.md](design.md).
 
-| 規則 | 實作 |
+| Rule | Implementation |
 |---|---|
-| 預設大字 | 字體兩檔：**大**（root 125%，預設）與**特大**（150%）。全部尺寸用 rem。 |
-| 按鈕大 | 主要按鈕高 ≥ 4rem，次要 ≥ 3.5rem。 |
-| 選單一層 | 首頁＝情境大按鈕；進一層就是句子。全螢幕卡片是覆蓋層，按「關閉」或返回鍵回到原頁。 |
-| 不打字不搜尋 | 使用中的頁面沒有輸入框（只有設定頁有）；站名用按鈕選。 |
-| 圖示＋文字 | 線條 SVG 圖示一定搭配文字，不用 emoji。 |
-| 對比 | 淺色與深色兩套 token，所有文字／底色組合 ≥ 4.5:1（WCAG AA），有測試檢查。 |
-| 深色模式 | 跟手機／淺色／深色；`index.html` 內聯腳本先套用，避免閃白。 |
-| 橫拿 | 全螢幕卡片字級依 `min(vw, vh)` 計算，橫拿時放大、不被裁切；「給對方看」橫拿時播放按鈕移到頂列，文字從第一行開始捲動。 |
-| 動畫 | 遵守 `prefers-reduced-motion`。 |
-| 返回 | 每頁左上「‹ 首頁」，下面是靠左的大標題；往下捲時標題縮進頂列。覆蓋層一律左上「× 關閉」。 |
-| 輔助科技 | 覆蓋層打開時，後面的頁面設為 `inert` 與 `aria-hidden`，只有最上層能操作。 |
+| Large text by default | Two text sizes: **Large** (root 125%, default) and **Extra large** (150%). All sizes use rem. |
+| Large buttons | Primary buttons ≥ 4rem tall, secondary ≥ 3.5rem. |
+| One-level menus | Home page = big scene buttons; one level down are the phrases. Full-screen cards are overlays; 「關閉」 (Close) or the back button returns to the original page. |
+| No typing, no search | In-use pages have no input fields (only the setup page does); stations are chosen with buttons. |
+| Icon + text | Line SVG icons always come with text. No emoji. |
+| Contrast | Separate light and dark token sets; every text / background pair is ≥ 4.5:1 (WCAG AA), checked by tests. |
+| Dark mode | Follow phone / light / dark; an inline script in `index.html` applies it first to avoid a white flash. |
+| Landscape | Full-screen card text size is based on `min(vw, vh)`, so it grows in landscape without being cut off. In 「給對方看」 (Show them) in landscape, the play button moves to the top bar and the text scrolls from the first line. |
+| Animation | Respects `prefers-reduced-motion`. |
+| Back | Every page has 「‹ 首頁」 (‹ Home) in the top-left, with a large left-aligned title below; the title shrinks into the top bar on scroll. Overlays always have 「× 關閉」 (× Close) in the top-left. |
+| Assistive technology | When an overlay opens, the page behind it gets `inert` and `aria-hidden`; only the top layer is operable. |
 
 ---
 
-## 4. 頁面與路由
+## 4. Pages and routes
 
-路由都在 `#` 之後（`src/main.ts` 的 `PAGES` 表），網站放在任何子路徑都能運作。
+All routes come after `#` (the `PAGES` table in `src/main.ts`), so the site works under any subpath.
 
-| 路由 | 頁面 | 誰用 |
+| Route | Page | Used by |
 |---|---|---|
-| `#/` | 首頁 | 旅客 |
-| `#/help` | 我需要幫忙 | 旅客 |
-| `#/scene/<id>` | 情境：我要說 | 旅客 |
-| `#/scene/<id>/heard` | 情境：對方說 | 旅客 |
-| `#/medical` | 醫療卡、過敏卡、症狀指指卡 | 旅客 |
-| `#/hotel`、`#/hotel/<n>` | 回飯店卡 | 旅客 |
-| `#/guide/<id>` | 旅遊小抄 | 旅客 |
-| `#/tools` | 推薦的免費工具 | 旅客 |
-| `#/settings` | 字體大小、顏色、語音、聽不到聲音怎麼辦 | 旅客 |
-| `#/setup` | 設定表單 | 設定者 |
-| `#/share` | 分享連結、QR code、隱私提醒 | 設定者 |
-| `#/print` | 列印小卡 | 設定者 |
-| `#/s/<version>.<payload>` | 匯入（處理完換成 `#/imported`） | 旅客 |
+| `#/` | Home | Traveller |
+| `#/help` | 我需要幫忙 (I need help) | Traveller |
+| `#/scene/<id>` | Scene: 我要說 (I want to say) | Traveller |
+| `#/scene/<id>/heard` | Scene: 對方說 (They say) | Traveller |
+| `#/medical` | Medical card, allergy card, symptom pointing card | Traveller |
+| `#/hotel`, `#/hotel/<n>` | Back-to-hotel card | Traveller |
+| `#/guide/<id>` | Travel cheat sheet | Traveller |
+| `#/tools` | Recommended free tools | Traveller |
+| `#/settings` | Text size, colors, voice, what to do if there's no sound | Traveller |
+| `#/setup` | Setup form | Setter-up |
+| `#/share` | Share link, QR code, privacy notice | Setter-up |
+| `#/print` | Printable cards | Setter-up |
+| `#/s/<version>.<payload>` | Import (replaced with `#/imported` once processed) | Traveller |
 
-全螢幕卡片（單句詳情、給對方看、給對方點選、萬用句）是覆蓋層而不是路由。每層開啟時 `pushState` 一筆帶有唯一 token 的 history，返回鍵只關最上層；焦點鎖在最上層，Esc 也能關閉。
+Full-screen cards (phrase detail, 給對方看 (Show them), 給對方點選 (Let them tap), 萬用句 (All-purpose phrases)) are overlays, not routes. Each one, when opened, does a `pushState` of a history entry with a unique token, so the back button closes only the top layer. Focus is trapped in the top layer, and Esc also closes it.
 
-網址依國家區分（`…/japan/`），見 [development.md](development.md#網址與國家)。
+URLs are split by country (`…/japan/`); see [development.md](development.md#urls-and-countries).
 
 ---
 
-## 5. 資料結構
+## 5. Data structures
 
-### 5.1 日文標記
+### 5.1 Japanese markup
 
-- 詞與詞之間一個半形空格；漢字寫成 `{漢字|かな}`；助詞「は」「を」獨立成詞。
-- **插槽**：以 `$` 開頭的整個詞，`$dest`、`$stop`、`$hotel`，展開時換成使用者資料。
-- 使用者填的日文（站名、飯店名、地址）：讀音有填就變成 `{新宿|しんじゅく}`，沒填就原樣顯示，語音直接念原文。
+- One half-width space between words; kanji are written as `{漢字|かな}`; the particles 「は」 and 「を」 are separate words.
+- **Slots**: a whole word starting with `$` — `$dest`, `$stop`, `$hotel` — replaced with user data on expansion.
+- Japanese entered by the user (station names, hotel names, addresses): if a reading is given it becomes `{新宿|しんじゅく}`; if not, it's shown as is and the voice reads the original text.
 
-撰寫規則見 [content-guide.md](content-guide.md)。
+For writing rules, see [content-guide.md](content-guide.md).
 
-### 5.2 內容（`src/content/`）
+### 5.2 Content (`src/content/`)
 
 ```ts
-type Jp = string;                         // 日文標記，可含 $slot
+type Jp = string;                         // Japanese markup; may contain $slot
 type Slot = "dest" | "stop" | "hotel";
 type ReplySet = "yesNo" | "platform" | "direction" | "time" | "place" | "exit";
 
-interface Reply { jp: Jp; zh: string }    // zh：旅客看到的中文
+interface Reply { jp: Jp; zh: string }    // zh: the Chinese the traveller sees
 
 /** Something the traveller needs to say. */
 interface Phrase {
-  id: string;                             // 情境 id 開頭，全域唯一
+  id: string;                             // starts with the scene id; globally unique
   zh: string;
   jp: Jp;
-  fallback?: Jp;                          // 有插槽但沒有資料時
+  fallback?: Jp;                          // when there is a slot but no data
   fallbackZh?: string;
   tip?: string;
-  answers?: ReplySet | Reply[];           // 有才會出現「給對方點選答案」
+  answers?: ReplySet | Reply[];           // 「給對方點選答案」 (Let them tap an answer) appears only when set
   link?: { href: string; label: string };
-  group?: string;                         // 情境有分組時必填
+  group?: string;                         // required when the scene has groups
 }
 
 /** Something staff commonly say to the traveller. */
@@ -225,16 +225,16 @@ interface Heard { id: string; jp: Jp; zh: string; replies: Reply[] }
 interface Scene {
   id: SceneId;
   title: string;
-  icon: IconName;                         // src/ui/dom.ts 的線條圖示
+  icon: IconName;                         // line icon from src/ui/dom.ts
   groups?: { id: string; title: string }[];
   phrases: Phrase[];
   heard: Heard[];
 }
 
 /** Checkboxes in the form; the Japanese is pre-written and checked. */
-interface Preset { id: string; zh: string; jp: Jp }   // 慢性病、過敏、飲食、症狀
+interface Preset { id: string; zh: string; jp: Jp }   // chronic conditions, allergies, diets, symptoms
 
-interface Guide {                         // 旅遊小抄
+interface Guide {                         // travel cheat sheet
   id: string; title: string; summary: string;
   steps: { title: string; body: string }[];
   notes: string[];
@@ -242,23 +242,23 @@ interface Guide {                         // 旅遊小抄
   verified: string;                       // YYYY-MM-DD
 }
 
-interface Tool {                          // 推薦工具
+interface Tool {                          // recommended tool
   id: string; name: string; use: string; note?: string;
   links: { label: "App Store" | "Google Play" | "官方網站"; url: string }[];
 }
 ```
 
-### 5.3 旅客資料（Profile）
+### 5.3 Traveller data (Profile)
 
 ```ts
 interface Profile {
-  callName: string;            // 首頁怎麼稱呼旅客，例如 媽媽、小美
-  passportName: string;        // 護照英文姓名
+  callName: string;            // what the home page calls the traveller, e.g. 媽媽 (Mom), 小美 (a given name)
+  passportName: string;        // passport name in English
   birthYear: number | null;
   hotels: Hotel[];
   places: Place[];
-  contacts: Contact[];         // 第一筆是主要聯絡人，通常是台灣的家人
-  localContact: Contact;       // 日本當地的朋友、親戚或導遊
+  contacts: Contact[];         // the first is the primary contact, usually family in Taiwan
+  localContact: Contact;       // a friend, relative or tour guide in Japan
   health: Health;
   insurance: { company: string; policy: string; phone: string };
 }
@@ -267,11 +267,11 @@ interface Hotel { name: string; kana: string; address: string; phone: string; fr
 
 interface Place {
   kind: "station" | "place";
-  name: string;                // 日文；車站不含「駅」
+  name: string;                // Japanese; station names omit 「駅」
   kana: string;
   zh: string;
-  date: string;                // YYYY-MM-DD 或空白
-  note: string;                // 電梯筆記
+  date: string;                // YYYY-MM-DD or blank
+  note: string;                // elevator notes
 }
 
 interface Contact { relation: string; name: string; phone: string }
@@ -288,69 +288,69 @@ interface Health {
 }
 ```
 
-所有欄位都有長度上限（名稱 80 字、地址 200 字、陣列 20 筆）。`parseProfile(unknown)` 逐欄驗證，壞掉的欄位個別退回預設值。畫面一律用 `textContent` 輸出，不會有 HTML 注入。
+Every field has a length limit (names 80 characters, addresses 200 characters, arrays 20 items). `parseProfile(unknown)` validates field by field, and any broken field falls back to its default on its own. The screen always renders with `textContent`, so HTML injection isn't possible.
 
-### 5.4 本機儲存
+### 5.4 Local storage
 
-| key | 內容 |
+| key | Contents |
 |---|---|
-| `travelbuddy.japan.profile` | Profile（版本 1） |
-| `travelbuddy.japan.settings` | 字體大小、顏色、語音 |
+| `travelbuddy.japan.profile` | Profile (version 1) |
+| `travelbuddy.japan.settings` | Text size, colors, voice |
 
-每個國家版本用自己的前綴（見 [development.md](development.md#本機儲存)）。
+Each country edition uses its own prefix (see [development.md](development.md#local-storage)).
 
 ---
 
-## 6. 分享連結
+## 6. Share links
 
 ```
 https://sean1093.github.io/travel-buddy/japan/#/s/1.<payload>
                                                   │ └─ base64url( deflate-raw( UTF-8( JSON( wire ) ) ) )
-                                                  └─── 格式版本
+                                                  └─── format version
 ```
 
-- **wire 格式**：Profile 轉成短鍵名的 JSON，空欄位整個省略。對照表在 `src/share/codec.ts`（例：電梯筆記是 `e`），有往返測試。
-- **壓縮**：`fflate`。不用 `CompressionStream`，因為舊的 iOS 沒有。
-- **base64url**：在 LINE、簡訊裡不會被截斷或轉義。
-- **大小**：一般資料約 1,000 字元；超過 1,500 字元時，分享頁提示 QR code 會比較密。
-- **版本**：`1.` 之後只增不改；改格式就用 `2.`，舊連結照樣能解。
-- **安全**：解碼後一律走 `parseProfile`。`#` 之後的內容不會傳到伺服器，但會留在聊天紀錄和瀏覽器歷史，所以分享頁要提醒；匯入後立刻把網址換掉。
+- **Wire format**: the Profile as JSON with short key names; empty fields are omitted entirely. The mapping is in `src/share/codec.ts` (e.g. elevator notes are `e`), with round-trip tests.
+- **Compression**: `fflate`. Not `CompressionStream`, because older iOS versions lack it.
+- **base64url**: doesn't get truncated or escaped in LINE or text messages.
+- **Size**: typical data is about 1,000 characters; above 1,500 characters, the share page warns that the QR code will be denser.
+- **Version**: `1.` is only ever added to, never changed; a format change uses `2.`, and old links still decode.
+- **Security**: decoded data always goes through `parseProfile`. Anything after `#` isn't sent to the server, but it does stay in chat history and browser history, so the share page warns about it; after import, the URL is replaced immediately.
 
-**已知風險**：Safari 對 7 天沒開的網站可能清掉 localStorage。對策是分享頁提醒「出發前一兩天再傳，出發當天打開一次」，以及紙本小卡。
-
----
-
-## 7. 語音
-
-- 用瀏覽器內建的 Web Speech API，不需要網路。挑音質好的語音（Premium、Enhanced、Google），避開機械音。
-- 預設語速 0.9；「慢速」0.6。
-- 沒有日文語音時，首頁頂端出現提示「這支手機還不會念日文 → 怎麼安裝」。「給對方看」不受影響。
-- 站名沒有填讀音時，語音直接念漢字原文；表單提示填讀音可以避免念錯。
+**Known risk**: Safari may clear localStorage for sites not opened in 7 days. The mitigations are a share-page reminder, 「出發前一兩天再傳，出發當天打開一次」 ("Send it a day or two before departure, and open it once on the day you leave"), and the printed cards.
 
 ---
 
-## 8. 技術
+## 7. Voice
 
-- 純前端靜態網站：Vite、TypeScript（strict）、Tailwind CSS 3；執行期相依只有 `fflate`、`qrcode-generator`。
-- PWA：可加到主畫面；service worker 讓整個 App 離線可用。
-- 部署在 GitHub Pages。
-- 專案結構、測試、部署見 [development.md](development.md)；內容規則見 [content-guide.md](content-guide.md)。
+- Uses the browser's built-in Web Speech API, which needs no network. Picks good-quality voices (Premium, Enhanced, Google) and avoids robotic ones.
+- Default rate 0.9; 「慢速」 (Slow) is 0.6.
+- If there's no Japanese voice, the top of the home page shows 「這支手機還不會念日文 → 怎麼安裝」 ("This phone can't read Japanese yet → how to install"). 「給對方看」 (Show them) isn't affected.
+- If a station name has no reading, the voice reads the original kanji; the form notes that filling in the reading avoids mispronunciation.
 
 ---
 
-## 9. 決定紀錄
+## 8. Tech
 
-| 項目 | 決定 |
+- Pure front-end static site: Vite, TypeScript (strict), Tailwind CSS 3. The only runtime dependencies are `fflate` and `qrcode-generator`.
+- PWA: can be added to the home screen; a service worker makes the whole app work offline.
+- Deployed on GitHub Pages.
+- For project structure, testing and deployment, see [development.md](development.md); for content rules, see [content-guide.md](content-guide.md).
+
+---
+
+## 9. Decision log
+
+| Item | Decision |
 |---|---|
-| 名稱 | 隨身旅伴 TravelBuddy，國家放在名稱後面（隨身旅伴・日本），為之後加入其他國家做準備 |
-| 網址 | `sean1093.github.io/travel-buddy/`，依國家區分，日本版在 `/japan/`；根目錄轉址並保留 `#` |
-| 儲存鍵 | 每個國家自己的前綴，日本版 `travelbuddy.japan.` |
-| 用詞 | 給所有人用的服務，不使用針對特定年齡層的稱呼 |
-| 語言 | UI 用華語（台灣用語），不做台語；程式、issue、PR 用英文 |
-| 視覺 | 設計方向 C「和紙・柔和」（從四個設計稿選出），不用 emoji |
-| 定位 | 不做萬用工具箱；翻譯、地圖、叫車、警報交給專門的 App，改用「推薦的免費工具」介紹 |
-| 站內電梯地圖 | 不做（資料分散、會過期、不好讀、Google 地圖已有輪椅路線）；改做電梯問句與電梯筆記 |
-| 「請寫在這裡」手寫板 | 不做，請對方寫在紙上 |
-| iOS 主畫面 App 與 Safari 不共用儲存 | 先不處理 |
-| 出生年 | 放進醫療卡與分享連結 |
-| 使用量追蹤 | 不加，資料只在使用者手機裡 |
+| Name | 隨身旅伴 TravelBuddy, with the country after the name (隨身旅伴・日本, TravelBuddy Japan), to prepare for adding other countries later |
+| URL | `sean1093.github.io/travel-buddy/`, split by country; the Japan edition is at `/japan/`. The root redirects and keeps the `#` |
+| Storage keys | Each country has its own prefix; Japan is `travelbuddy.japan.` |
+| Wording | A service for everyone; no terms aimed at a particular age group |
+| Language | UI in Mandarin (Taiwanese usage), no Taiwanese Hokkien; code, issues and PRs in English |
+| Visual | Design direction C, "Washi, soft" (chosen from four mockups); no emoji |
+| Positioning | Not an all-in-one toolbox; translation, maps, ride-hailing and alerts are left to dedicated apps and introduced under "Recommended free tools" instead |
+| In-station elevator maps | Not doing (data is scattered, goes stale, is hard to read, and Google Maps already has wheelchair routes); doing elevator phrases and elevator notes instead |
+| 「請寫在這裡」 ("Please write here") handwriting pad | Not doing; ask the other person to write on paper |
+| iOS home-screen app doesn't share storage with Safari | Not addressed for now |
+| Birth year | Included in the medical card and share link |
+| Usage tracking | Not added; data stays only on the user's phone |

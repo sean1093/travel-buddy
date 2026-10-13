@@ -1,108 +1,108 @@
-# 痛點調查：不會日文的旅客在日本卡在哪裡
+# Pain points: where travellers who don't speak Japanese get stuck in Japan
 
-調查日期：2026-10-11。這份文件整理網路上的公開調查與經驗文，並對照到這個 App 要補的地方。
+Research date: 2026-10-11. This document collects public surveys and travel write-ups from the web, and maps them to the gaps this app should fill.
 
-## 1. 官方數據：日本觀光廳「訪日外國旅客受入環境調查」
+## 1. Official data: Japan Tourism Agency survey on the environment for foreign visitors
 
-這份調查在新千歲、成田、羽田、關西、福岡五座機場，訪問準備出境的外國旅客。
+This survey interviews foreign travellers about to leave Japan at five airports: New Chitose, Narita, Haneda, Kansai and Fukuoka.
 
-| 旅行中遇到的困擾 | 2024 年度（4,189 人） | 2023 年度 |
+| Problem during the trip | FY2024 (4,189 people) | FY2023 |
 |---|---|---|
-| 垃圾桶太少 | **21.9%**（第 1 名） | — |
-| 和設施人員溝通（英文不通等） | **15.2%**（第 2 名） | 22.5% |
-| 觀光地太擁擠 | 13.1% | 新增選項 |
-| 大眾運輸（轉乘、路線） | 12.3% | — |
+| Too few rubbish bins | **21.9%** (1st) | — |
+| Communicating with staff (no English, etc.) | **15.2%** (2nd) | 22.5% |
+| Crowded tourist spots | 13.1% | New option |
+| Public transport (transfers, routes) | 12.3% | — |
 
-下一期調查（4,110 人）新增了「刷卡付款有困難」，約 10.7%，而且**大多發生在餐廳**。
+The next survey (4,110 people) added "trouble paying by card", at about 10.7%, and **most of it happened in restaurants**.
 
-來源：
-- 觀光廳新聞稿：https://www.mlit.go.jp/kankocho/news08_00022.html
-- 訪日ラボ整理：https://honichi.com/news/2025/05/09/touristsurvey2025/
-- LIVE JAPAN 整理的新一期結果：https://livejapan.com/en/article-a0005444/
+Sources:
+- Japan Tourism Agency press release: https://www.mlit.go.jp/kankocho/news08_00022.html
+- Summary by 訪日ラボ: https://honichi.com/news/2025/05/09/touristsurvey2025/
+- LIVE JAPAN summary of the newer results: https://livejapan.com/en/article-a0005444/
 
-## 2. 經驗文與報導
+## 2. Travel write-ups and news reports
 
-| 痛點 | 怎麼發生 | 來源 |
+| Pain point | How it happens | Source |
 |---|---|---|
-| 搭錯車 | 快速、急行不是每站都停；搭過站要去補票機或窗口處理 | uptogo、tsunagu Japan 交通攻略 |
-| 平板／QR code 點餐 | 對不熟手機的人和外國人來說反而是門檻，最後只能找店員；沒有網路就點不了；有人要求保留紙本菜單 | technews.tw（2025-03）、聯合報 |
-| 計程車不收卡 | 小車行和鄉下常只收現金，司機也可能不願意刷卡；官方建議把日文地址寫給司機看 | 聯合報、japan.travel 計程車頁 |
-| 翻譯 App | 沒網路就不能用、離線準確度下降、要一直拿著手機操作 | LIVE JAPAN、各家 App 評測 |
-| 遺失物 | 日本找回的機率很高，但表格是日文，要說清楚時間、地點、物品；越早報案越好 | JR Pass、shinkansen-ticket 整理 |
-| 就醫 | 觀光客全額自費；**很多醫療機構不收信用卡**；擔心說不清楚症狀 | 東京都保健醫療局外語頁 |
-| 地震、災害 | 「語言不通，不知道該去哪裡」是最主要的困擾；其次是停電和手機沒電 | 觀光廳、總務省、大阪府整理的地震後調查 |
-| 體力、行動 | 走太多路、樓梯、需要休息；可以考慮借輪椅 | LIVE JAPAN 孝親行程文、食尚玩家 |
+| Taking the wrong train | Rapid and express trains don't stop at every station; if you ride past your stop you must use a fare adjustment machine or go to the ticket window | uptogo, tsunagu Japan transport guides |
+| Tablet / QR code ordering | A barrier for foreigners and people not used to phones, who end up calling staff anyway; no internet means no ordering; some people ask for paper menus to stay | technews.tw (2025-03), United Daily News |
+| Taxis that don't take cards | Small companies and rural taxis often take cash only, and drivers may not want to take cards; the official advice is to show the driver the address written in Japanese | United Daily News, japan.travel taxi page |
+| Translation apps | Don't work without internet, are less accurate offline, and you have to keep holding and tapping the phone | LIVE JAPAN, app reviews |
+| Lost property | Your chance of getting things back in Japan is high, but the forms are in Japanese and you must say clearly when, where and what; report it as early as possible | JR Pass, shinkansen-ticket summaries |
+| Seeing a doctor | Tourists pay the full cost; **many medical facilities don't take credit cards**; people worry they can't describe their symptoms | Tokyo Metropolitan Bureau of Public Health, foreign-language page |
+| Earthquakes and disasters | The main problem is "I can't understand the language and don't know where to go"; next come power cuts and flat phone batteries | Post-earthquake surveys summarised by the Japan Tourism Agency, the Ministry of Internal Affairs and Communications, and Osaka Prefecture |
+| Stamina and mobility | Too much walking, stairs, needing rest; borrowing a wheelchair is an option | LIVE JAPAN article on trips with parents, Supertaste |
 
-## 3. 對照到 App 的改善
+## 3. How this maps to the app
 
-| 痛點 | App 現在已經有的 | 這次新增 |
+| Pain point | What the app already has | Added this time |
 |---|---|---|
-| 和人員溝通 | 情境句庫、給對方看、給對方點選 | （持續擴充） |
-| 垃圾桶 | — | 「垃圾桶在哪裡？」「這個垃圾可以丟這裡嗎？」並附說明 |
-| 搭錯車 | 這班車有停〇〇嗎、坐過站、補票機 | 「這班車每一站都停嗎？」並附快速／急行的說明；「這好像是我的位子」 |
-| 刷卡 | 餐廳、購物「可以刷卡嗎」 | 計程車上車前先問；醫院看病前先問；店員說「這張卡不能用」時，可以點回答：付現金、換一張卡、問 ATM |
-| 平板／QR 點餐 | — | 「我不會用平板，可以直接跟你點嗎？」「有紙本菜單嗎？」；店員說「請用平板點餐」時可以回答 |
-| 計程車 | 載我到〇〇、回飯店卡 | 「請給我收據」並說明收據上有車行電話；「我把東西忘在計程車上」 |
-| 遺失物 | 東西忘在電車上、錢包或護照掉了 | 「我要登記遺失物」並提示要準備的資訊；「找到的話請聯絡這間飯店」，可直接打開飯店卡；店員問「什麼時候、在哪裡掉的」時可以點選回答 |
-| 走散（兩人同行） | — | 「我跟同伴走散了」「可以幫我廣播找人嗎？」「我可以在這裡等嗎？」 |
-| 地震、災害 | 「要去哪裡避難？」 | 「哪裡比較安全？」「電車還有在開嗎？」「哪裡可以幫手機充電？」；聽到「請冷靜」「請往高處逃」時可以點選回答；建議下載觀光廳監修的 Safety tips App（有繁體中文） |
-| 樓梯、體力 | 電梯在哪、可以坐下休息的地方 | 「有不用走樓梯的路嗎？」「可以借輪椅嗎？」 |
-| 翻譯 App 要網路 | 整個 App 離線可用，也有紙本小卡 | — |
+| Communicating with staff | Scene phrase sets, show the other person, let the other person tap an answer | (Ongoing additions) |
+| Rubbish bins | — | "Where is a rubbish bin?" and "Can I throw this rubbish here?", with an explanation |
+| Taking the wrong train | Does this train stop at 〇〇, I rode past my stop, fare adjustment machine | "Does this train stop at every station?" with an explanation of rapid/express trains; "I think this is my seat" |
+| Paying by card | "Can I pay by card?" for restaurants and shopping | Ask before getting into a taxi; ask before seeing a doctor; when staff say "this card can't be used", you can tap a reply: pay cash, use another card, ask for an ATM |
+| Tablet / QR ordering | — | "I can't use the tablet. Can I order with you directly?" and "Do you have a paper menu?"; you can reply when staff say "Please order on the tablet" |
+| Taxis | Take me to 〇〇, back-to-hotel card | "Please give me a receipt", with a note that the receipt shows the taxi company's phone number; "I left something in the taxi" |
+| Lost property | Left something on the train, lost my wallet or passport | "I want to report lost property", with hints on the details to have ready; "If you find it, please contact this hotel", which opens the hotel card directly; when staff ask "when and where did you lose it", you can tap an answer |
+| Getting separated (two travellers) | — | "I got separated from my companion", "Can you make an announcement to find someone?", "Can I wait here?" |
+| Earthquakes and disasters | "Where should I evacuate to?" | "Where is safer?", "Are the trains still running?", "Where can I charge my phone?"; you can tap a reply when you hear "Please stay calm" or "Please move to higher ground"; we suggest downloading the Safety tips app supervised by the Japan Tourism Agency (available in Traditional Chinese) |
+| Stairs and stamina | Where is the lift, somewhere to sit and rest | "Is there a way without stairs?", "Can I borrow a wheelchair?" |
+| Translation apps need internet | The whole app works offline, and there are printed cards | — |
 
-「緊急・醫療」的句子變多了，所以分成四組：身體不舒服・看醫生／東西掉了・被偷・找警察／跟同伴走散了／地震・颱風・停電。
+The 緊急・醫療 (Emergency and medical) scene now has more phrases, so it is split into four groups: feeling unwell and seeing a doctor / lost or stolen items and finding the police / separated from a companion / earthquakes, typhoons and power cuts.
 
-## 4. 這次沒做的（記錄下來）
+## 4. Not done this time (recorded for later)
 
-- **觀光地太擁擠、出入境排隊**：跟溝通無關，App 幫不上忙。
-- **看日文標示、菜單（用相機翻譯）**：需要 OCR 或網路服務，違反「純前端、離線」的原則。
-- **轉乘路線查詢**：交給 Google 地圖、乘換案內等專門的 App 比較好；這個 App 專注在「問人」。
+- **Crowded tourist spots, immigration queues**: not about communication, so the app can't help.
+- **Reading Japanese signs and menus (camera translation)**: needs OCR or an online service, which breaks the "front-end only, offline" principle.
+- **Transfer route search**: better left to dedicated apps like Google Maps or Norikae Annai; this app focuses on "asking people".
 
-## 5. 競品分析與擴充評估（2026-10-11）
+## 5. Competitor analysis and expansion review (2026-10-11)
 
-問題：要不要把 App 擴充成「什麼都有的日本旅遊工具箱」？結論是**不要**，只補「跟當地人溝通或手續會卡住、可以事先準備、現有免費工具沒做好」的部分。
+Question: should the app grow into an "all-in-one Japan travel toolbox"? The answer is **no**. We only add things that "get stuck when talking to locals or doing paperwork, can be prepared in advance, and are not done well by existing free tools".
 
-### 5.1 已經有人做得很好的事（不重做，改成推薦）
+### 5.1 Things others already do well (we don't rebuild them; we recommend them)
 
-| 需求 | 現有工具 | 我們的做法 |
+| Need | Existing tools | What we do |
 |---|---|---|
-| 自由翻譯、拍照翻譯 | Google 翻譯、Apple 翻譯、Papago（可離線）；iOS 26.1 起 AirPods 可即時翻譯日文與中文 | 推薦工具頁 |
-| 路線、轉乘 | Google 地圖、NAVITIME（有繁中） | 推薦工具頁 |
-| 叫計程車 | GO（2026 年 3 月起有繁中）、Uber | 推薦工具頁 |
-| 交通卡 | Welcome Suica Mobile（2025-03-06 上線，iPhone 專用） | 推薦工具頁 |
-| 地震、颱風警報 | 觀光廳監修的 Safety tips（15 種語言，含繁中） | 推薦工具頁、災害句子的提示 |
-| 行程規劃、記帳分帳 | Funliday、Splitwise、KKday／Klook | 不做 |
+| Free-form translation, photo translation | Google Translate, Apple Translate, Papago (works offline); from iOS 26.1, AirPods can translate Japanese and Chinese live | Recommended tools page |
+| Routes and transfers | Google Maps, NAVITIME (has Traditional Chinese) | Recommended tools page |
+| Calling a taxi | GO (Traditional Chinese since March 2026), Uber | Recommended tools page |
+| Transport cards | Welcome Suica Mobile (launched 2025-03-06, iPhone only) | Recommended tools page |
+| Earthquake and typhoon alerts | Safety tips, supervised by the Japan Tourism Agency (15 languages, including Traditional Chinese) | Recommended tools page, tip on disaster phrases |
+| Trip planning, expense tracking and splitting | Funliday, Splitwise, KKday / Klook | Not doing |
 
-### 5.2 沒人做好、而且適合我們的事
+### 5.2 Things nobody does well, and that suit us
 
-- **事先寫好、查證過的日文**：過敏、醫療這種不能翻錯的事，固定句子比機器翻譯可靠。
-- **讓對方點答案回覆**：翻譯 App 都卡在「聽不懂對方回什麼」。
-- **家人先填好再分享**：找不到任何繁中產品有這個功能，最貼近台灣「子女規劃、爸媽出門」的情況。
-- **離線、不用帳號、可以印成小卡**：政府的翻譯 App VoiceTra 在 2026 年曾因資安問題暫停過，需要網路的服務不一定可靠。
-- **五辛素、蛋奶素的飲食卡**：國外的過敏卡都從英文出發、要付費，沒有人做五辛素。
+- **Japanese written and checked in advance**: for things that can't be mistranslated, like allergies and medical issues, fixed phrases are more reliable than machine translation.
+- **Letting the other person reply by tapping an answer**: every translation app gets stuck on "I can't understand what they said back".
+- **Family fills it in first, then shares it**: we found no Traditional Chinese product with this feature. It fits the common Taiwanese case of "the children plan, the parents travel".
+- **Offline, no account, can be printed as cards**: the government translation app VoiceTra was suspended for a while in 2026 over a security issue. Services that need the internet aren't always reliable.
+- **Food cards for five-pungent-free vegetarian and lacto-ovo vegetarian diets**: foreign allergy cards all start from English and cost money. Nobody covers the wu xin diet.
 
-### 5.3 論壇與報導裡的新痛點
+### 5.3 New pain points from forums and news reports
 
-PTT、Dcard 的原文抓不到，以下是透過媒體報導與官方調查整理：
+We couldn't get the original PTT and Dcard posts. The list below comes from news reports and official surveys:
 
-| 痛點 | 說明 | 因此做了什麼 |
+| Pain point | Details | What we did about it |
 |---|---|---|
-| 退稅改成退稅制 | 2026-11-01 起先付含稅價，出境時在機場確認後才退稅；行李托運後就不能辦 | 旅遊小抄「出境退稅新制」、購物情境的退稅句子（#24） |
-| 手機掃碼點餐 | 2024 年約 57% 的餐廳用手機點餐；沒網路、沒電、不熟手機就卡住 | 「我的手機不能用，可以直接跟你點嗎」等句子（#25） |
-| 素食與高湯 | 柴魚高湯藏在味噌湯、烏龍麵湯、燉煮菜裡 | 高湯答案按鈕、「不要用柴魚高湯」（#25） |
-| 新幹線大行李 | 東海道、山陽、九州新幹線，三邊超過 160 公分要先訂位 | 行李情境、旅遊小抄「新幹線大型行李」（#26） |
-| 置物櫃常滿、宅配分散 | 寄放、宅配分散在不同 App | 行李情境：寄放、宅配到飯店或機場（#26） |
-| 大車站出口與轉乘 | Google 地圖在站內不準 | 出口、轉乘問句（#26） |
-| 看病自費、理賠文件 | 理賠要當場拿診斷書、收據和明細 | 旅遊小抄「看病與保險理賠」、英文診斷書等句子（#27） |
+| Tax-free shopping switches to a refund system | From 2026-11-01 you pay the tax-included price first and get the tax back after it is checked at the airport when you leave; you can't do it after checking in your luggage | Travel guide 「出境退稅新制」 (New tax refund system at departure), tax refund phrases in the shopping scene (#24) |
+| Ordering by scanning a code on your phone | In 2024 about 57% of restaurants used phone ordering; no internet, a flat battery or not knowing phones means you get stuck | Phrases like "My phone isn't working. Can I order with you directly?" (#25) |
+| Vegetarian food and dashi | Bonito dashi is hidden in miso soup, udon broth and simmered dishes | Dashi answer buttons, "Please don't use bonito dashi" (#25) |
+| Large luggage on the Shinkansen | On the Tokaido, Sanyo and Kyushu Shinkansen, bags over 160 cm (sum of three sides) need a reservation | Luggage scene, travel guide 「新幹線大型行李」 (Large luggage on the Shinkansen) (#26) |
+| Lockers often full, luggage delivery spread out | Luggage storage and delivery are spread across different apps | Luggage scene: storage, delivery to the hotel or airport (#26) |
+| Exits and transfers at big stations | Google Maps is inaccurate inside stations | Questions about exits and transfers (#26) |
+| Paying for doctors yourself, insurance claim documents | For a claim you must get the medical certificate, receipt and itemised bill on the spot | Travel guide 「看病與保險理賠」 (Seeing a doctor and insurance claims), phrases such as asking for an English medical certificate (#27) |
 
-### 5.4 來源
+### 5.4 Sources
 
-- 競品：App Store 與各公司公告（Welcome Suica Mobile：JR 東日本新聞稿；GO：travelvoice、GLTJP；Safety tips：名古屋市防災網頁、App Store）。
-- 退稅：日本觀光廳「リファンド方式とは」、中部國際機場公告、觀光廳・國稅廳・日本海關的繁中官方傳單（使用者提供）。
-- 新幹線：JR 東海「特大荷物」說明、JR 西日本おでかけネット。
-- 手機點餐：technews.tw（2025-03）、聯合報。
-- 健保核退：衛生福利部。
+- Competitors: App Store and company announcements (Welcome Suica Mobile: JR East press release; GO: travelvoice, GLTJP; Safety tips: City of Nagoya disaster prevention page, App Store).
+- Tax refund: Japan Tourism Agency 「リファンド方式とは」, Chubu Centrair International Airport notice, official Traditional Chinese flyer from the Japan Tourism Agency, National Tax Agency and Japan Customs (provided by a user).
+- Shinkansen: JR Central 「特大荷物」 information, JR West おでかけネット.
+- Phone ordering: technews.tw (2025-03), United Daily News.
+- Taiwan National Health Insurance reimbursement for care abroad: Ministry of Health and Welfare.
 
-### 5.5 限制
+### 5.5 Limitations
 
-- 論壇內容是間接透過媒體報導看到的，沒有直接統計發文數。
-- 官方網站在整理環境裡連不上，部分內容是從搜尋結果引用的官方頁面查證；內容裡都標了查證日期 2026-10-11。
+- We saw forum content only indirectly, through news reports. We did not count posts directly.
+- Official websites could not be reached from the research environment. Some content was checked against official pages quoted in search results. All such content is marked with the check date 2026-10-11.

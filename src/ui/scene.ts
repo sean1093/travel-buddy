@@ -8,7 +8,7 @@ import { type Ready, ready } from "../profile/fill";
 import { loadProfile, type Place, placesForToday } from "../profile/profile";
 import { fill, h, icon, pictogram } from "./dom";
 import { SLOW_RATE } from "../state";
-import { jpText, play, playButton } from "./japanese";
+import { jpText, PLAY_SIZES, play, playButton } from "./japanese";
 import { dock, heading, page } from "./layout";
 import { askOther, openOverlay, overlayBar, showToOther } from "./overlay";
 
@@ -23,8 +23,8 @@ export function pickPlace(place: Place): void {
 const ACTION =
   "inline-flex min-h-16 items-center justify-center gap-2 whitespace-nowrap rounded-2xl px-2 text-xl font-bold leading-tight transition active:scale-95";
 
-/** One cell of the quiet action row: icon over a short label. */
-const CELL = "min-h-16 flex-col gap-0.5 px-1 py-2 text-base leading-tight active:bg-ai-soft focus-visible:[outline-offset:-3px]";
+/** Pressed and focus states for a cell of the quiet action row (sizes: PLAY_SIZES.cell). */
+const CELL_STATES = "active:bg-ai-soft focus-visible:[outline-offset:-3px]";
 
 /**
  * The buttons that do something with a phrase. 給對方看 is the one solid
@@ -33,15 +33,15 @@ const CELL = "min-h-16 flex-col gap-0.5 px-1 py-2 text-base leading-tight active
  */
 function phraseActions(phrase: Phrase, line: Ready): HTMLElement {
   const quiet = [
-    playButton(line.jp, "normal", "md", CELL, "plain"),
-    playButton(line.jp, "slow", "md", CELL, "plain"),
+    playButton(line.jp, "normal", "cell", CELL_STATES, "plain"),
+    playButton(line.jp, "slow", "cell", CELL_STATES, "plain"),
     phrase.answers &&
       h(
         "button",
         {
           type: "button",
           // Green means "the other person answers".
-          class: `inline-flex items-center justify-center font-bold text-ok transition active:scale-95 ${CELL}`,
+          class: `inline-flex items-center justify-center font-bold text-ok transition active:scale-95 ${PLAY_SIZES.cell} ${CELL_STATES}`,
           onclick: () => askOther(line, repliesFor(phrase.answers!)),
         },
         icon("hand"),
@@ -90,14 +90,19 @@ export function openPhrase(phrase: Phrase, line: Ready, sceneTitle?: string): vo
       "div",
       { class: "flex min-h-0 flex-1 flex-col" },
       overlayBar(close, sceneTitle ?? "", "quiet"),
+      // On a phone held sideways the actions stop docking and scroll with the phrase (.phrase-layout).
       h(
         "div",
-        { class: "min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-4" },
-        h("h2", { class: "px-1 font-title text-3xl font-semibold leading-snug [text-wrap:balance]" }, line.zh),
-        h("div", { class: "mt-4 rounded-b-2xl rounded-t-sm border-t-[3px] border-shu bg-card px-4 pb-4 pt-3" }, jpText(line.jp, "lg")),
-        phrase.tip && tip(phrase.tip),
+        { class: "phrase-layout flex min-h-0 flex-1 flex-col" },
+        h(
+          "div",
+          { class: "phrase-scroll min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-4" },
+          h("h2", { class: "px-1 font-title text-3xl font-semibold leading-snug [text-wrap:balance]" }, line.zh),
+          h("div", { class: "mt-4 rounded-b-2xl rounded-t-sm border-t-[3px] border-shu bg-card px-4 pb-4 pt-3" }, jpText(line.jp, "lg")),
+          phrase.tip && tip(phrase.tip),
+        ),
+        h("div", { class: "pb-safe border-t border-hair px-4 pt-3" }, phraseActions(phrase, line)),
       ),
-      h("div", { class: "pb-safe border-t border-hair px-4 pt-3" }, phraseActions(phrase, line)),
     ),
   );
 }
@@ -202,16 +207,16 @@ export function openRescue(): void {
           "div",
           { class: "divide-y divide-dashed divide-hair overflow-hidden rounded-2xl bg-card" },
           RESCUE.map((phrase) =>
-          h(
-            "button",
-            {
-              type: "button",
-              class: "block min-h-16 w-full px-4 py-3 text-left transition-colors active:bg-warn-soft focus-visible:[outline-offset:-3px]",
-              onclick: () => showToOther([{ jp: phrase.jp, zh: phrase.zh }], phrase.zh, true),
-            },
-            h("span", { class: "block text-xl font-semibold leading-snug" }, phrase.zh),
-            h("span", { lang: "ja", class: "mt-0.5 block text-base text-muted" }, plain(phrase.jp)),
-          ),
+            h(
+              "button",
+              {
+                type: "button",
+                class: "block min-h-16 w-full px-4 py-3 text-left transition-colors active:bg-warn-soft focus-visible:[outline-offset:-3px]",
+                onclick: () => showToOther([{ jp: phrase.jp, zh: phrase.zh }], phrase.zh, true),
+              },
+              h("span", { class: "block text-xl font-semibold leading-snug" }, phrase.zh),
+              h("span", { lang: "ja", class: "mt-0.5 block text-base text-muted" }, plain(phrase.jp)),
+            ),
           ),
         ),
       ),
@@ -227,12 +232,13 @@ function rescueDock(): HTMLElement[] {
       "button",
       {
         type: "button",
-        class: "flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-warn-soft text-xl font-bold text-ink active:scale-[0.98]",
+        class: "flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-warn-soft px-3 text-xl font-bold text-ink active:scale-[0.98]",
         onclick: openRescue,
       },
-      icon("lifebuoy", "h-6 w-6"),
-      "萬用句",
-      h("span", { class: "text-base font-normal text-muted" }, "聽不懂・請說慢一點…"),
+      icon("lifebuoy", "h-6 w-6 shrink-0"),
+      h("span", { class: "shrink-0 whitespace-nowrap" }, "萬用句"),
+      // The examples give way first: at the largest text size they shorten, the label never wraps.
+      h("span", { class: "min-w-0 truncate text-base font-normal text-muted" }, "聽不懂・請說慢一點…"),
     ),
   );
 }

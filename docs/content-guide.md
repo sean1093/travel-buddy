@@ -1,80 +1,80 @@
-# 內容撰寫規範
+# Content guide
 
-所有文字內容都在 `src/content/`，寫在 TypeScript 裡、打包進 App，所以離線也能用。`npm test` 會檢查大部分規則；檢查不到的（語氣、正確性），靠這份文件和 review。
+All text content lives in `src/content/`. It is written in TypeScript and bundled into the app, so it works offline. `npm test` checks most of the rules. What it can't check (tone, accuracy) relies on this document and on review.
 
-## 1. 日文標記
+## 1. Japanese markup
 
-日文用這套標記寫，App 會自動產生振假名、拼音和語音：
+Write Japanese with this markup. The app generates furigana, romaji and speech from it automatically:
 
-- **詞與詞之間空一個半形空格。** 斷詞決定拼音怎麼分、換行在哪裡斷。
-- **漢字、英文、數字一律標讀音：** `{漢字|かな}`，例如 `{電車|でんしゃ}`、`{QR|キューアール}`。讀音只能是假名。
-- **助詞「は」「を」獨立成一個詞：** `これ は`、`メニュー を`，拼音才會是 wa、o。
-- 不要用全形空白。
+- **Put one half-width space between words.** Word breaks decide how the romaji is split and where lines wrap.
+- **Always give readings for kanji, English letters and numbers:** `{漢字|かな}`, for example `{電車|でんしゃ}`, `{QR|キューアール}`. Readings must be kana only.
+- **The particles 「は」 and 「を」 are separate words:** `これ は`, `メニュー を`, so the romaji comes out as wa and o.
+- Don't use full-width spaces.
 
 ```ts
 jp: "この {電車|でんしゃ} は $stop に {止|と}まります か。"
 ```
 
-## 2. 句子（Phrase）
+## 2. Phrases (Phrase)
 
 ```ts
 {
-  id: "transport-stops-at",       // 情境 id 開頭、kebab-case、全域唯一，一旦上線就不要改
-  group: "train",                 // 情境有分組時必填
-  zh: "這班車有停〇〇嗎？",        // 給旅客看的中文；〇〇 會換成站名
+  id: "transport-stops-at",       // starts with the scene id, kebab-case, globally unique; never change it once live
+  group: "train",                 // required when the scene has groups
+  zh: "這班車有停〇〇嗎？",        // Chinese shown to the traveller; 〇〇 is replaced by the station name
   jp: "この {電車|でんしゃ} は $stop に {止|と}まります か。",
   fallback: "この {電車|でんしゃ} は ここ に {止|と}まります か。",
   fallbackZh: "這班車有停這裡嗎？（同時給對方看站名）",
-  tip: "上車前問月台上的站務員或旁邊的人。",   // 選填，一兩句中文提示
-  answers: "yesNo",               // 選填：有這個才會出現「給對方點選答案」
-  link: { href: "#/guide/tax-refund", label: "看出境退稅步驟" },  // 選填
+  tip: "上車前問月台上的站務員或旁邊的人。",   // optional, a one- or two-sentence tip in Chinese
+  answers: "yesNo",               // optional: only when set does 「給對方點選答案」 (Let them tap an answer) appear
+  link: { href: "#/guide/tax-refund", label: "看出境退稅步驟" },  // optional
 }
 ```
 
-### 語氣
+### Tone
 
-- 一律自然、禮貌的「です／ます」體。請求用「〜て ください」「〜て いただけます か」。
-- 中文用台灣用語，短、直接，像在說話。
-- 句子盡量短：對方是站著看手機的陌生人。
+- Always natural, polite 「です／ます」 form. For requests use 「〜て ください」 or 「〜て いただけます か」.
+- Chinese uses Taiwan usage. Keep it short and direct, like speech.
+- Keep phrases as short as possible: the other person is a stranger standing and reading a phone.
 
-### 插槽
+### Slots
 
-| 插槽 | 換成 | 例 |
+| Slot | Replaced with | Example |
 |---|---|---|
-| `$dest` | 目的地；車站會加「駅」 | 新宿駅 に 行きたい です |
-| `$stop` | 只有站名 | 新宿 に 止まります か |
-| `$hotel` | 現在住的飯店名稱 | この 荷物 を ○○ホテル に 送りたい です |
+| `$dest` | Destination; stations get 「駅」 added | 新宿駅 に 行きたい です |
+| `$stop` | Station name only | 新宿 に 止まります か |
+| `$hotel` | Name of the current hotel | この 荷物 を ○○ホテル に 送りたい です |
 
-有插槽的句子一定要有 `fallback` 和 `fallbackZh`：沒有資料時改說「這裡」「這間飯店」，並提示旅客同時給對方看地址或地圖。
+A phrase with a slot must have `fallback` and `fallbackZh`. When there is no data, it says 「這裡」 (here) or 「這間飯店」 (this hotel) instead, and tells the traveller to show the address or map at the same time.
 
-### 答案（給對方點選）
+### Answers (let them tap)
 
-`answers` 可以用預設答案組（`src/content/replies.ts`），或直接寫一組：
+`answers` can use a preset answer set (`src/content/replies.ts`) or a set written inline:
 
-| 答案組 | 內容 |
+| Answer set | Contents |
 |---|---|
-| `yesNo` | 是、不是 |
-| `platform` | 1～14 號月台 |
-| `direction` | 右、左、直走、後面、樓上、樓下、就是這裡 |
-| `time` | 馬上、大約 5／10／30 分鐘、大約 1 小時 |
-| `place` | 就在附近、很遠、車站裡面、車站外面、沒有 |
-| `exit` | 東口、西口、南口、北口、中央口、對方寫給你看 |
+| `yesNo` | Yes, no |
+| `platform` | Platforms 1–14 |
+| `direction` | Right, left, straight on, behind, upstairs, downstairs, right here |
+| `time` | Right away, about 5/10/30 minutes, about 1 hour |
+| `place` | Nearby, far, inside the station, outside the station, there isn't one |
+| `exit` | East exit, west exit, south exit, north exit, central exit, they write it for you |
 
-每組最後都有「不知道」。
+Every set ends with 「不知道」 (I don't know).
 
-自己寫的答案至少 2 個，最後加「不知道」或「寫在紙上」讓對方有退路。
+Custom answer sets need at least 2 answers. End with 「不知道」 (I don't know) or 「寫在紙上」 (write it on paper) so the other person has a way out.
 
-### 分組
+### Groups
 
-句子超過約 20 句的情境要分組（`groups` 與每句的 `group`），最重要的一組放第一個（例：餐廳的「過敏・素食・口味」）。
+Scenes with more than about 20 phrases must be grouped (`groups` and each phrase's `group`). Put the most important group first (for example the restaurant's 「過敏・素食・口味」 (Allergies, vegetarian, taste)).
 
-## 3. 對方說（Heard）
+## 3. They say (Heard)
 
-店員、站務員常說的話，旅客看中文、點中文回答：
+Things staff and station workers often say. The traveller reads the Chinese and taps a Chinese reply:
 
 ```ts
 {
-  id: "konbini-heard-bag",        // 情境 id + "-heard-" 開頭
+  id: "konbini-heard-bag",        // starts with the scene id + "-heard-"
   jp: "{袋|ふくろ} は ご{利用|りよう} です か。",
   zh: "要袋子嗎？（袋子要錢）",
   replies: [
@@ -84,59 +84,59 @@ jp: "この {電車|でんしゃ} は $stop に {止|と}まります か。"
 }
 ```
 
-每則至少 2 個回答。
+Each one needs at least 2 replies.
 
-## 4. 新增一個情境
+## 4. Adding a scene
 
-1. 在 `src/content/scenes/` 新增檔案，`export default { … } satisfies Scene`。
-2. 在 `src/content/types.ts` 的 `SceneId` 加上 id。
-3. 在 `src/content/scenes/index.ts` 的 `SCENES` 依重要性排好位置（這就是首頁順序）。
-4. 需要新圖示的話，在 `src/ui/dom.ts` 的 `ICONS` 加一個 24×24、線條的 SVG（見 [design.md](design.md)）。
-5. 更新 `tests/content.test.ts` 的情境清單。
-6. 至少 12 句「我要說」、4 則「對方說」（交通至少 18 句）。
+1. Add a file in `src/content/scenes/` with `export default { … } satisfies Scene`.
+2. Add the id to `SceneId` in `src/content/types.ts`.
+3. Place it in `SCENES` in `src/content/scenes/index.ts` by importance (this is the home screen order).
+4. If you need a new icon, add a 24×24 line SVG to `ICONS` in `src/ui/dom.ts` (see [design.md](design.md)).
+5. Update the scene list in `tests/content.test.ts`.
+6. At least 12 「我要說」 (I say) phrases and 4 「對方說」 (They say) entries (at least 18 phrases for Transport).
 
-## 5. 旅遊小抄（Guide）
+## 5. Travel cheat sheets (Guide)
 
-一步一步的手續說明，寫在 `src/content/guides.ts`，頁面在 `#/guide/<id>`：
+Step-by-step procedure guides, written in `src/content/guides.ts`. The page is at `#/guide/<id>`:
 
-- `title`、`summary`（首頁清單用的一行）、`steps`（每步一個短標題和一兩句說明）、`notes`（容易出錯的地方）。
-- **一定要有 `sources`（https）和 `verified`（查證日期）。** 每個來源上面用英文註解寫它支持哪幾點。
-- 查不到可靠來源的規定不要寫；金額、期限這種會變的細節，寫「以現場人員或店家的說明為準」。
-- 相關的句子用 `link` 連到小抄，小抄的 notes 也可以指回情境。
+- `title`, `summary` (one line for the home screen list), `steps` (each step has a short title and one or two sentences), `notes` (common mistakes).
+- **Always include `sources` (https) and `verified` (verification date).** Above each source, add an English comment saying which points it supports.
+- Don't write rules you can't find a reliable source for. For details that change, such as amounts and deadlines, write 「以現場人員或店家的說明為準」 (Follow what on-site staff or the shop tell you).
+- Related phrases link to the cheat sheet with `link`, and the cheat sheet's notes can point back to the scene.
 
-## 6. 緊急電話
+## 6. Emergency numbers
 
-寫在 `src/content/emergency.ts`。每一筆都要有：撥打號碼、中文名稱、什麼時候打、`source`（https）、`verified`（日期）。只放有官方來源的號碼。
+Written in `src/content/emergency.ts`. Each entry must have: the number to dial, a Chinese name, when to call, `source` (https) and `verified` (date). Only include numbers with an official source.
 
-## 7. 推薦工具
+## 7. Recommended tools
 
-寫在 `src/content/tools.ts`。只推薦已經把那件事做得很好的免費 App（翻譯、地圖、叫車、警報、交通卡），寫清楚用途和注意事項：
+Written in `src/content/tools.ts`. Only recommend free apps that already do the job well (translation, maps, ride-hailing, alerts, transit cards). State clearly what each is for and what to watch out for:
 
-- 連結只放查證過的 App Store、Google Play 或官方網站網址，不要用猜的。
-- 查不到某一邊商店的網址時，放官方網站（官網通常有兩邊的下載按鈕）。
+- Links must be verified App Store, Google Play or official website URLs. Don't guess.
+- If you can't find the URL for one of the stores, link the official website (it usually has download buttons for both).
 
-## 8. `npm test` 會擋下什麼
+## 8. What `npm test` blocks
 
-- 標記解析失敗、漢字或英數字沒有讀音、讀音不是假名、全形空白、「は」「を」沒有獨立。
-- id 重複或不是 kebab-case；句子 id 沒有用情境 id 開頭。
-- 沒有中文；句子沒有用禮貌體結尾。
-- 有插槽卻沒有 `fallback`；插槽名稱不認得；fallback 裡還有插槽。
-- 答案少於 2 個；用了不存在的答案組。
-- 情境分組有缺、句子沒有分組、分組是空的。
-- 情境句數不夠；交通缺少必備句。
-- 緊急電話或旅遊小抄沒有 https 來源或查證日期。
-- 推薦工具沒有用途或沒有 https 連結。
+- Markup that fails to parse, kanji or letters/numbers without readings, readings that aren't kana, full-width spaces, 「は」 or 「を」 not separated.
+- Duplicate ids or ids that aren't kebab-case; phrase ids that don't start with the scene id.
+- Missing Chinese; phrases that don't end in polite form.
+- A slot without a `fallback`; unknown slot names; slots left in the fallback.
+- Fewer than 2 answers; using an answer set that doesn't exist.
+- Missing scene groups, phrases without a group, empty groups.
+- Too few phrases in a scene; Transport missing required phrases.
+- Emergency numbers or travel cheat sheets without an https source or verification date.
+- Recommended tools without a purpose or without an https link.
 
-## 9. 查證規則
+## 9. Verification rules
 
-- **緊急、醫療、手續類的資訊一定要查證**，以官方來源為準（政府、鐵路公司、機場），新聞和部落格只能當線索。
-- 程式註解寫來源網址和查證日期；有多個來源時，寫各自支持哪一點。
-- 官方網站連不上時，可以用搜尋結果裡引用的官方內容，但要在註解寫明。
-- 每個旅遊季前重新檢查一次 `verified` 日期較舊的內容。
-- 不確定的事寧可不寫，改請旅客問現場人員。
+- **Emergency, medical and procedural information must be verified** against official sources (government, railway companies, airports). News and blogs are only leads.
+- Code comments give the source URL and verification date. With several sources, say which point each one supports.
+- If the official website is unreachable, you can use official content quoted in search results, but say so in the comment.
+- Before each travel season, recheck content with older `verified` dates.
+- If you're not sure, leave it out and ask the traveller to check with on-site staff instead.
 
-## 10. 用詞
+## 10. Wording
 
-- 這是給所有人用的服務：不使用「長輩」等針對特定年齡層的稱呼。
-- 不用 emoji。
-- 方向用箭頭字元（→ ← ↑）。
+- This is a service for everyone: don't use terms aimed at a specific age group, such as 「長輩」 (elders).
+- No emoji.
+- Use arrow characters for directions (→ ← ↑).

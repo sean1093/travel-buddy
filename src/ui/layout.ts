@@ -19,38 +19,38 @@ export function page(
   );
   const large = h(
     "h1",
-    { class: "flex items-center gap-2 px-4 pb-1 pt-1 font-title text-3xl font-semibold leading-tight [text-wrap:balance]" },
+    { class: "no-print flex items-center gap-2 px-4 pb-1 pt-1 font-title text-3xl font-semibold leading-tight [text-wrap:balance]" },
     options.icon,
     title,
   );
-  fill(
-    root,
+  titleObserver?.disconnect();
+  const header = h(
+    "header",
+    { class: "pt-safe no-print sticky top-0 z-10 flex items-center gap-2 bg-paper/95 px-3 pb-1 backdrop-blur" },
     h(
-      "header",
-      { class: "pt-safe no-print sticky top-0 z-10 flex items-center gap-2 bg-paper/95 px-3 pb-1 backdrop-blur" },
-      h(
-        "a",
-        {
-          href: options.back ?? "#/",
-          // A quiet text link, still a 56px target: the page content is what should stand out.
-          class: "-ml-1 inline-flex min-h-14 shrink-0 items-center gap-0.5 rounded-lg px-1 text-lg font-medium text-ai active:bg-ai-soft",
-        },
-        icon("back", "h-6 w-6"),
-        options.backLabel ?? "首頁",
-      ),
-      compact,
+      "a",
+      {
+        href: options.back ?? "#/",
+        // A quiet text link, still a 56px target: the page content is what should stand out.
+        class: "-ml-1 inline-flex min-h-14 shrink-0 items-center gap-0.5 rounded-lg px-1 text-lg font-medium text-ai active:bg-ai-soft",
+      },
+      icon("back", "h-6 w-6"),
+      options.backLabel ?? "首頁",
     ),
-    large,
-    h("main", { class: "px-4 pb-16" }, body),
+    compact,
   );
+  fill(root, header, large, h("main", { class: "px-4 pb-16" }, body));
   if (typeof IntersectionObserver === "undefined") return;
-  const observer = new IntersectionObserver(([entry]) => compact.classList.toggle("opacity-0", entry?.isIntersecting ?? true), {
-    // Below the sticky bar: the title counts as gone once the bar covers it.
-    rootMargin: "-72px 0px 0px 0px",
+  titleObserver = new IntersectionObserver(([entry]) => compact.classList.toggle("opacity-0", entry?.isIntersecting ?? true), {
+    // Measured, not fixed: the bar grows with the text size and the safe-area inset.
+    // The title counts as gone once the bar covers it.
+    rootMargin: `-${header.offsetHeight}px 0px 0px 0px`,
   });
-  observer.observe(large);
-  window.addEventListener("hashchange", () => observer.disconnect(), { once: true });
+  titleObserver.observe(large);
 }
+
+/** The current page's title watcher; one at a time, replaced on every render. */
+let titleObserver: IntersectionObserver | null = null;
 
 /**
  * A section title: a quiet small label with a hairline running to the edge,

@@ -142,6 +142,16 @@ body {
     display: none;
   }
 
+  /* The phrase page: one scroll for the phrase and its actions, so neither squeezes the other. */
+  .phrase-layout {
+    overflow-y: auto;
+  }
+
+  .phrase-layout > .phrase-scroll {
+    flex: none;
+    overflow: visible;
+  }
+
   .landscape-dock {
     position: absolute;
     top: calc(env(safe-area-inset-top) + 0.5rem);

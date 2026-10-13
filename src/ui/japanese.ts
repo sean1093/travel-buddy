@@ -20,8 +20,8 @@ export function jpText(markup: Jp, size: keyof typeof SIZES = "md", options: { r
   const japanese = h("span", { lang: "ja", class: `jp block ${SIZES[size].jp}` });
   words.forEach((word, i) => {
     if (i > 0) japanese.append(" ");
-    // One unbreakable unit per word, so a line never splits a kanji from its okurigana.
-    const unit = h("span", { class: "whitespace-nowrap" });
+    // `.jp` keeps each word whole (keep-all); a word wider than the line can still break (overflow-wrap).
+    const unit = h("span");
     for (const segment of word) unit.append(segment.ruby ? h("ruby", null, segment.text, h("rt", null, segment.ruby)) : segment.text);
     japanese.append(unit);
   });
@@ -77,10 +77,12 @@ export function hush(): void {
   mark(undefined);
 }
 
-const PLAY_SIZES = {
-  sm: "min-h-12 px-3 text-base",
-  md: "min-h-14 px-3 text-lg",
-  lg: "min-h-16 px-4 text-xl",
+export const PLAY_SIZES = {
+  sm: "min-h-12 gap-2 px-3 text-base",
+  md: "min-h-14 gap-2 px-3 text-lg",
+  lg: "min-h-16 gap-2 px-4 text-xl",
+  /** One cell of a shared action row: icon over a short label. */
+  cell: "min-h-16 flex-col gap-0.5 px-1 py-2 text-base leading-tight",
 };
 
 const PLAY_TONES = {
@@ -104,7 +106,7 @@ export function playButton(
     {
       type: "button",
       // Normal and slow look the same: the icon and the label tell them apart.
-      class: `inline-flex items-center justify-center gap-2 font-bold text-ai transition active:scale-95 ${PLAY_TONES[tone]} ${PLAY_SIZES[size]} ${extra}`,
+      class: `inline-flex items-center justify-center font-bold text-ai transition active:scale-95 ${PLAY_TONES[tone]} ${PLAY_SIZES[size]} ${extra}`,
       "aria-label": `${slow ? "慢速播放" : "播放"}「${all.map(plain).join("")}」`,
     },
     icon(slow ? "slow" : "speaker", "h-6 w-6"),

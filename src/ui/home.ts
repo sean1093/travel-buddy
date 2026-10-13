@@ -9,9 +9,10 @@ import { pickPlace } from "./scene";
 // Pictogram beside the label: two columns of short buttons fit all ten scenes on about one screen.
 const TILE =
   "flex min-h-16 items-center gap-2 rounded-2xl bg-card px-3 py-2 text-left text-lg font-semibold leading-tight text-ink [text-wrap:balance] transition active:scale-[0.97] active:bg-ai-soft";
-// The two shortcuts share one card, split by a dashed line like a printed form.
+// The two shortcuts share one card, split by a dashed line like a printed form. One line each:
+// the label shrinks with a narrow screen instead of wrapping (回飯／店).
 const SHORTCUT =
-  "flex min-h-16 items-center gap-2 whitespace-nowrap px-3 py-2 text-xl font-semibold leading-tight text-ink transition-colors active:bg-ai-soft focus-visible:[outline-offset:-3px]";
+  "flex min-h-16 items-center gap-1.5 whitespace-nowrap px-2.5 py-2 text-[min(1.25rem,6vw)] font-semibold leading-tight text-ink transition-colors active:bg-ai-soft focus-visible:[outline-offset:-3px]";
 
 /** One short line: the app greets by name when it has one. */
 export function greeting(profile: Profile): string {

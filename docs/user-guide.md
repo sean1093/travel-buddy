@@ -1,89 +1,89 @@
-# 使用說明
+# User guide
 
-給旅客本人，以及幫忙設定的家人朋友。
+For travellers, and for the family and friends who help set things up.
 
-- 日本版網址：https://sean1093.github.io/travel-buddy/japan/
-- 不用註冊、不用下載 App；用手機瀏覽器打開就能用。
+- Japan version: https://sean1093.github.io/travel-buddy/japan/
+- No sign-up and no app to download. Just open it in your phone's browser.
 
-## 1. 出發前：填資料
+## 1. Before you leave: fill in your info
 
-1. 打開網站，首頁最下方點「設定資料」。
-2. 依序填六個區塊，全部都是選填，填越多越好用：
+1. Open the website and tap 設定資料 (Set up info) at the bottom of the home page.
+2. Fill in the six sections in order. Everything is optional, but the more you fill in, the more useful it gets:
 
-   | 區塊 | 填什麼 | 用在哪裡 |
+   | Section | What to fill in | Where it's used |
    |---|---|---|
-   | 旅客 | 稱呼、護照英文姓名、出生年 | 首頁問候、求救卡、醫療卡 |
-   | 飯店 | 日文名稱、讀音、地址、電話、入住和退房日 | 回飯店卡、求救卡；依日期自動選「現在住的飯店」 |
-   | 每天的行程 | 車站或地點的日文名稱、讀音、中文名稱、日期、電梯筆記 | 交通句子自動換成站名；首頁顯示「今天要去」 |
-   | 聯絡人 | 台灣的家人、日本當地的朋友 | 求救卡、一鍵撥號 |
-   | 健康 | 慢性病、常用藥（成分名）、血型 | 醫療卡 |
-   | 過敏・飲食・保險 | 藥物過敏、食物過敏、飲食習慣（全素、蛋奶素、五辛素、不吃海鮮等）、旅遊保險 | 過敏卡（給餐廳看）、醫療卡 |
+   | Traveller | What to call you, name in English as on your passport, year of birth | Home page greeting, help card, medical card |
+   | Hotels | Japanese name, reading, address, phone, check-in and check-out dates | Back-to-hotel card, help card; the app picks 現在住的飯店 (the hotel you're staying at now) by date |
+   | Daily plan | Japanese name, reading and Chinese name of the station or place, date, lift notes | Transport phrases fill in the station name; the home page shows 今天要去 (Going today) |
+   | Contacts | Family in Taiwan, friends in Japan | Help card, one-tap calling |
+   | Health | Chronic conditions, regular medicines (ingredient names), blood type | Medical card |
+   | Allergies, diet, insurance | Drug allergies, food allergies, diet (vegan, lacto-ovo vegetarian, five-pungent-free vegetarian, no seafood, etc.), travel insurance | Allergy card (to show restaurants), medical card |
 
-3. 資料會自動存在這支手機裡。
+3. Your info is saved on this phone automatically.
 
-**小技巧：**
-- 飯店和站名照訂房確認信或車站網站上的日文抄，讀音（假名）有填的話，念出來比較準。
-- 常用藥請寫成分名（最好是英文學名），日本醫師比較看得懂。
-- 電梯筆記：先在車站官網查好哪個出口有電梯，貼上日文原文，到時可以直接拿給站務員看。
+**Tips:**
+- Copy hotel and station names in Japanese from your booking confirmation or the station website. If you also fill in the reading (kana), the app pronounces them better.
+- Write medicines by ingredient name (ideally the English generic name). Japanese doctors understand these more easily.
+- Lift notes: check the station's website beforehand for which exit has a lift, and paste the Japanese text. Then you can show it straight to station staff.
 
-## 2. 幫別人設定：分享
+## 2. Setting it up for someone else: sharing
 
-1. 填好後按「分享」。
-2. 用 LINE 傳連結，或請對方用手機相機掃 QR code。
-3. 對方點開連結，資料就自動存進他的手機，之後直接打開網站就好，不用再點連結。
+1. When you're done, tap 分享 (Share).
+2. Send the link on LINE, or have them scan the QR code with their phone camera.
+3. When they open the link, the info is saved on their phone. After that they just open the website. They don't need the link again.
 
-**請注意：**
-- 連結裡有地址、電話和健康資料。**只傳給本人**，不要貼到群組或社群。
-- 建議**出發前一兩天**再傳，並在出發當天打開一次：有些手機的瀏覽器會清掉太久沒開的網站資料。
-- 資料改了的話，要重新傳一次新的連結。
+**Please note:**
+- The link contains addresses, phone numbers and health info. **Send it only to the traveller.** Don't post it in group chats or on social media.
+- We suggest sending it **a day or two before the trip**, and opening the site once on the day you leave. Some phone browsers clear data for sites that haven't been opened in a long time.
+- If you change the info, send a new link again.
 
-## 3. 在當地：怎麼用
+## 3. During the trip: how to use it
 
-| 遇到什麼 | 怎麼做 |
+| What's happening | What to do |
 |---|---|
-| 迷路、身體不舒服、需要幫忙 | 首頁紅色「我需要幫忙」→ 把畫面拿給路人、站務員或警察看。底部可以直接打給家人、110、119。 |
-| 要回飯店 | 首頁「回飯店」→ 給計程車司機看。 |
-| 要說一句話 | 首頁選情境 → 點句子 → 「播放」念給對方聽，或「給對方看」放大。 |
-| 想知道對方的回答 | 有「給對方點選答案」的句子：把手機交給對方，請他點日文答案，你這邊會看到中文。 |
-| 聽到店員說話 | 情境頁切到「對方說」→ 找到那句話，看中文，點你的回答。 |
-| 看醫生、吃東西有過敏 | 首頁「醫療卡」→ 醫療卡、過敏卡、症狀指指卡。 |
-| 聽不懂、要對方說慢一點 | 每個情境頁底部的「萬用句」。 |
-| 退稅、大行李、看病理賠 | 首頁往下捲到「旅遊小抄」。 |
+| Lost, feeling unwell, or need help | Tap the red 我需要幫忙 (I need help) on the home page → show the screen to a passer-by, station staff or the police. At the bottom you can call family, 110 or 119 directly. |
+| Going back to the hotel | Tap 回飯店 (Back to hotel) on the home page → show it to the taxi driver. |
+| Saying something | Pick a scene on the home page → tap a phrase → tap 播放 (Play) to say it out loud, or 給對方看 (Show them) to make it large. |
+| Understanding their answer | For phrases with 給對方點選答案 (Let them tap an answer): hand them the phone and ask them to tap the Japanese answer. You'll see it in Chinese. |
+| Shop staff say something to you | On a scene page, switch to 對方說 (They say) → find what they said, read the Chinese, and tap your reply. |
+| Seeing a doctor, food allergies | Tap 醫療卡 (Medical card) on the home page → medical card, allergy card, symptom pointing card. |
+| You don't understand, or want them to speak slowly | Use 萬用句 (All-purpose phrases) at the bottom of every scene page. |
+| Tax refunds, large luggage, insurance claims | Scroll down the home page to 旅遊小抄 (Travel cheat sheets). |
 
-## 4. 聽不到聲音？
+## 4. Can't hear any sound?
 
-發音用手機內建的語音，不需要網路，但手機要先有日文語音：
+The app speaks using your phone's built-in voice. It doesn't need internet, but your phone needs a Japanese voice first:
 
-- **iPhone／iPad：** 設定 → 輔助使用 → 朗讀內容 → 聲音 → 日文，下載一個語音（推薦「增強版」）。
-- **Android：** 設定 → 系統 → 語言 → 文字轉語音輸出 → Google 語音服務，安裝日文語音資料。
+- **iPhone / iPad:** Settings → Accessibility → Spoken Content → Voices → Japanese, and download a voice (we recommend an "Enhanced" one).
+- **Android:** Settings → System → Languages → Text-to-speech output → Speech Services by Google, and install the Japanese voice data.
 
-就算沒有聲音，「給對方看」一樣能用，那本來就是最主要的用法。
+Even without sound, 給對方看 (Show them) still works. That's the main way to use the app anyway.
 
-## 5. 字體與顏色
+## 5. Text size and colours
 
-首頁最下方「字體與聲音」：
-- **字體大小：** 大、特大。
-- **顏色：** 跟手機、淺色、深色。
-- **日文語音：** 選聲音、試聽。
+At the bottom of the home page, tap 字體與聲音 (Text and sound):
+- **Text size:** large, extra large.
+- **Colours:** same as phone, light, dark.
+- **Japanese voice:** choose a voice and listen to a sample.
 
-## 6. 印成小卡
+## 6. Print cards
 
-首頁最下方「列印小卡」：一張 A4 印出信用卡大小的飯店卡、求救卡、醫療卡、過敏卡、緊急電話卡，沿虛線剪下護貝，放在皮夾裡。手機沒電也能用。
+At the bottom of the home page, tap 列印小卡 (Print cards). One A4 sheet prints credit-card-sized cards: hotel card, help card, medical card, allergy card and emergency numbers card. Cut along the dotted lines, laminate them and keep them in your wallet. They work even when your phone battery is flat.
 
-## 7. 加到主畫面
+## 7. Add to home screen
 
-- **iPhone（Safari）：** 分享按鈕 → 加入主畫面。
-- **Android（Chrome）：** 右上角選單 → 加到主畫面（或「安裝應用程式」）。
+- **iPhone (Safari):** Share button → Add to Home Screen.
+- **Android (Chrome):** menu at the top right → Add to Home screen (or "Install app").
 
-加到主畫面後，打開就像一般 App，沒有網路也能用。
+Once it's on your home screen, it opens like a normal app and works without internet.
 
-## 8. 常見問題
+## 8. Common questions
 
-**資料會被上傳嗎？**
-不會。這個網站沒有伺服器在存資料，所有資料都只在你的手機裡。分享連結的資料放在 `#` 後面，瀏覽器不會把這段送到網路上。
+**Is my info uploaded?**
+No. This website has no server storing data. All your info stays only on your phone. In a share link, the info is after the `#`, and browsers never send that part over the internet.
 
-**換手機或資料不見了怎麼辦？**
-請家人重新傳一次分享連結，或到「設定資料」重填。紙本小卡是最後的備份。
+**What if I change phones or my info disappears?**
+Ask your family to send the share link again, or fill it in again under 設定資料 (Set up info). The printed cards are your last backup.
 
-**為什麼不能打字翻譯？**
-這個 App 專注在「事先準備好的正確句子」，尤其是過敏、醫療這種不能翻錯的事。要翻譯招牌或菜單，請用「旅遊小抄 → 推薦的免費工具」裡的 Google 翻譯。
+**Why can't I type something to translate?**
+This app focuses on "correct phrases prepared in advance", especially for things that can't be mistranslated, like allergies and medical issues. To translate signs or menus, use Google Translate from 旅遊小抄 (Travel cheat sheets) → 推薦的免費工具 (Recommended free tools).

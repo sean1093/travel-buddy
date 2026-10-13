@@ -115,6 +115,6 @@ export function renderMedical(root: HTMLElement): void {
     section("哪裡不舒服？點選症狀", symptomPicker()),
     allergy && section("過敏卡（給餐廳看）", cardWithActions(allergy, "過敏卡")),
     section("醫療卡（給醫生、救護人員看）", cardWithActions(medicalCard(profile), "醫療卡")),
-    section("常用句", rowGroup(phrases.map((p) => phraseRow(p, { jp: p.jp, zh: p.zh })))),
+    section("常用句", rowGroup(phrases.map((p) => phraseRow(p, { jp: p.jp, zh: p.zh }, "醫療・過敏")))),
   ]);
 }
