@@ -51,6 +51,7 @@ const PAIRS: [string, string][] = [
   ["ok", "card"],
   ["on-accent", "ai"],
   ["on-accent", "shu"],
+  ["on-sos", "sos"],
   ["on-accent", "ok"],
   ["on-exit", "exit"],
 ];

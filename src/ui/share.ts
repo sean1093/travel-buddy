@@ -17,7 +17,7 @@ export function renderShare(root: HTMLElement): void {
         h("p", { class: "mt-4 text-xl leading-relaxed" }, "還沒有填任何資料。先填好飯店、行程和聯絡人，再回來分享。"),
         h("a", { href: "#/setup", class: `${BUTTON.primary} mt-6` }, icon("edit"), "去填資料"),
       ],
-      { back: "#/setup", backLabel: "回設定" },
+      { back: "#/setup", backLabel: "設定資料" },
     );
     return;
   }
@@ -113,6 +113,6 @@ export function renderShare(root: HTMLElement): void {
         h("a", { href: "#/print", class: `${BUTTON.secondary} mt-4` }, icon("print"), "列印護貝小卡"),
       ),
     ],
-    { back: "#/setup", backLabel: "回設定" },
+    { back: "#/setup", backLabel: "設定資料" },
   );
 }

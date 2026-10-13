@@ -59,12 +59,12 @@ export function renderHelp(root: HTMLElement): void {
     root,
     h(
       "header",
-      { class: "pt-safe sticky top-0 z-10 flex items-center justify-between gap-2 bg-shu px-3 pb-2 text-on-accent" },
+      { class: "pt-safe sticky top-0 z-10 flex items-center justify-between gap-2 bg-sos px-3 pb-2 text-sos-on" },
       h(
         "a",
         { href: "#/", class: "inline-flex min-h-14 items-center gap-1 rounded-lg px-3 text-lg font-bold active:bg-black/10" },
         icon("back", "h-6 w-6"),
-        "回首頁",
+        "首頁",
       ),
       h("h1", { class: "flex items-center gap-2 text-2xl font-bold" }, icon("help", "h-7 w-7"), "我需要幫忙"),
     ),
@@ -184,8 +184,8 @@ function callDock(familyLabel: string, familyTel: string | null): HTMLElement[] 
       { class: `grid gap-2 ${familyTel ? "grid-cols-3" : "grid-cols-2"}` },
       // The family is abroad: say so, since the call is charged as international.
       familyTel && dial("phone", familyLabel, "國際電話", familyTel, "bg-ai text-on-accent"),
-      police && dial("shield", "110", "警察", telOf(police.number), "bg-shu text-on-accent"),
-      ambulance && dial("firstaid", "119", "救護車", telOf(ambulance.number), "bg-shu text-on-accent"),
+      police && dial("shield", "110", "警察", telOf(police.number), "bg-sos text-sos-on"),
+      ambulance && dial("firstaid", "119", "救護車", telOf(ambulance.number), "bg-sos text-sos-on"),
     ),
   );
 }

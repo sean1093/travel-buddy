@@ -1,61 +1,61 @@
-# 未來規劃
+# Roadmap
 
-## 1. 定位
+## 1. Positioning
 
-**家人幫你準備好、遇到狀況時拿出來給對方看的那支手機。**
+**The phone your family set up for you, which you take out and show people when something comes up.**
 
-新功能都先問三個問題，三個都是「是」才做：
+Every new feature must answer three questions. We only build it if all three answers are "yes":
 
-1. 是不是要跟當地人溝通，或是會卡住的手續？
-2. 能不能離線、事先準備？
-3. 是不是現有的免費工具沒做好的？
+1. Is it about talking to locals, or about paperwork where people get stuck?
+2. Can it work offline and be prepared in advance?
+3. Is it something existing free tools don't do well?
 
-不做的事：自由翻譯、地圖導航、叫車、匯率換算、記帳分帳、天氣、行程規劃、景點推薦。這些交給專門的 App，我們在「推薦的免費工具」裡介紹（見 [research.md §5](research.md#5-競品分析與擴充評估2026-10-11)）。
+Things we don't do: free-form translation, map navigation, calling taxis, currency conversion, expense tracking and splitting, weather, trip planning, sightseeing suggestions. These are left to dedicated apps, which we introduce in 推薦的免費工具 (Recommended free tools) (see [research.md §5](research.md#5-competitor-analysis-and-expansion-review-2026-10-11)).
 
-## 2. 多國版本
+## 2. Versions for more countries
 
-網址依國家區分：`…/travel-buddy/japan/`，之後是 `…/korea/`、`…/thailand/` 等。
+URLs are split by country: `…/travel-buddy/japan/`, then later `…/korea/`, `…/thailand/` and so on.
 
-### 優先順序
+### Priority
 
-| 優先 | 國家 | 理由 |
+| Priority | Country | Reason |
 |---|---|---|
-| 1 | 韓國 | 台灣人最常去的目的地之一；韓文完全看不懂，不像日文還能靠漢字猜，需求更強 |
-| 2 | 泰國 | 熱門；泰文看不懂；看病和過敏的需求高 |
-| 3 | 越南 | 成長快，同樣看不懂也不通英文 |
-| 暫緩 | 法國、義大利、西班牙等 | 英文多少能通，翻譯 App 也夠用，差異化小 |
+| 1 | South Korea | One of the most popular destinations for Taiwanese travellers; Korean is completely unreadable to them, unlike Japanese where kanji give hints, so the need is stronger |
+| 2 | Thailand | Popular; Thai is unreadable; high need around doctors and allergies |
+| 3 | Vietnam | Growing fast; also unreadable, and English is not widely spoken |
+| On hold | France, Italy, Spain, etc. | English works to some extent and translation apps are good enough, so we add little |
 
-### 做法：共用核心＋國家內容包
+### Approach: shared core + country content packs
 
-不複製出好幾套 App，而是把程式整理成：
+Instead of copying the app several times, we organise the code into:
 
-- **共用核心：** 畫面、給對方看、給對方點選、分享連結、設定資料、列印小卡、旅遊小抄的架構、離線功能、設計系統。
-- **語言模組（每種語言一個）：**
-  - 標記與標音：日文的 `{漢字|かな}`，韓文、泰文需要讓中文使用者念得出來的標音方式。
-  - 禮貌用語的檢查規則：日文「です／ます」、韓文敬語。
-  - 語音：日文、韓文、泰文的系統語音。
-  - 泰文的禮貌語助詞（ครับ／ค่ะ）會因說話者性別不同，需要多一個「說話者性別」設定。
-- **國家內容包（每個國家一個）：** 情境句子、對方說、緊急電話、旅遊小抄、推薦工具、地名插槽的規則（例如日本車站加「駅」）。
-- **本機儲存：** 每個國家用自己的前綴，例如日本版是 `travelbuddy.japan.`。
+- **Shared core:** screens, show the other person, let the other person tap an answer, share links, 設定資料 (Set up info), printed cards, the travel guide framework, offline support, the design system.
+- **Language modules (one per language):**
+  - Markup and pronunciation: `{漢字|かな}` for Japanese; Korean and Thai need a pronunciation guide that Chinese speakers can read aloud.
+  - Politeness check rules: Japanese です／ます, Korean honorifics.
+  - Voice: the system voices for Japanese, Korean and Thai.
+  - Thai polite particles (ครับ／ค่ะ) depend on the speaker's gender, so Thai needs an extra "speaker gender" setting.
+- **Country content packs (one per country):** scene phrases, 對方說 (They say), emergency numbers, travel guides, recommended tools, rules for place name slots (for example, adding 「駅」 to station names in Japan).
+- **Local storage:** each country uses its own prefix, for example `travelbuddy.japan.` for Japan.
 
-### 步驟
+### Steps
 
-1. **整理架構**（不影響現在的功能）：把日文專用的程式（`lib/jp.ts`、`lib/romaji.ts`、`ui/japanese.ts`、內容檢查的禮貌用語規則）和日本內容移到「語言模組＋日本內容包」，畫面改成從目前的國家取內容。
-2. **根目錄改成選擇國家的頁面**（`site/index.html`），仍保留「帶著 `#` 轉到日本版」給舊連結。
-3. **韓國版試點：** 先找一位母語審稿者，跑完一次完整流程，估算每個國家的成本。
-4. 依試點結果決定泰國、越南。
+1. **Restructure** (without affecting current features): move the Japanese-specific code (`lib/jp.ts`, `lib/romaji.ts`, `ui/japanese.ts`, the politeness rules in the content checks) and the Japan content into a "language module + Japan content pack", and make the screens get content from the current country.
+2. **Turn the root into a country picker page** (`site/index.html`), while keeping the "redirect to the Japan version with the `#`" behaviour for old links.
+3. **Korea pilot:** first find a native-speaker reviewer, run the full process once, and estimate the cost per country.
+4. Decide on Thailand and Vietnam based on the pilot.
 
-### 風險
+### Risks
 
-- **內容品質：** 每個國家都需要母語者審稿；緊急和醫療資訊一樣要附來源和查證日期，否則就失去最大的優勢。
-- **維護量：** 規定會變（像日本的退稅新制），每個旅遊季前要重新查證。
-- **需求驗證：** 我們刻意沒有加使用量追蹤，需求只能靠詢問使用者或觀察社群討論。
+- **Content quality:** every country needs a native-speaker reviewer. Emergency and medical information must still have sources and check dates, or we lose our biggest advantage.
+- **Maintenance:** rules change (like Japan's new tax refund system), so content must be checked again before each travel season.
+- **Validating demand:** we deliberately added no usage tracking, so we can only learn about demand by asking users or watching community discussions.
 
-## 3. 待辦與追蹤
+## 3. To-do and follow-up
 
-| 項目 | 說明 |
+| Item | Details |
 |---|---|
-| 退稅新制再查證 | 2026-11-01 上路後，依實際經驗核對「出境退稅新制」的步驟和注意事項。 |
-| 推薦工具的 Google Play 連結 | Safety tips 和 GO 的 Google Play 網址還沒查證，目前用官方網站代替。 |
-| 醫療頁症狀名稱換行 | 截圖環境的字型較寬，「呼吸困難」等會斷成兩行；需要在實機上確認。 |
-| 定期查證 | 每個旅遊季前，檢查 `emergency.ts`、`guides.ts`、`tools.ts` 裡 `verified` 日期較舊的內容。 |
+| Recheck the new tax refund system | After it starts on 2026-11-01, check the steps and notes in 「出境退稅新制」 (New tax refund system at departure) against real experience. |
+| Google Play links for recommended tools | The Google Play URLs for Safety tips and GO haven't been checked yet, so the official websites are used for now. |
+| Symptom names wrapping on the medical page | The screenshot environment's font is wider, so names like 「呼吸困難」 (difficulty breathing) wrap onto two lines; this needs checking on a real phone. |
+| Regular checks | Before each travel season, review content in `emergency.ts`, `guides.ts` and `tools.ts` with older `verified` dates. |

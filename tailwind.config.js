@@ -9,6 +9,8 @@ export default {
   content: ["./index.html", "./src/**/*.ts"],
   theme: {
     extend: {
+      // Titles in a Mincho-style serif, like a printed ryokan guide; everything else in the page font.
+      fontFamily: { title: ["var(--font-title)"] },
       colors: {
         paper: token("paper"),
         card: token("card"),
@@ -21,6 +23,7 @@ export default {
         // 藍 indigo: actions. 朱 vermilion: help and emergencies.
         ai: { DEFAULT: token("ai"), soft: token("ai-soft") },
         shu: { DEFAULT: token("shu"), soft: token("shu-soft") },
+        sos: { DEFAULT: token("sos"), on: token("on-sos") },
         ok: { DEFAULT: token("ok"), soft: token("ok-soft") },
         warn: { soft: token("warn-soft") },
         // Exit-sign yellow, for exits and elevators.

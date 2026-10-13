@@ -1,61 +1,61 @@
-# 隨身旅伴 TravelBuddy
+# TravelBuddy (隨身旅伴)
 
-> 不會當地話，出國也不怕。現在提供日本版。
+> Travel abroad without speaking the language. Japan edition available now.
 
-遇到狀況時打開手機，點一個大按鈕：App 替你**念出日文**，或把日文**放大給對方看**；對方也可以直接點答案回你。出發前自己或家人先填好飯店、行程和健康資料，到了當地不用打字、不用搜尋，沒有網路也能用。
+When something comes up, open your phone and tap one big button. The app **reads the Japanese aloud** for you, or **shows the Japanese in large text** for the other person. They can also tap an answer to reply. Before the trip, you or your family fill in the hotel, itinerary and health details. Once there, you don't need to type or search, and it works without internet.
 
-- **日本版：** https://sean1093.github.io/travel-buddy/japan/
-  （網站根目錄 https://sean1093.github.io/travel-buddy/ 會自動轉到日本版。）
-- **對象：** 不會當地語言的每一個人。
-- **形式：** 手機網頁，可以加到主畫面。不用註冊、不用下載 App。
-- **隱私：** 沒有後端。資料只存在自己的手機裡；分享給家人時，資料放在連結 `#` 後面，不會送到任何伺服器。
+- **Japan edition:** https://sean1093.github.io/travel-buddy/japan/
+  (The site root https://sean1093.github.io/travel-buddy/ redirects to the Japan edition.)
+- **For:** anyone who doesn't speak the local language.
+- **Format:** a mobile web page you can add to your home screen. No sign-up, no app download.
+- **Privacy:** no backend. Data stays on your own phone. When you share it with family, the data goes after the `#` in the link and is never sent to any server.
 
-## 主要功能
+## Main features
 
-| 功能 | 說明 |
+| Feature | Description |
 |---|---|
-| 我需要幫忙 | 首頁的紅色大按鈕。一張給路人、站務員或警察看的求救卡，自動帶入飯店和家人電話；底部可以直接撥家人、110、119。 |
-| 情境句庫 | 交通、飯店、行李、餐廳、便利商店、購物、藥妝店、廁所・問路、帶小孩、緊急・醫療。每句都能播放、慢速播放、放大給對方看。 |
-| 雙向溝通 | 「給對方點選」：對方用手指點日文答案，你看到中文。「對方說」：聽到店員常說的話，看中文、點中文回答。 |
-| 醫療卡、過敏卡 | 由慢性病、用藥、過敏和飲食習慣（全素、蛋奶素、五辛素等）自動產生日文卡片；另有症狀指指卡。 |
-| 回飯店卡 | 給計程車司機看的飯店名稱、地址和電話。 |
-| 旅遊小抄 | 一步一步的說明：出境退稅新制、新幹線大型行李、看病與保險理賠，以及推薦的免費工具。 |
-| 分享與列印 | 家人填好後用連結或 QR code 傳給旅客；也能印成護貝小卡，手機沒電也能用。 |
+| 我需要幫忙 (I need help) | The big red button on the home screen. A help card to show passers-by, station staff or police. It fills in the hotel and family phone numbers automatically. At the bottom you can call family, 110 or 119 directly. |
+| Scene phrasebook | Transport, hotel, luggage, restaurant, convenience store, shopping, drugstore, toilets and directions, travelling with kids, emergency and medical. Every phrase can be played, played slowly, or shown large to the other person. |
+| Two-way communication | 「給對方點選」 (Let them tap): the other person taps a Japanese answer and you see it in Chinese. 「對方說」 (They say): see what staff commonly say in Chinese, and tap a Chinese reply. |
+| Medical card, allergy card | Japanese cards generated from chronic conditions, medication, allergies and dietary needs (vegan, lacto-ovo vegetarian, five-pungent-free vegetarian, etc.). There is also a symptom pointing card. |
+| Back-to-hotel card | The hotel name, address and phone number to show a taxi driver. |
+| Travel cheat sheets | Step-by-step guides: the new departure tax refund system, large luggage on the Shinkansen, seeing a doctor and insurance claims, and recommended free tools. |
+| Share and print | After family fills in the details, they send them to the traveller by link or QR code. You can also print a laminated card that works even when your phone is dead. |
 
-畫面截圖在 [`docs/screenshots/`](docs/screenshots/)。
+Screenshots are in [`docs/screenshots/`](docs/screenshots/).
 
-## 文件
+## Docs
 
-| 文件 | 給誰看 |
+| Doc | For |
 |---|---|
-| [使用說明](docs/user-guide.md) | 旅客和幫忙設定的家人 |
-| [產品規格](docs/spec.md) | 想了解產品怎麼運作的人 |
-| [設計語言](docs/design.md) | 改畫面的人 |
-| [內容撰寫規範](docs/content-guide.md) | 新增句子、說明、緊急電話的人 |
-| [開發與部署](docs/development.md) | 改程式、部署網站的人 |
-| [痛點與競品調查](docs/research.md) | 決定要做什麼功能的人 |
-| [未來規劃](docs/roadmap.md) | 多國版本與待辦事項 |
-| [改版紀錄](docs/changelog.md) | 想知道什麼時候改了什麼 |
+| [User guide](docs/user-guide.md) | Travellers and family members who help set things up |
+| [Product spec](docs/spec.md) | Anyone who wants to understand how the product works |
+| [Design language](docs/design.md) | Anyone changing the UI |
+| [Content guide](docs/content-guide.md) | Anyone adding phrases, guides or emergency numbers |
+| [Development and deployment](docs/development.md) | Anyone changing code or deploying the site |
+| [Pain points and competitor research](docs/research.md) | Anyone deciding which features to build |
+| [Roadmap](docs/roadmap.md) | Multi-country editions and to-dos |
+| [Changelog](docs/changelog.md) | Anyone who wants to know what changed and when |
 
-完整索引見 [`docs/README.md`](docs/README.md)。
+Full index in [`docs/README.md`](docs/README.md).
 
-## 快速開始（開發）
+## Quick start (development)
 
-需要 Node.js 20.19+ 或 22.12+。
+Requires Node.js 20.19+ or 22.12+.
 
 ```bash
 npm install
-npm run dev      # 本機開發
-npm test         # 內容檢查與單元測試
-npm run build    # 型別檢查＋建置到 dist/（日本版在 dist/japan/）
+npm run dev      # local development
+npm test         # content checks and unit tests
+npm run build    # type check + build to dist/ (Japan edition in dist/japan/)
 ```
 
-細節見 [開發與部署](docs/development.md)。
+Details in [Development and deployment](docs/development.md).
 
-## 致謝
+## Acknowledgements
 
-日文標記語法、語音、本機存檔與離線快取的做法來自姊妹專案 [Ippo 一歩](https://github.com/sean1093/ippo)。
+The Japanese markup syntax, speech, local storage and offline caching approach come from the sister project [Ippo 一歩](https://github.com/sean1093/ippo).
 
-## 授權
+## License
 
 MIT

@@ -1,50 +1,59 @@
-# 設計語言：和紙・柔和
+# Design language: washi, soft
 
-這個 App 會在月台、店門口、計程車裡被打開，常常是在慌張的時候。畫面要安靜、好讀、讓人放心，像日本旅館的說明卡或文具店的紙品，不像一般 App 的模板。
+This app gets opened on platforms, at shop entrances and in taxis, often in a panic. The screens should be quiet, easy to read and reassuring, like a Japanese inn's instruction card or paper goods from a stationery shop, not a generic app template.
 
-這個方向（C）是從四個設計稿裡選出來的（見 issue #22）：A 車站標示、B 清單極簡、C 和紙柔和、D 高對比單色。
+This direction (C) was chosen from four design drafts (see issue #22): A station signage, B minimal list, C washi soft, D high-contrast monochrome. After the 2026-10-13 UX review it was refined towards an "inn instruction card": Mincho headings, dashed dividers, a single page header style (items 10–13).
 
-## 原則
+## Principles
 
-1. **不用 emoji。**
-   - emoji 在每支手機上長得不一樣，也會讓畫面看起來像聊天機器人產生的。
-   - 情境、功能一律用 `src/ui/dom.ts` 的線條圖示：24×24 格線、圓角端點。
-   - 地點、服務類的圖示（`train`、`bed`、`bowl`、`store`、`restroom`、`firstaid`…）參考 JIS 公共標示圖示的造型。
-2. **細線圖示，不加底板**（`pictogram()`）。
-   - 圖示用 1.6px 細線，顏色跟著意思走（藍或紅）。旁邊一定有文字，圖示本身只是裝飾（`aria-hidden`）。
-   - 唯一的例外是出口、電梯：保留黃底黑字的底板，因為在車站裡這個顏色本身就是標示。
-3. **顏色只代表意思，不拿來裝飾。**
+1. **No emoji.**
+   - Emoji look different on every phone, and make the screen look like it was produced by a chatbot.
+   - Scenes and features always use the line icons in `src/ui/dom.ts`: 24×24 grid, round line caps.
+   - Place and service icons (`train`, `bed`, `bowl`, `store`, `restroom`, `firstaid`…) follow the shapes of JIS public information symbols.
+2. **Thin-line icons, no backing plate** (`pictogram()`).
+   - Icons use a 1.6px thin line, coloured by meaning (blue or red). There is always text next to them; the icon itself is only decoration (`aria-hidden`).
+   - The one exception is exits and lifts: they keep the black-on-yellow plate, because in a station that colour is itself the sign.
+3. **Colour only carries meaning, never decoration.**
 
-   | 顏色 | Token | 意思 |
+   | Colour | Token | Meaning |
    |---|---|---|
-   | 和紙 | `paper` | 頁面底色（暖米色） |
-   | 白紙 | `card` | 卡片、清單 |
-   | 砂色 | `sand` | 次要按鈕、捷徑 |
-   | 靛藍 | `ai` | 可以點的東西、一般情境 |
-   | 磚紅 | `shu` | 緊急：求救、醫療、110／119 |
-   | 黃 | `exit` | 出口、電梯，比照車站出口標示的黑字黃底 |
-   | 綠 | `ok` | 讓對方點選回答 |
-   | 淡黃 | `warn-soft` | 提示、萬用句 |
+   | Washi (和紙, Japanese paper) | `paper` | Page background (warm beige) |
+   | White paper | `card` | Cards, lists |
+   | Sand | `sand` | Secondary buttons, shortcuts |
+   | Ai (藍, indigo) | `ai` | Things you can tap, regular scenes |
+   | Shu (朱, brick red) | `shu` | Emergency: help, medical, 110/119 |
+   | Deep shu (深朱, deep vermilion) | `sos` | Solid emergency buttons (我需要幫忙 (I need help), 110/119): white on dark red in both light and dark mode; it does not turn pale pink in dark mode |
+   | Yellow | `exit` | Exits, lifts; black on yellow like station exit signs |
+   | Green | `ok` | Letting the other person tap an answer |
+   | Pale yellow | `warn-soft` | Tips, 萬用句 (all-purpose phrases) |
 
-4. **用色塊分層，不用外框。**
-   - 卡片、格子、清單靠底色和紙色的差別區分，不畫外框、不加陰影。
-   - 圓角統一 16px（`rounded-2xl`）；小按鈕用 `rounded-lg`。
-   - 例外一：輸入框保留看得見的外框（`ring-muted/60`），讓人知道哪裡可以打字。
-   - 例外二：「已選取」的狀態用 2px 外框，讓人一眼看出選了哪個。
-5. **段落標題是安靜的小字**（`heading()`）：淡色、字距放寬，像紙本導覽上清單上方的小標。緊急段落用紅色。
-6. **文案是指示，不是聊天。**
-   - 短句、祈使句，不加表情符號，也不說「👉」「👇」。
-   - 例：「請把畫面拿給對方看」「選一種方式」。
-   - 方向直接用箭頭字元（→ ← ↑）。
-7. **勾選要像紙本表格。** 症狀、飲食習慣都用會填滿的方框加勾，跟醫院掛號單一樣。
-8. **同一組的句子放在同一張卡片裡**（`rowGroup()`），用虛線分開，像菜單或旅館的說明卡，不要每一句各自一個框。
-9. **一個畫面只有一個實心按鈕。**
-   - 最主要的動作用實心（例如「給對方看」），其他動作用淡色底（`bg-sand`、`bg-ai-soft`、`bg-ok-soft`）。
-   - 「播放」和「慢速」長得一樣，只靠圖示和文字區分。
-10. **字重有層次。** 清單標題用半粗（`font-semibold`），日文和說明用一般字重、淡色。
+4. **Layer with blocks of colour, not borders.**
+   - Cards, cells and lists are separated by the difference between their background and the paper colour. No borders, no shadows.
+   - Corner radius is 16px throughout (`rounded-2xl`); small buttons use `rounded-lg`.
+   - Exception one: input fields keep a visible border (`ring-muted/60`) so people know where they can type.
+   - Exception two: the "selected" state uses a 2px border so you can see at a glance what is chosen.
+   - All other buttons (answer options, destinations, let-them-tap) have no border.
+5. **Section headings are quiet small text** (`heading()`): muted colour, wider letter spacing, followed by a thin line to the edge, like the small labels above lists in a printed guide. Emergency sections use red.
+6. **Copy gives instructions; it doesn't chat.**
+   - Short, imperative sentences. No emoticons, and no "👉" or "👇".
+   - Examples: 「請把畫面拿給對方看」 (Please show this screen to the other person), 「點一句，念給對方聽」 (Tap a phrase to read it aloud to them).
+   - Once the phone is handed to a Japanese person, on-screen instructions for them are always in Japanese (for example 「こちらをご覧ください」).
+   - Use arrow characters directly for directions (→ ← ↑).
+7. **Checkboxes look like a paper form.** Symptoms and dietary needs use boxes that fill in with a tick, like a hospital registration form.
+8. **Phrases in the same group go on the same card** (`rowGroup()`), separated by dashed lines, like a menu or an inn's instruction card. Don't give each phrase its own box.
+9. **Only one solid button per screen.**
+   - The main action is solid (for example 「給對方看」 (Show them)). Other actions use a pale background (`bg-sand`, `bg-ai-soft`, `bg-ok-soft`), or sit in the same card divided by dashed lines (the phrase page's 「播放／慢速／給對方點選答案」 (Play / Slow / Let them tap an answer)).
+   - "Play" and "Slow" look the same; only the icon and text tell them apart.
+   - On 「對方說」 (They say) cards, the reply buttons are the focus. Playback is reduced to one speaker in the top right: normal speed the first time, slow when pressed again.
+10. **Font weights have a hierarchy.** Page titles use semi-bold Mincho (`font-title`). List titles and scene buttons use semi-bold (`font-semibold`). Bold is only for buttons and words people must see immediately. Japanese text and descriptions use regular weight in a muted colour.
+11. **There is only one kind of page header.**
+   - Regular pages: 「‹ 首頁」 (‹ Home) in the top left, with a large left-aligned title below (scene pages put an icon before the title). When you scroll down, the title shrinks to one line in the top bar (`page()`).
+   - Overlays: 「× 關閉」 (× Close) in the top left, with one line of muted small text on the right saying where you are or what to do next (`overlayBar()`).
+12. **Japanese looks like a note.** On the phrase page, the Japanese sits on a card with a thin brick-red line along the top edge. Furigana are centred over the kanji. Romaji is one line for the whole sentence, separated from the Japanese by a dashed line.
+13. **Home screen scenes are two columns of horizontal buttons**: icon on the left, text on the right, so all ten scenes fit on about one screen. 「回飯店／醫療卡」 (Back to hotel / Medical card) share one card, divided by a dashed line. Settings, font size and printing are in the list at the bottom.
 
-## 為什麼
+## Why
 
-- **安心。** 慌張的時候，安靜的畫面比熱鬧的畫面更容易讓人看清楚要按哪裡。
-- **一致。** SVG 在每支手機、深色模式、列印小卡上看起來都一樣。
-- **可信。** 求救卡、醫療卡要交給陌生人看。看起來越像正式的文件，對方越願意認真讀。
+- **Reassurance.** When you are panicking, a quiet screen makes it easier to see where to tap than a busy one.
+- **Consistency.** SVG looks the same on every phone, in dark mode and on printed cards.
+- **Credibility.** The help card and medical card are shown to strangers. The more they look like official documents, the more seriously people read them.

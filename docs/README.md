@@ -1,22 +1,22 @@
-# 文件索引
+# Docs index
 
-隨身旅伴 TravelBuddy 的所有文件。UI 與文件用繁體中文（台灣用語）；程式碼、註解、issue 與 PR 用英文。
+All docs for TravelBuddy (隨身旅伴). The UI and docs use Traditional Chinese (Taiwan usage). Code, comments, issues and PRs use English.
 
-| 文件 | 內容 | 給誰看 |
+| Doc | Contents | For |
 |---|---|---|
-| [user-guide.md](user-guide.md) | 功能介紹、怎麼設定與分享、隱私、聽不到聲音、列印、常見問題 | 旅客、幫忙設定的家人 |
-| [spec.md](spec.md) | 使用者與流程、每個功能的規格、路由、資料結構、分享連結、語音 | 產品、設計、開發 |
-| [design.md](design.md) | 設計語言（和紙・柔和）：顏色、圖示、外框、字重、按鈕層級 | 改畫面的人 |
-| [content-guide.md](content-guide.md) | 日文標記、插槽、禮貌用語、答案組、旅遊小抄、緊急電話、查證規則、怎麼新增情境 | 寫內容的人 |
-| [development.md](development.md) | 環境、指令、專案結構、測試、截圖、部署、網址與儲存、工作流程 | 開發、維運 |
-| [research.md](research.md) | 旅客痛點、競品分析、因此做了什麼和沒做什麼 | 決定功能的人 |
-| [roadmap.md](roadmap.md) | 多國版本的做法、待辦與追蹤事項 | 規劃的人 |
-| [changelog.md](changelog.md) | 依時間記錄的改版內容與 PR 連結 | 所有人 |
-| [screenshots/](screenshots/) | 手機尺寸（390×844）的畫面截圖 | 所有人 |
+| [user-guide.md](user-guide.md) | Features, how to set up and share, privacy, no sound, printing, FAQ | Travellers, family members who help set up |
+| [spec.md](spec.md) | Users and flows, spec for each feature, routes, data structures, share links, speech | Product, design, development |
+| [design.md](design.md) | Design language (washi, soft): colours, icons, borders, font weights, button hierarchy | Anyone changing the UI |
+| [content-guide.md](content-guide.md) | Japanese markup, slots, polite language, answer sets, travel cheat sheets, emergency numbers, verification rules, how to add a scene | Content writers |
+| [development.md](development.md) | Environment, commands, project structure, tests, screenshots, deployment, URLs and storage, workflow | Development, operations |
+| [research.md](research.md) | Traveller pain points, competitor analysis, what we built because of it and what we didn't | Anyone deciding on features |
+| [roadmap.md](roadmap.md) | Approach to multi-country editions, to-dos and follow-ups | Planners |
+| [changelog.md](changelog.md) | Release changes by date, with PR links | Everyone |
+| [screenshots/](screenshots/) | Screenshots at phone size (390×844) | Everyone |
 
-## 幾個一定要知道的原則
+## Principles you must know
 
-- **給所有人用的服務：** UI 與文件不使用針對特定年齡層的稱呼（例如「長輩」）。大字、大按鈕、不打字，是為了讓任何人在慌亂時都能用。
-- **不用 emoji：** 圖示一律用 `src/ui/dom.ts` 的線條圖示（見 [design.md](design.md)）。
-- **緊急與醫療資訊一定要查證：** 每一筆都附來源和查證日期，查不到可靠來源就不放（見 [content-guide.md](content-guide.md)）。
-- **不重做別人已經做好的工具：** 翻譯、地圖、叫車、警報交給專門的 App，我們專注在「拿給對方看、讓對方點答案、家人先填好」（見 [research.md](research.md)）。
+- **A service for everyone:** the UI and docs don't use terms aimed at a specific age group (for example 「長輩」, "elders"). Large text, large buttons and no typing are there so anyone can use it when panicking.
+- **No emoji:** icons always use the line icons in `src/ui/dom.ts` (see [design.md](design.md)).
+- **Emergency and medical information must be verified:** every entry has a source and a verification date. If there is no reliable source, leave it out (see [content-guide.md](content-guide.md)).
+- **Don't rebuild tools others already do well:** translation, maps, ride-hailing and alerts are left to dedicated apps. We focus on "show it to the other person, let them tap an answer, and have family fill it in beforehand" (see [research.md](research.md)).
