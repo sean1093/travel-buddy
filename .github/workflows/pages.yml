@@ -35,6 +35,10 @@ jobs:
       - run: npm test
       # Typechecks, then builds.
       - run: npm run build
+      # Browser journeys gate the deploy too: a push or a manual run that skipped the
+      # PR checks must not ship an offline or routing regression.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
 
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

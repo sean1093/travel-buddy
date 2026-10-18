@@ -11,7 +11,8 @@ export default defineConfig({
   retries: 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: "http://localhost:4173/japan/",
+    // Not 4173: the screenshot script's preview server (dist/japan at /) may already be running there.
+    baseURL: "http://localhost:4310/japan/",
     trace: "retain-on-failure",
     // The app is Traditional Chinese first.
     locale: "zh-TW",
@@ -20,8 +21,8 @@ export default defineConfig({
     launchOptions: process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {},
   },
   webServer: {
-    command: "npx vite preview --port 4173 --strictPort --outDir dist",
-    url: "http://localhost:4173/japan/",
+    command: "npx vite preview --port 4310 --strictPort --outDir dist",
+    url: "http://localhost:4310/japan/",
     reuseExistingServer: !process.env.CI,
   },
 });

@@ -110,7 +110,7 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 
 The `ui-*` files run in happy-dom (`// @vitest-environment happy-dom`); the rest run in Node.
 
-`npm run test:e2e` runs `e2e/journeys.spec.ts` (first run, help, ask and answer, heard reply, symptoms, share and import, settings, unknown routes, offline) and `e2e/layout.spec.ts` (every main route at 390 px, 320 px, extra-large text, dark and landscape: no sideways scroll, accessible names, 44 px targets).
+`npm run test:e2e` runs `e2e/journeys.spec.ts` (first run, help, ask and answer, heard reply, symptoms, share and import, settings, unknown routes, offline) and `e2e/layout.spec.ts` (every main route and full-screen layer at 390 px, 320 px, extra-large text, dark and landscape: no sideways scroll, accessible names, 44 px targets). The e2e server runs on port 4310, so it never collides with the screenshot server on 4173.
 
 ## Screenshots
 
@@ -126,7 +126,7 @@ In the Claude Code cloud environment, Chromium is at `/opt/pw-browsers/chromium`
 
 ## Deployment
 
-On a push to `main`, `pages.yml` tests, builds, then deploys `dist/` to GitHub Pages. The first time, in the repo go to **Settings → Pages → Source** and choose **GitHub Actions**, and check that **Settings → Environments → github-pages** allows deploys from `main`.
+On a push to `main`, `pages.yml` tests, builds, runs the e2e suite, then deploys `dist/` to GitHub Pages. The first time, in the repo go to **Settings → Pages → Source** and choose **GitHub Actions**, and check that **Settings → Environments → github-pages** allows deploys from `main`.
 
 ### URLs and countries
 

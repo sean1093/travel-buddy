@@ -1,30 +1,21 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { PAPER } from "../src/state";
+import { hex, tokens } from "./css-tokens";
 
-const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
+// The phone's browser bar takes <meta name="theme-color">. Before the CSS loads,
+// the inline script in index.html sets it from its own copy of the page
+// background; applySettings() then reads --paper from the stylesheet. If the copy
+// drifts, the bar visibly changes colour as the app starts.
+describe("theme-color in index.html", () => {
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const light = hex(tokens(":root").paper!);
+  const dark = hex(tokens(':root[data-theme="dark"]').paper!);
 
-/** `--paper` of a theme block in style.css, as #rrggbb. */
-function paper(css: string, selector: string): string {
-  const start = css.indexOf(`${selector} {`);
-  const [, r, g, b] = css.slice(start).match(/--paper:\s*(\d+)\s+(\d+)\s+(\d+);/)!;
-  return `#${[r, g, b].map((c) => Number(c).toString(16).padStart(2, "0")).join("")}`;
-}
-
-// The phone's browser bar takes this colour. Three places set it: the inline
-// script before first paint, applySettings() after, and the page background.
-// If they drift, the bar visibly changes colour as the app starts.
-describe("theme-color", () => {
-  const css = read("../src/style.css");
-  const html = read("../index.html");
-
-  it("matches the page background in both themes", () => {
-    expect(PAPER.light).toBe(paper(css, ":root"));
-    expect(PAPER.dark).toBe(paper(css, ':root[data-theme="dark"]'));
+  it("starts as the light page background", () => {
+    expect(html).toContain(`<meta name="theme-color" content="${light}" />`);
   });
 
-  it("matches the inline script and the default meta tag in index.html", () => {
-    expect(html).toContain(`<meta name="theme-color" content="${PAPER.light}" />`);
-    expect(html).toContain(`theme === "dark" ? "${PAPER.dark}" : "${PAPER.light}"`);
+  it("is set to the page background of the theme before first paint", () => {
+    expect(html).toContain(`theme === "dark" ? "${dark}" : "${light}"`);
   });
 });

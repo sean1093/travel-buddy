@@ -110,7 +110,8 @@ test("setup → share link → import in a fresh browser", async ({ page, seed, 
   await page.getByText("顯示連結文字").click();
   const link = await page.getByRole("textbox", { name: "分享連結" }).inputValue();
   // The data rides in the fragment, which never reaches a server.
-  expect(link).toMatch(/^http:\/\/localhost:4173\/japan\/#\/s\//);
+  expect(new URL(link).pathname).toBe("/japan/");
+  expect(new URL(link).hash).toMatch(/^#\/s\//);
 
   const context = await browser.newContext();
   try {
@@ -181,3 +182,21 @@ test("offline: after the first visit, home and a scene still open", async ({ pag
     await context.setOffline(false);
   }
 });
+
+for (const theme of ["light", "dark"] as const) {
+  test(`browser bar colour is the ${theme} page background, before and after the app starts`, async ({ page, seed }) => {
+    await seed({ profile: SAMPLE_PROFILE, theme });
+    await page.goto("#/");
+    await expect(page.locator("h1").first()).toBeVisible();
+    const { meta, background } = await page.evaluate(() => {
+      const hex = (rgb: string) =>
+        `#${(rgb.match(/\d+/g) ?? []).slice(0, 3).map((c) => Number(c).toString(16).padStart(2, "0")).join("")}`;
+      return {
+        meta: document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!.content,
+        background: hex(getComputedStyle(document.body).backgroundColor),
+      };
+    });
+    // applySettings() has run by now; the inline script's value is checked in tests/theme-color.test.ts.
+    expect(meta).toBe(background);
+  });
+}

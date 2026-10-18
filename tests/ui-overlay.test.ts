@@ -302,7 +302,8 @@ describe("askOther", () => {
     ov.askOther(question, replies);
     button(topDialog(), "1番線").click();
     button(topDialog(), "再問一次").click();
-    expect(topDialog().contains(document.activeElement)).toBe(true);
+    // Where opening the layer puts it.
+    expect(document.activeElement).toBe(button(topDialog(), "關閉"));
   });
 
   it("closes with 知道了", () => {

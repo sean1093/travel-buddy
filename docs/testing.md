@@ -21,7 +21,7 @@ The app is opened in a hurry: lost on a platform, at a pharmacy counter, in a ta
 |---|---|---|---|---|
 | Content and logic | Vitest (Node) | `tests/*.test.ts` | `npm test`, CI `check` | Phrase markup, emergency numbers and sources, cards, share-link codec, phone numbers, romaji, storage, speech queueing, settings parsing |
 | Components | Vitest + happy-dom | `tests/ui-*.test.ts` | `npm test`, CI `check` | Each screen renders the right controls for its data; overlays trap focus and close on back/Escape; toggles, counts and ARIA states |
-| Browser journeys | Playwright (Chromium, Pixel 7) | `e2e/*.spec.ts` | `npm run test:e2e`, CI `e2e` | Real routing, storage, share link round trip, service worker offline, layout at every size and theme |
+| Browser journeys | Playwright (Chromium, Pixel 7) | `e2e/*.spec.ts` | `npm run test:e2e`, CI `e2e`, and before every deploy | Real routing, storage, share link round trip, service worker offline, layout at every size and theme |
 | Visual review | `scripts/screenshots.cjs` | `docs/screenshots/` | By hand for UI changes | What a person sees; judged by eye in review |
 | Device check | Real iPhone and Android phones | — | Before a release that touches speech, printing or install | What browsers in CI can't emulate |
 
@@ -61,7 +61,12 @@ Rules of thumb:
 - dark theme
 - landscape 844×390
 
-For each combination it checks three things. The page must not scroll sideways. Every visible button and link must have an accessible name. Tappable targets must be at least 44px tall.
+It also opens the full-screen layers at each variant: the phrase page, 給對方點選 (Let them tap), 給對方看 (Show them) and 萬用句 (All-purpose phrases).
+
+For each case it checks three things:
+- The page must not scroll sideways.
+- Every visible button and link must have an accessible name.
+- Tappable targets must be at least 44px tall. This covers the page header, the content and any open layer.
 
 ## Running the tests
 

@@ -362,8 +362,11 @@ export function renderScene(root: HTMLElement, [id, view]: string[]): void {
         pickedPlace = place;
         drawPicker(place);
         drawPhrases(place);
-        // The redraw replaced the radio just tapped: keep the focus on it, not on <body>.
-        pickerSlot.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]')?.focus({ preventScroll: true });
+        // The redraw replaced the radio just tapped (and reset the row's scroll): keep the
+        // focus on it, not on <body>, and scroll the row back to it.
+        const chip = pickerSlot.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]');
+        chip?.focus({ preventScroll: true });
+        chip?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
       }),
     );
   }

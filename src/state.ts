@@ -11,10 +11,16 @@ const THEMES: readonly unknown[] = ["system", "light", "dark"];
 const TEXT_SIZES: readonly unknown[] = ["large", "xlarge"];
 
 /**
- * `--paper` of each theme, for <meta name="theme-color">. Must match style.css and the
- * inline script in index.html (tests/theme-color.test.ts checks all three).
+ * The page background (`--paper`, "R G B" in style.css) as #rrggbb, for
+ * <meta name="theme-color">. Read from the stylesheet so there is no copy to drift;
+ * only the inline script in index.html, which runs before CSS, keeps its own
+ * (tests/theme-color.test.ts checks it).
  */
-export const PAPER: Record<"light" | "dark", string> = { light: "#f4efe6", dark: "#1c1a17" };
+function paperColour(root: HTMLElement): string | null {
+  const channels = getComputedStyle(root).getPropertyValue("--paper").trim().split(/\s+/).map(Number);
+  if (channels.length !== 3 || channels.some((c) => !Number.isInteger(c))) return null;
+  return `#${channels.map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+}
 
 export const NORMAL_RATE = 0.9;
 export const SLOW_RATE = 0.6;
@@ -54,6 +60,7 @@ export function applySettings(): void {
     settings.theme === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : settings.theme;
   root.dataset.theme = theme;
   root.dataset.textSize = settings.textSize;
-  document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute("content", PAPER[theme]);
+  const paper = paperColour(root);
+  if (paper) document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute("content", paper);
   configureSpeech({ voice: settings.voice, rate: NORMAL_RATE });
 }

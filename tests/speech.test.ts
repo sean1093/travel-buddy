@@ -270,7 +270,7 @@ describe("speak", () => {
     expect(await settled(speak("はい"))).toBe(true);
   });
 
-  // Regression: plain("") throws on an empty word, so speak() must check before parsing.
+  // Regression: plain("") used to throw (parse treated "" as one empty word).
   it("resolves without speaking when the text is empty", async () => {
     const synth = fakeSynth();
     const { speak } = await loadSpeech(synth);
