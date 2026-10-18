@@ -1,6 +1,6 @@
 # Docs index
 
-All docs for TravelBuddy (隨身旅伴). The UI and docs use Traditional Chinese (Taiwan usage). Code, comments, issues and PRs use English.
+All docs for TravelBuddy (隨身旅伴). The app UI uses Traditional Chinese (Taiwan usage) and Japanese. Docs, code, comments, issues and PRs use English.
 
 | Doc | Contents | For |
 |---|---|---|
@@ -8,6 +8,7 @@ All docs for TravelBuddy (隨身旅伴). The UI and docs use Traditional Chinese
 | [spec.md](spec.md) | Users and flows, spec for each feature, routes, data structures, share links, speech | Product, design, development |
 | [design.md](design.md) | Design language (washi, soft): colours, icons, borders, font weights, button hierarchy | Anyone changing the UI |
 | [content-guide.md](content-guide.md) | Japanese markup, slots, polite language, answer sets, travel cheat sheets, emergency numbers, verification rules, how to add a scene | Content writers |
+| [testing.md](testing.md) | Test plan: risks, test layers, coverage by feature, layout matrix, how to run, manual device check | QA, development |
 | [development.md](development.md) | Environment, commands, project structure, tests, screenshots, deployment, URLs and storage, workflow | Development, operations |
 | [research.md](research.md) | Traveller pain points, competitor analysis, what we built because of it and what we didn't | Anyone deciding on features |
 | [roadmap.md](roadmap.md) | Approach to multi-country editions, to-dos and follow-ups | Planners |
