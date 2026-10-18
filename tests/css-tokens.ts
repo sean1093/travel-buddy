@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { tokenHex } from "../src/state";
 
 /** src/style.css as text. Read from disk: Vitest stubs CSS imports, even with ?raw. */
 export const css = readFileSync(new URL("../src/style.css", import.meta.url), "utf8");
@@ -19,7 +20,7 @@ export function tokens(selector: string): Record<string, number[]> {
   return out;
 }
 
-/** A token as #rrggbb. */
-export function hex([r, g, b]: number[]): string {
-  return `#${[r, g, b].map((c) => c!.toString(16).padStart(2, "0")).join("")}`;
+/** A token as #rrggbb, with the same conversion the app uses for the browser bar. */
+export function hex(rgb: number[]): string {
+  return tokenHex(rgb.join(" "))!;
 }

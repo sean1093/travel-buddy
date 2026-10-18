@@ -10,7 +10,9 @@ Newest first. Every item goes through the "issue → development → PR → revi
 ### Fixes found by the new tests
 - **Browser bar colour:** the phone's browser bar no longer changes colour as the app starts (the app's copy of the background colour was out of date).
 - **Keyboard and screen-reader focus:** after 再問一次 (Ask again) and after picking a destination, focus stays on the screen instead of jumping back to the top of the page.
-- **Speech:** asking to speak empty text no longer throws an error.
+- **Destination row:** picking a station further along the row no longer scrolls the row back to the start.
+- **Speech:** asking to speak empty or blank text resolves quietly instead of throwing an error.
+- **Content checks:** empty Japanese text is now reported by `npm test` instead of slipping through.
 
 ## 2026-10-13
 

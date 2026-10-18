@@ -17,8 +17,13 @@ const TEXT_SIZES: readonly unknown[] = ["large", "xlarge"];
  * (tests/theme-color.test.ts checks it).
  */
 function paperColour(root: HTMLElement): string | null {
-  const channels = getComputedStyle(root).getPropertyValue("--paper").trim().split(/\s+/).map(Number);
-  if (channels.length !== 3 || channels.some((c) => !Number.isInteger(c))) return null;
+  return tokenHex(getComputedStyle(root).getPropertyValue("--paper"));
+}
+
+/** A colour token as written in style.css ("244 239 230") as #rrggbb, or null if it isn't one. */
+export function tokenHex(token: string): string | null {
+  const channels = token.trim().split(/\s+/).map(Number);
+  if (channels.length !== 3 || channels.some((c) => !Number.isInteger(c) || c < 0 || c > 255)) return null;
   return `#${channels.map((c) => c.toString(16).padStart(2, "0")).join("")}`;
 }
 

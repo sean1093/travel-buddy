@@ -16,7 +16,6 @@ function contrast(a: number[], b: number[]): number {
 }
 
 /** Every text colour on every background it is drawn on. */
-
 const PAIRS: [string, string][] = [
   ["ink", "paper"],
   ["ink", "card"],

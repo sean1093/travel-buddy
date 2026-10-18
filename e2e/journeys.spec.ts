@@ -184,7 +184,7 @@ test("offline: after the first visit, home and a scene still open", async ({ pag
 });
 
 for (const theme of ["light", "dark"] as const) {
-  test(`browser bar colour is the ${theme} page background, before and after the app starts`, async ({ page, seed }) => {
+  test(`browser bar colour is the ${theme} page background once the app has started`, async ({ page, seed }) => {
     await seed({ profile: SAMPLE_PROFILE, theme });
     await page.goto("#/");
     await expect(page.locator("h1").first()).toBeVisible();

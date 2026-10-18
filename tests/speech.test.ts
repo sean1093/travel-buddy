@@ -275,6 +275,7 @@ describe("speak", () => {
     const synth = fakeSynth();
     const { speak } = await loadSpeech(synth);
     expect(await settled(speak(""))).toBe(true);
+    expect(await settled(speak("  "))).toBe(true);
     expect(synth.speak).not.toHaveBeenCalled();
   });
 });

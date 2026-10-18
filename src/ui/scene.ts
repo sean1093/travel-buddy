@@ -360,13 +360,15 @@ export function renderScene(root: HTMLElement, [id, view]: string[]): void {
       pickerSlot,
       placePicker(places, current, (place) => {
         pickedPlace = place;
+        // The redraw replaces the row: keep where it was scrolled to, so the chip just
+        // tapped stays under the finger, and keep the focus on it, not on <body>.
+        const row = () => pickerSlot.querySelector<HTMLElement>('[role="radiogroup"]');
+        const scrolled = row()?.scrollLeft ?? 0;
         drawPicker(place);
         drawPhrases(place);
-        // The redraw replaced the radio just tapped (and reset the row's scroll): keep the
-        // focus on it, not on <body>, and scroll the row back to it.
-        const chip = pickerSlot.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]');
-        chip?.focus({ preventScroll: true });
-        chip?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+        const after = row();
+        if (after) after.scrollLeft = scrolled;
+        pickerSlot.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]')?.focus({ preventScroll: true });
       }),
     );
   }

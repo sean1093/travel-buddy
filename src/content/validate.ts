@@ -14,6 +14,7 @@ const POLITE_END = /(です|ます|ません|ください|でしょうか|です
 
 /** Problems with one piece of markup; empty when it is well-formed. */
 export function checkJp(markup: Jp): string[] {
+  if (markup.trim() === "") return [`empty Japanese: "${markup}"`];
   let words;
   try {
     words = parse(markup);

@@ -114,6 +114,9 @@ describe("checkJp", () => {
     ["{駅|eki}", "reading must be kana"],
     ["$nope です", "unknown slot"],
     ["{新宿|しんじゅく}$dest", "a slot must be a whole word"],
+    ["", "empty Japanese"],
+    ["  ", "empty Japanese"],
+    ["です  か", "empty word"],
   ])("rejects %j", (markup, problem) => {
     expect(checkJp(markup).join("\n")).toContain(problem);
   });

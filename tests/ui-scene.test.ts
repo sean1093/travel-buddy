@@ -258,6 +258,17 @@ describe("place picker", () => {
     expect(focused?.textContent).toBe("新宿");
   });
 
+  // The redraw replaces the scrolling row; the chip just tapped must stay where the finger is.
+  it("keeps the destination row scrolled where it was", () => {
+    saveProfile(sampleProfile());
+    onDay("2026-11-03");
+    scene.renderScene(app(), ["transport"]);
+    const row = () => app().querySelector<HTMLElement>('[role="radiogroup"]')!;
+    row().scrollLeft = 120;
+    [...row().querySelectorAll<HTMLElement>('[role="radio"]')].at(-1)!.click();
+    expect(row().scrollLeft).toBe(120);
+  });
+
   it("keeps the pick across scenes", () => {
     saveProfile(sampleProfile());
     onDay("2026-11-03");
