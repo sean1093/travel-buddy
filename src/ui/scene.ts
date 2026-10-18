@@ -368,7 +368,10 @@ export function renderScene(root: HTMLElement, [id, view]: string[]): void {
         drawPhrases(place);
         const after = row();
         if (after) after.scrollLeft = scrolled;
-        pickerSlot.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]')?.focus({ preventScroll: true });
+        const chip = pickerSlot.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]');
+        chip?.focus({ preventScroll: true });
+        // A no-op when the chip is in view (the usual case); otherwise the focus ring must be seen.
+        chip?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
       }),
     );
   }
