@@ -10,8 +10,11 @@ export type TextSize = "large" | "xlarge";
 const THEMES: readonly unknown[] = ["system", "light", "dark"];
 const TEXT_SIZES: readonly unknown[] = ["large", "xlarge"];
 
-/** `--paper` of each theme, for <meta name="theme-color">; keep in step with style.css. */
-const PAPER: Record<"light" | "dark", string> = { light: "#fbf8f3", dark: "#16171b" };
+/**
+ * `--paper` of each theme, for <meta name="theme-color">. Must match style.css and the
+ * inline script in index.html (tests/theme-color.test.ts checks all three).
+ */
+export const PAPER: Record<"light" | "dark", string> = { light: "#f4efe6", dark: "#1c1a17" };
 
 export const NORMAL_RATE = 0.9;
 export const SLOW_RATE = 0.6;
