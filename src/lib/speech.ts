@@ -74,7 +74,8 @@ export interface SpeakOptions {
 /** Speaks `markup`, interrupting anything already playing. Resolves when done or interrupted. */
 export function speak(markup: string, options: SpeakOptions = {}): Promise<void> {
   stopSpeaking();
-  const text = plain(markup);
+  // Nothing to say is not malformed markup: plain("") would throw.
+  const text = markup.trim() ? plain(markup) : "";
   if (!synth || !text) return Promise.resolve();
   const rate = options.rate ?? defaultRate;
   // No Promise.withResolvers: older iPhones (before iOS 17.4) lack it.
