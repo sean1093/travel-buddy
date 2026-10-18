@@ -267,6 +267,9 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
           h("div", { class: `mt-4 grid gap-3 ${replies.length > 4 ? "grid-cols-2" : "grid-cols-1"}` }, options),
         ),
       );
+      // Coming back from an answer (再問一次) replaced the focused button: put focus back on 關閉,
+      // where opening the layer puts it. On the first draw the layer isn't attached yet; openOverlay does it.
+      root.querySelector<HTMLElement>("[data-autofocus]")?.focus({ preventScroll: true });
       void play(`${question.jp} ${TAP_PLEASE}`);
     }
 

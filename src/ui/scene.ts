@@ -362,6 +362,8 @@ export function renderScene(root: HTMLElement, [id, view]: string[]): void {
         pickedPlace = place;
         drawPicker(place);
         drawPhrases(place);
+        // The redraw replaced the radio just tapped: keep the focus on it, not on <body>.
+        pickerSlot.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]')?.focus({ preventScroll: true });
       }),
     );
   }
