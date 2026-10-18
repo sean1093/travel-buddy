@@ -59,13 +59,14 @@ public/
   favicon.svg icon-*.png apple-touch-icon.png
 site/
   index.html             redirect page at the site root (later becomes a country picker)
-tests/                   unit tests and content tests
+tests/                   unit, content and component tests (Vitest)
+e2e/                     browser journeys and layout matrix (Playwright)
 scripts/
   screenshots.cjs        phone-size screenshots
   sample-profile.json    sample data for screenshots
 docs/                    documentation (see docs/README.md)
 .github/workflows/
-  ci.yml                 PRs and non-main branches: test + build
+  ci.yml                 PRs and non-main branches: test + coverage + build, and e2e
   pages.yml              push to main: test + build + deploy to GitHub Pages
 ```
 
@@ -75,19 +76,41 @@ All routes live after the `#` in the URL, and assets use relative paths (`base: 
 
 ## Tests
 
+The full test plan (risks, layers, coverage by feature, manual device check) is in [testing.md](testing.md).
+
+```bash
+npm test                 # logic and component tests (Vitest)
+npm run test:coverage    # the same, with coverage (HTML report in coverage/)
+npm run build && npm run test:e2e   # browser journeys (Playwright) against the built site
+```
+
+In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/chromium npm run test:e2e` instead of downloading a browser.
+
 `npm test` runs:
 
 | Test file | What it checks |
 |---|---|
 | `content.test.ts` | All content rules (see [content-guide.md §8](content-guide.md#8-what-npm-test-blocks)), and that every recommended tool has an https link |
 | `contrast.test.ts` | Reads the design tokens in `src/style.css`; every text/background pair is ≥ 4.5:1 in both light and dark (WCAG AA) |
+| `theme-color.test.ts` | The browser-bar colour in `src/state.ts` and `index.html` matches `--paper` in both themes |
 | `codec.test.ts` | Share links round-trip unchanged; broken, truncated or oversized data doesn't cause errors; size budget for typical data |
 | `profile.test.ts` | parseProfile, current hotel, today's plan |
 | `cards.test.ts` | Contents of the help card, medical card, allergy card and back-to-hotel card |
+| `fill.test.ts` | Slots in phrases filled from the profile, fallbacks, answer sets |
 | `jp.test.ts` `romaji.test.ts` | Markup parsing, slots, romanisation |
 | `phone.test.ts` | Phone number normalisation |
+| `store.test.ts` `state.test.ts` | Versioned local storage that survives bad data and blocked storage; settings parsing |
+| `speech.test.ts` | Voice ranking, voice status, speaking, interrupting, safety timeout (fake speech engine) |
 | `home.test.ts` `summary.test.ts` | Home page greeting, settings page summaries |
 | `site.test.ts` | The root redirect page goes to `./japan/` and keeps the `#` |
+| `ui-overlay.test.ts` | Full-screen layers: stacking, inert page, Escape and back button, focus trap and return; 給對方看 (Show them) and 給對方點選 (Let them tap) |
+| `ui-japanese.test.ts` | Ruby and romaji rendering, play buttons and their speaking state |
+| `ui-scene.test.ts` | Scene pages: tabs, phrase page actions, heard cards, destination picker, 萬用句 (All-purpose phrases) |
+| `ui-pages.test.ts` | Home, page header, medical symptom picker, help page and call buttons |
+
+The `ui-*` files run in happy-dom (`// @vitest-environment happy-dom`); the rest run in Node.
+
+`npm run test:e2e` runs `e2e/journeys.spec.ts` (first run, help, ask and answer, heard reply, symptoms, share and import, settings, unknown routes, offline) and `e2e/layout.spec.ts` (every main route and full-screen layer at 390 px, 320 px, extra-large text, dark and landscape: no sideways scroll, accessible names, 44 px targets). The e2e server runs on port 4310, so it never collides with the screenshot server on 4173.
 
 ## Screenshots
 
@@ -103,7 +126,7 @@ In the Claude Code cloud environment, Chromium is at `/opt/pw-browsers/chromium`
 
 ## Deployment
 
-On a push to `main`, `pages.yml` tests, builds, then deploys `dist/` to GitHub Pages. The first time, in the repo go to **Settings → Pages → Source** and choose **GitHub Actions**, and check that **Settings → Environments → github-pages** allows deploys from `main`.
+On a push to `main`, `pages.yml` tests, builds, runs the e2e suite, then deploys `dist/` to GitHub Pages. The first time, in the repo go to **Settings → Pages → Source** and choose **GitHub Actions**, and check that **Settings → Environments → github-pages** allows deploys from `main`.
 
 ### URLs and countries
 

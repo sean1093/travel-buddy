@@ -2,6 +2,18 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-10-18
+
+### Testing
+- **Test plan and three test layers** (see [testing.md](testing.md)): unit tests for storage, speech, settings and slot filling; component tests (happy-dom) for overlays, Japanese text, scene pages, home, medical and help; Playwright browser journeys and a layout matrix (11 routes × 5 screen variants). CI now runs coverage and e2e. Line coverage went from 44% to 76%.
+
+### Fixes found by the new tests
+- **Browser bar colour:** the phone's browser bar no longer changes colour as the app starts (the app's copy of the background colour was out of date).
+- **Keyboard and screen-reader focus:** after 再問一次 (Ask again) and after picking a destination, focus stays on the screen instead of jumping back to the top of the page.
+- **Destination row:** picking a station further along the row no longer scrolls the row back to the start.
+- **Speech:** asking to speak empty or blank text resolves quietly instead of throwing an error.
+- **Content checks:** empty Japanese text is now reported by `npm test` instead of slipping through.
+
 ## 2026-10-13
 
 ### Visual design: inn instruction card

@@ -11,9 +11,12 @@ Notes for Claude Code working in this repository. Start with [`README.md`](READM
 
 ```bash
 npm ci
-npm test          # content checks, contrast (WCAG AA) and unit tests
+npm test          # content checks, contrast (WCAG AA), unit and component tests
 npm run build     # typecheck + build to dist/
+CHROMIUM=/opt/pw-browsers/chromium npm run test:e2e   # browser journeys and layout matrix (after build)
 ```
+
+The test plan is [`docs/testing.md`](docs/testing.md). New behaviour comes with tests at the right layer: logic in `tests/*.test.ts`, DOM behaviour in `tests/ui-*.test.ts` (happy-dom), and anything about layout, real routing, storage or offline in `e2e/`.
 
 For any UI change, also regenerate and look at the screenshots (see [`docs/development.md`](docs/development.md)):
 
@@ -31,7 +34,7 @@ Every change goes through a pull request, and the pull request is driven all the
 1. **Open the PR.** Work on a feature branch, push, and open a PR against `main` with an English title and description (what changed, why, how it was verified).
 2. **Self-review.** Review the PR's full diff as a strict reviewer would: correctness bugs, edge cases (dark mode, the 特大 / extra-large text size, a phone held sideways, an empty profile), accessibility, consistency with `docs/design.md` and the docs. Use `/code-review` on the PR when it is available.
 3. **Fix.** Fix every real finding and push. Reply on any review thread you decide not to fix, saying why.
-4. **Verify.** Run `npm test` and `npm run build` locally, regenerate screenshots for UI changes and look at them, and wait for CI to pass on the latest commit. Repeat steps 2–4 until the review finds nothing and CI is green.
+4. **Verify.** Run `npm test`, `npm run build` and `npm run test:e2e` locally, regenerate screenshots for UI changes and look at them, and wait for CI to pass on the latest commit. Repeat steps 2–4 until the review finds nothing and CI is green.
 5. **Merge.** Merge the PR into `main` with a merge commit (the repository's convention). Start the next change from the updated `main`.
 
 Never skip or disable a test to get CI green, and never merge with CI red.

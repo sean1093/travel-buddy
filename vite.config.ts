@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -9,5 +10,20 @@ export default defineConfig({
     // (site/index.html) is copied in by `npm run build`.
     outDir: "dist/japan",
     emptyOutDir: true,
+  },
+  test: {
+    // Unit and component tests. Browser journeys live in e2e/ and run under Playwright.
+    include: ["tests/**/*.test.ts"],
+    // Logic tests run in Node; DOM tests opt in with `// @vitest-environment happy-dom`.
+    environment: "node",
+    restoreMocks: true,
+    unstubGlobals: true,
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.ts"],
+      // The entry point only wires the router to the window; e2e covers it.
+      exclude: ["src/main.ts"],
+      reporter: ["text-summary", "html"],
+    },
   },
 });

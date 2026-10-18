@@ -25,6 +25,9 @@ export const SLOT_WORD = /^\$([a-z]+)$/;
 
 /** Words of the markup, each a list of segments. Throws on malformed markup. */
 export function parse(markup: string): Segment[][] {
+  // Nothing to say is no words (speech and display just show nothing); content
+  // must never be empty, which checkJp reports. Stray spaces between words still throw below.
+  if (markup.trim() === "") return [];
   return markup.split(" ").map((word) => {
     const segments: Segment[] = [];
     let rest = word;
