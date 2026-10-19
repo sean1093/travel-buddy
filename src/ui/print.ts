@@ -72,7 +72,9 @@ export function renderPrint(root: HTMLElement): void {
         h("button", { type: "button", class: BUTTON.primary, onclick: () => window.print() }, icon("print"), "列印"),
         h("p", { class: "text-base text-muted" }, "電腦或手機都可以列印；也可以在列印畫面選「另存為 PDF」，傳給家人或自己留一份。"),
       ),
-      h("div", { class: "print-sheet mt-6" }, cards),
+      // Focusable and named: on a phone narrower than a card it scrolls sideways, and keyboard
+      // and switch users must be able to reach the hidden edge too.
+      h("div", { class: "print-sheet mt-6", role: "region", "aria-label": "卡片預覽", tabindex: "0" }, cards),
     ],
     { back: "#/" },
   );
@@ -81,7 +83,9 @@ export function renderPrint(root: HTMLElement): void {
 
 /** A card whose content does not fit gets double height, to be folded once before laminating. */
 function foldOverflowing(root: HTMLElement): void {
-  for (const card of root.querySelectorAll<HTMLElement>(".wallet-card")) {
-    if (card.scrollHeight > card.clientHeight + 1) card.classList.add("wallet-card-tall");
-  }
+  // Cards are true size at every screen width, so this matches the paper. Measure all
+  // first, then fold: one layout instead of one per card.
+  const cards = [...root.querySelectorAll<HTMLElement>(".wallet-card")];
+  const overflowing = cards.filter((card) => card.scrollHeight > card.clientHeight + 1);
+  for (const card of overflowing) card.classList.add("wallet-card-tall");
 }

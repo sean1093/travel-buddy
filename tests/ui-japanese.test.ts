@@ -54,9 +54,14 @@ describe("jpText", () => {
     expect(el.querySelector('[lang="ja"]')).not.toBeNull();
   });
 
+  it("hides the readings from screen readers, so each word is read once", () => {
+    const el = jp.jpText(markup);
+    expect([...el.querySelectorAll("rt")].every((rt) => rt.getAttribute("aria-hidden") === "true")).toBe(true);
+  });
+
   it("adds one romaji line for the whole sentence, hidden from screen readers", () => {
     const el = jp.jpText(markup);
-    const hidden = [...el.querySelectorAll('[aria-hidden="true"]')];
+    const hidden = [...el.querySelectorAll('.jp-romaji[aria-hidden="true"]')];
     expect(hidden).toHaveLength(1);
     expect(hidden[0]!.textContent).toBe(romaji(markup));
     // One line, several words: not one romaji per word.
@@ -67,7 +72,7 @@ describe("jpText", () => {
 
   it("leaves the romaji out when asked", () => {
     const el = jp.jpText(markup, "lg", { romaji: false });
-    expect(el.querySelector('[aria-hidden="true"]')).toBeNull();
+    expect(el.querySelector(".jp-romaji")).toBeNull();
     expect(el.textContent).not.toContain(romaji(markup));
     expect(el.querySelectorAll("ruby")).toHaveLength(2);
   });

@@ -2,6 +2,19 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-10-19
+
+### Fixes
+- **Printing:**
+  - Short cards now stack beside a folded card instead of leaving the rest of its row empty, so a typical trip fits on one A4 sheet instead of two. Cards stay in their reading order.
+  - A folded card is now exactly two card slots tall (112 mm), so its cut lines line up with the cards beside it.
+  - Printing no longer adds a blank second page.
+  - On phones narrower than a card, the preview scrolls sideways instead of shrinking the cards. Text is never cut off, and the cards that fold are the same on every phone.
+- **Screen readers:** the furigana over kanji is no longer read aloud, so each Japanese word is read once instead of twice (電車 でんしゃ).
+
+### Testing
+- **Device checks in CI** (`e2e/device.spec.ts`): speech requests, voice choice, install and offline, sideways layout, print size, share links and screen-reader text, from the manual checklist. The manual checklist now only lists what needs a real phone. See [testing.md](testing.md#device-checks).
+
 ## 2026-10-18
 
 ### Testing

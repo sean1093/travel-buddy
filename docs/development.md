@@ -110,7 +110,7 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 
 The `ui-*` files run in happy-dom (`// @vitest-environment happy-dom`); the rest run in Node.
 
-`npm run test:e2e` runs `e2e/journeys.spec.ts` (first run, help, ask and answer, heard reply, symptoms, share and import, settings, unknown routes, offline) and `e2e/layout.spec.ts` (every main route and full-screen layer at 390 px, 320 px, extra-large text, dark and landscape: no sideways scroll, accessible names, 44 px targets). The e2e server runs on port 4310, so it never collides with the screenshot server on 4173.
+`npm run test:e2e` runs `e2e/journeys.spec.ts` (first run, help, ask and answer, heard reply, symptoms, share and import, settings, unknown routes, offline), `e2e/device.spec.ts` (the device checks a browser can do: speech requests, voice choice, install and offline, sideways, print size, share links, screen-reader text; see [testing.md](testing.md#device-checks)), and `e2e/layout.spec.ts` (every main route and full-screen layer at 390 px, 320 px, extra-large text, dark and landscape: no sideways scroll, accessible names, 44 px targets). The e2e server runs on port 4310, so it never collides with the screenshot server on 4173.
 
 ## Screenshots
 
