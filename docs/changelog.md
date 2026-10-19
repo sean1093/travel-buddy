@@ -5,7 +5,11 @@ Newest first. Every item goes through the "issue → development → PR → revi
 ## 2026-10-19
 
 ### Fixes
-- **Printing:** the wallet cards now pack folded cards next to short ones, so a typical trip fits on one A4 sheet instead of two. Printing no longer adds a blank second page.
+- **Printing:**
+  - Short cards now stack beside a folded card instead of leaving the rest of its row empty, so a typical trip fits on one A4 sheet instead of two. Cards stay in their reading order.
+  - A folded card is now exactly two card slots tall (112 mm), so its cut lines line up with the cards beside it.
+  - Printing no longer adds a blank second page.
+  - On phones narrower than a card, the preview scrolls sideways instead of shrinking the cards. Text is never cut off, and the cards that fold are the same on every phone.
 - **Screen readers:** the furigana over kanji is no longer read aloud, so each Japanese word is read once instead of twice (電車 でんしゃ).
 
 ### Testing

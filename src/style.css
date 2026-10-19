@@ -217,19 +217,23 @@ body {
  * packing: the cards stay in reading order.
  */
 .print-sheet {
+  --card-w: 85.6mm;
+  --card-h: 54mm;
+  --card-gap: 4mm;
   display: grid;
-  /* Never wider than the screen: a 320 px phone is narrower than one card (A4 has room for two). */
-  grid-template-columns: repeat(auto-fill, minmax(min(85.6mm, 100%), 85.6mm));
-  grid-auto-rows: 54mm;
-  gap: 4mm;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, var(--card-w));
+  grid-auto-rows: var(--card-h);
+  gap: var(--card-gap);
+  /* Cards never shrink: on a phone narrower than a card (320 px) the sheet scrolls sideways
+     inside its own box instead, so the preview is the print at every width. */
+  justify-content: safe center;
+  overflow-x: auto;
 }
 
 /* ISO/IEC 7810 ID-1, the size of a credit card: fits a wallet once laminated. */
 .wallet-card {
-  width: 85.6mm;
-  max-width: 100%;
-  height: 54mm;
+  width: var(--card-w, 85.6mm);
+  height: var(--card-h, 54mm);
   overflow: hidden;
   border: 0.3mm dashed #000;
   border-radius: 3mm;
@@ -250,19 +254,8 @@ body {
  * so its cut lines line up with the short cards beside it.
  */
 .wallet-card-tall {
-  height: calc(2 * 54mm + 4mm);
+  height: calc(2 * var(--card-h, 54mm) + var(--card-gap, 4mm));
   grid-row: span 2;
-}
-
-/* Paper always gets true size, and so does print.ts while it decides which cards to fold. */
-.print-measure .wallet-card {
-  max-width: none;
-}
-
-@media print {
-  .wallet-card {
-    max-width: none;
-  }
 }
 
 .wallet-title {

@@ -81,11 +81,9 @@ export function renderPrint(root: HTMLElement): void {
 
 /** A card whose content does not fit gets double height, to be folded once before laminating. */
 function foldOverflowing(root: HTMLElement): void {
-  // On a narrow phone the preview shrinks the cards; the decision must match the paper.
-  const sheet = root.querySelector<HTMLElement>(".print-sheet");
-  sheet?.classList.add("print-measure");
-  for (const card of root.querySelectorAll<HTMLElement>(".wallet-card")) {
-    if (card.scrollHeight > card.clientHeight + 1) card.classList.add("wallet-card-tall");
-  }
-  sheet?.classList.remove("print-measure");
+  // Cards are true size at every screen width, so this matches the paper. Measure all
+  // first, then fold: one layout instead of one per card.
+  const cards = [...root.querySelectorAll<HTMLElement>(".wallet-card")];
+  const overflowing = cards.filter((card) => card.scrollHeight > card.clientHeight + 1);
+  for (const card of overflowing) card.classList.add("wallet-card-tall");
 }
