@@ -211,16 +211,16 @@ body {
 
 /*
  * Wallet cards: the same physical size on screen as on paper, so the preview is the print.
- * A grid of card-height rows: a folded card spans two rows and `dense` fills the slot next
- * to it with short cards, so rows never stretch to the tallest card. On A4 (277 mm inside
- * the margins) that is four rows of two columns: eight card slots per sheet.
+ * A grid of card-height rows: a folded card spans two rows and the short cards after it
+ * stack beside it, so rows never stretch to the tallest card. On A4 (277 mm inside the
+ * margins) that is four rows of two columns: eight card slots per sheet. No `dense`
+ * packing: the cards stay in reading order.
  */
 .print-sheet {
   display: grid;
   /* Never wider than the screen: a 320 px phone is narrower than one card (A4 has room for two). */
   grid-template-columns: repeat(auto-fill, minmax(min(85.6mm, 100%), 85.6mm));
   grid-auto-rows: 54mm;
-  grid-auto-flow: row dense;
   gap: 4mm;
   justify-content: center;
 }
@@ -245,10 +245,24 @@ body {
   font-size: 10pt;
 }
 
-/* Folded once before laminating: two card heights, in two grid rows. */
+/*
+ * Folded once before laminating: exactly two grid slots (two cards and the gap between),
+ * so its cut lines line up with the short cards beside it.
+ */
 .wallet-card-tall {
-  height: 108mm;
+  height: calc(2 * 54mm + 4mm);
   grid-row: span 2;
+}
+
+/* Paper always gets true size, and so does print.ts while it decides which cards to fold. */
+.print-measure .wallet-card {
+  max-width: none;
+}
+
+@media print {
+  .wallet-card {
+    max-width: none;
+  }
 }
 
 .wallet-title {

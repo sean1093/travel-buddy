@@ -99,13 +99,13 @@ npx playwright install chromium
 | Voice choice | Only Japanese voices are offered; the choice survives a reload and is used | — |
 | Install and offline | The manifest and icons are valid for Add to Home Screen. With the network off, a scene and the help card still open. | The real install prompt and home-screen icon |
 | Sideways | On 給對方看 (Show them), the play buttons sit in the top bar and the Japanese is large and starts in view | — |
-| Print | Wallet cards are 85.6×54 mm (folded cards 108 mm). The sample trip fits one A4 sheet, without the page title or any controls. | The printer's own scaling |
+| Print | Wallet cards are 85.6×54 mm (folded cards span two slots, 112 mm). Which cards fold doesn't depend on the screen width. The sample trip fits one A4 sheet, without the page title or any controls. | The printer's own scaling |
 | Share link | The link uses only URL-safe characters, is under 2,000 characters, and imports every field in a fresh browser | How a messenger app previews or rewrites the link |
 | Screen reader | One h1, every control named, the dialog labelled with focus on 關閉 (Close). All Japanese is marked `lang="ja"`, and the furigana is not read aloud. | What VoiceOver or TalkBack actually say |
 
 ## Manual device check
 
-What's left needs a real phone. Do this before a release that touches speech, install or sharing. Use one iPhone (Safari) and one Android phone (Chrome); CI only runs Chromium.
+What's left needs a real phone. Do this before a release that touches speech, printing, install or sharing. Use one iPhone (Safari) and one Android phone (Chrome); CI only runs Chromium.
 
 1. Play a phrase, then slow. It sounds like a natural Japanese voice, with no English accent.
 2. Add to the home screen. The icon and name look right, and the app opens full screen from the icon.

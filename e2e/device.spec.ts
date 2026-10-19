@@ -25,13 +25,9 @@ async function fakeSpeech(page: Page): Promise<void> {
       addEventListener() {},
       speak(u: { text: string; lang: string; rate: number; voice: { voiceURI: string } | null; onend?: () => void }) {
         log.push({ text: u.text, lang: u.lang, rate: u.rate, voice: u.voice?.voiceURI ?? null });
+        // Keeps "speaking" until cancelled: no timer, so a slow runner can't change the outcome.
         synth.speaking = true;
         current = u;
-        setTimeout(() => {
-          if (current !== u) return;
-          synth.speaking = false;
-          u.onend?.();
-        }, 1500);
       },
       cancel() {
         cancels += 1;
@@ -176,33 +172,87 @@ test.describe("4. sideways", () => {
   }
 });
 
-test("5. print: wallet cards are 85.6×54 mm, all on one A4 sheet, no page title or controls", async ({ page, seed }) => {
-  await seed({ profile: SAMPLE_PROFILE });
+/** The printed sheet as measured in print media: card sizes in mm, offsets from the sheet's top, and the PDF's pages. */
+async function printSheet(page: Page) {
   await page.goto("#/print");
   await expect(page.locator(".wallet-card").first()).toBeVisible();
+  // Folding is decided on screen, at whatever width the phone has; measure it there first.
+  const folded = await page.locator(".wallet-card").evaluateAll((els) => els.map((el) => el.classList.contains("wallet-card-tall")));
   await page.emulateMedia({ media: "print" });
   const mm = (px: number) => (px * 25.4) / 96;
-  const cards = await page.locator(".wallet-card").evaluateAll((els) =>
-    els.map((el) => {
-      const r = el.getBoundingClientRect();
-      return { w: r.width, h: r.height, tall: el.classList.contains("wallet-card-tall") };
-    }),
-  );
-  expect(cards.length).toBeGreaterThan(0);
-  for (const c of cards) {
-    expect(mm(c.w)).toBeCloseTo(85.6, 0);
-    expect(mm(c.h)).toBeCloseTo(c.tall ? 108 : 54, 0);
-  }
-  await expect(page.locator("h1")).toBeHidden();
-  await expect(page.locator("header")).toBeHidden();
-  const visibleButtons = await page.locator("button:visible, a[href]:visible").count();
-  expect(visibleButtons, "no buttons or links on paper").toBe(0);
+  const cards = (
+    await page.locator(".print-sheet").evaluate((sheet) => {
+      const top = sheet.getBoundingClientRect().top;
+      return [...sheet.querySelectorAll(".wallet-card")].map((el) => {
+        const r = el.getBoundingClientRect();
+        return { w: r.width, h: r.height, top: r.top - top, tall: el.classList.contains("wallet-card-tall") };
+      });
+    })
+  ).map((c) => ({ ...c, w: mm(c.w), h: mm(c.h), top: mm(c.top) }));
+  const pdf = (await page.pdf({ preferCSSPageSize: true, printBackground: true })).toString("latin1");
+  const pages = [...pdf.matchAll(/\/MediaBox\s*\[\s*0 0 ([\d.]+) ([\d.]+)\s*\]/g)].map((m) => [Number(m[1]), Number(m[2])]);
+  return { folded, cards, pages };
+}
 
-  const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
-  const text = pdf.toString("latin1");
-  const boxes = [...text.matchAll(/\/MediaBox\s*\[\s*0 0 ([\d.]+) ([\d.]+)\s*\]/g)].map((m) => [Number(m[1]), Number(m[2])]);
-  // The sample trip has two folded cards and four short ones: eight slots, one sheet.
-  expect(boxes, "one A4 page (595 × 842 pt)").toEqual([[expect.closeTo(595, 0), expect.closeTo(842, 0)]]);
+test.describe("5. print", () => {
+  for (const viewport of [undefined, { width: 320, height: 640 }]) {
+    test.describe(viewport ? `on a ${viewport.width} px phone` : "on a Pixel 7", () => {
+      if (viewport) test.use({ viewport });
+
+      test("wallet cards are true size, cut lines line up, all on one A4 sheet, no title or controls", async ({ page, seed }) => {
+        await seed({ profile: SAMPLE_PROFILE });
+        const { folded, cards, pages } = await printSheet(page);
+        // The sample trip: the help and medical cards fold, the two hotel cards, allergy and numbers don't.
+        // A narrow screen must not change that, or the paper changes with the phone.
+        expect(folded).toEqual([true, false, false, true, false, false]);
+        for (const c of cards) {
+          expect(c.w).toBeCloseTo(85.6, 0);
+          // A folded card is two slots and the gap: 2 × 54 + 4 mm.
+          expect(c.h).toBeCloseTo(c.tall ? 112 : 54, 0);
+          // Every card starts on a 58 mm row (54 mm card + 4 mm gap): one straight cut across the sheet.
+          expect(c.top % 58 < 0.5 || c.top % 58 > 57.5, `card top ${c.top.toFixed(1)} mm on the 58 mm grid`).toBe(true);
+        }
+        await expect(page.locator("h1")).toBeHidden();
+        await expect(page.locator("header")).toBeHidden();
+        expect(await page.locator("button:visible, a[href]:visible").count(), "no buttons or links on paper").toBe(0);
+        // Eight slots fill one sheet.
+        expect(pages, "one A4 page (595 × 842 pt)").toEqual([[expect.closeTo(595, 0), expect.closeTo(842, 0)]]);
+      });
+    });
+  }
+
+  test.describe("on a 320 px phone", () => {
+    test.use({ viewport: { width: 320, height: 640 } });
+
+    // A card that fits on paper must not fold just because the phone's preview is narrower.
+    // The address length that crosses that line depends on the fonts, so it is found here.
+    test("folds only cards that overflow at true size", async ({ page, seed }) => {
+      await seed({ profile: SAMPLE_PROFILE });
+      await page.goto("#/print");
+      await expect(page.locator(".wallet-card").first()).toBeVisible();
+      const extra = await page.evaluate(() => {
+        const card = document.querySelectorAll<HTMLElement>(".wallet-card")[1]!; // the first hotel card
+        const line = [...card.querySelectorAll("p")].find((p) => p.textContent!.includes("東京都"))!;
+        const base = line.textContent!;
+        card.classList.remove("wallet-card-tall");
+        const fits = (width: string) => {
+          card.style.cssText = `max-width:none;width:${width}`;
+          return card.scrollHeight <= card.clientHeight + 1;
+        };
+        for (let n = 1; n < 400; n++) {
+          line.textContent = base + "あ".repeat(n);
+          if (fits("85.6mm") && !fits("76mm")) return n;
+        }
+        return null;
+      });
+      expect(extra, "an address that fits a true-size card but not a 320 px preview").not.toBeNull();
+      const hotels = SAMPLE_PROFILE.hotels as { address: string }[];
+      const profile = { ...SAMPLE_PROFILE, hotels: [{ ...hotels[0]!, address: hotels[0]!.address + "あ".repeat(extra!) }, ...hotels.slice(1)] };
+      await page.evaluate((data) => localStorage.setItem("travelbuddy.japan.profile", JSON.stringify({ v: 1, data })), profile);
+      await page.reload();
+      await expect(page.locator(".wallet-card").nth(1)).not.toHaveClass(/wallet-card-tall/);
+    });
+  });
 });
 
 test("6. a share link survives being sent: URL-safe, short enough, and imports every field", async ({ page, seed, browser }) => {
@@ -239,7 +289,7 @@ test("7. screen reader: named controls, labelled dialog, headings, Japanese mark
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       for (let n = walker.nextNode(); n; n = walker.nextNode()) {
         const el = n.parentElement!;
-        if (!kana.test(n.textContent ?? "") || covered(el) || el.closest("[aria-hidden]")) continue;
+        if (!kana.test(n.textContent ?? "") || covered(el)) continue;
         if (!el.closest('[lang="ja"]')) notJa.push(n.textContent!.trim().slice(0, 30));
       }
       const svgs = [...document.querySelectorAll("svg")].filter((s) => !s.closest("[aria-hidden=true]") && !s.getAttribute("aria-label"));
