@@ -2,6 +2,15 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-10-19
+
+### Fixes
+- **Printing:** the wallet cards now pack folded cards next to short ones, so a typical trip fits on one A4 sheet instead of two. Printing no longer adds a blank second page.
+- **Screen readers:** the furigana over kanji is no longer read aloud, so each Japanese word is read once instead of twice (電車 でんしゃ).
+
+### Testing
+- **Device checks in CI** (`e2e/device.spec.ts`): speech requests, voice choice, install and offline, sideways layout, print size, share links and screen-reader text, from the manual checklist. The manual checklist now only lists what needs a real phone. See [testing.md](testing.md#device-checks).
+
 ## 2026-10-18
 
 ### Testing

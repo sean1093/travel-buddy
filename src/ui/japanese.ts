@@ -22,7 +22,11 @@ export function jpText(markup: Jp, size: keyof typeof SIZES = "md", options: { r
     if (i > 0) japanese.append(" ");
     // `.jp` keeps each word whole (keep-all); a word wider than the line can still break (overflow-wrap).
     const unit = h("span");
-    for (const segment of word) unit.append(segment.ruby ? h("ruby", null, segment.text, h("rt", null, segment.ruby)) : segment.text);
+    for (const segment of word) {
+      // The reading is for the eye: a screen reader already reads the kanji in Japanese,
+      // and would otherwise say every word twice (電車 でんしゃ).
+      unit.append(segment.ruby ? h("ruby", null, segment.text, h("rt", { "aria-hidden": "true" }, segment.ruby)) : segment.text);
+    }
     japanese.append(unit);
   });
   const roma = options.romaji === false ? "" : romaji(markup);

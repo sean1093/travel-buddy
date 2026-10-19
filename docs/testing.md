@@ -23,7 +23,8 @@ The app is opened in a hurry: lost on a platform, at a pharmacy counter, in a ta
 | Components | Vitest + happy-dom | `tests/ui-*.test.ts` | `npm test`, CI `check` | Each screen renders the right controls for its data; overlays trap focus and close on back/Escape; toggles, counts and ARIA states |
 | Browser journeys | Playwright (Chromium, Pixel 7) | `e2e/*.spec.ts` | `npm run test:e2e`, CI `e2e`, and before every deploy | Real routing, storage, share link round trip, service worker offline, layout at every size and theme |
 | Visual review | `scripts/screenshots.cjs` | `docs/screenshots/` | By hand for UI changes | What a person sees; judged by eye in review |
-| Device check | Real iPhone and Android phones | — | Before a release that touches speech, printing or install | What browsers in CI can't emulate |
+| Device checks | Playwright, fake speech engine | `e2e/device.spec.ts` | With the e2e suite | Speech requests, voice choice, install and offline, sideways, print size, share links, screen-reader text |
+| Manual device check | Real iPhone and Android phones | — | Before a release that touches speech, install or sharing | What a browser can't: real voices, the install prompt, messenger apps, real screen readers, Safari |
 
 Rules of thumb:
 
@@ -88,17 +89,29 @@ On another machine, install it once:
 npx playwright install chromium
 ```
 
+## Device checks
+
+`e2e/device.spec.ts` automates every part of the old manual checklist that a browser can check, so it runs in CI and before every deploy:
+
+| Check | What the test proves | What it can't prove |
+|---|---|---|
+| Play, then slow | Speech is requested in Japanese (ja-JP) at the normal rate, then the slow rate. The best Japanese voice is used, never an English one. The second play stops the first. | How the voice sounds (a fake speech engine records the requests) |
+| Voice choice | Only Japanese voices are offered; the choice survives a reload and is used | — |
+| Install and offline | The manifest and icons are valid for Add to Home Screen. With the network off, a scene and the help card still open. | The real install prompt and home-screen icon |
+| Sideways | On 給對方看 (Show them), the play buttons sit in the top bar and the Japanese is large and starts in view | — |
+| Print | Wallet cards are 85.6×54 mm (folded cards 108 mm). The sample trip fits one A4 sheet, without the page title or any controls. | The printer's own scaling |
+| Share link | The link uses only URL-safe characters, is under 2,000 characters, and imports every field in a fresh browser | How a messenger app previews or rewrites the link |
+| Screen reader | One h1, every control named, the dialog labelled with focus on 關閉 (Close). All Japanese is marked `lang="ja"`, and the furigana is not read aloud. | What VoiceOver or TalkBack actually say |
+
 ## Manual device check
 
-Do this before a release that touches speech, printing, install or offline use. Use one iPhone (Safari) and one Android phone (Chrome).
+What's left needs a real phone. Do this before a release that touches speech, install or sharing. Use one iPhone (Safari) and one Android phone (Chrome); CI only runs Chromium.
 
-1. Play a phrase, then slow. Japanese voice, no English accent. The second play stops the first.
-2. In settings, pick another Japanese voice. Phrases use it after a reload.
-3. Add to the home screen, open from the icon, turn on airplane mode, open a scene and the help card.
-4. Turn the phone sideways on 給對方看 (Show them). The text fills the screen and the play buttons are in the top bar.
-5. Print the wallet cards to PDF. The cards are 85.6×54 mm, and the page title is not printed.
-6. Open a share link from LINE or Messages. The import screen appears and the data matches.
-7. Use VoiceOver or TalkBack on the home page and the phrase page. Every control is announced with its label.
+1. Play a phrase, then slow. It sounds like a natural Japanese voice, with no English accent.
+2. Add to the home screen. The icon and name look right, and the app opens full screen from the icon.
+3. Send a share link through LINE and Messages, then tap it there. The import screen appears.
+4. Use VoiceOver or TalkBack on the home page and a phrase page. Each control is announced with its label, and Japanese is read once, in a Japanese voice.
+5. On Safari, repeat the sideways and print checks once by eye: Safari isn't covered by CI.
 
 ## When a test fails in CI
 
