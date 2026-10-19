@@ -190,6 +190,15 @@ async function printSheet(page: Page) {
 }
 
 test.describe("5. print", () => {
+  // More cards than one sheet holds: the rest must print on the next sheet, not be cut off.
+  test("a long trip continues on a second sheet", async ({ page, seed }) => {
+    const hotels = SAMPLE_PROFILE.hotels as Record<string, unknown>[];
+    await seed({ profile: { ...SAMPLE_PROFILE, hotels: [...hotels, ...hotels, ...hotels] } });
+    const { cards, pages } = await printSheet(page);
+    expect(cards.length).toBe(10); // 2 folded + 8 short = 12 slots: more than the 8 on one sheet
+    expect(pages).toHaveLength(2);
+  });
+
   for (const viewport of [undefined, { width: 320, height: 640 }]) {
     test.describe(viewport ? `on a ${viewport.width} px phone` : "on a Pixel 7", () => {
       if (viewport) test.use({ viewport });
@@ -213,29 +222,31 @@ test.describe("5. print", () => {
         // Eight slots fill one sheet.
         expect(pages, "one A4 page (595 × 842 pt)").toEqual([[expect.closeTo(595, 0), expect.closeTo(842, 0)]]);
       });
+
+      if (viewport) {
+        // Narrower than a card: the preview must not shrink cards (that would clip their text,
+        // or fold cards that fit on paper). The sheet scrolls sideways instead, not the page.
+        test("the preview keeps cards at true size, with nothing clipped", async ({ page, seed }) => {
+          await seed({ profile: SAMPLE_PROFILE });
+          await page.goto("#/print");
+          await expect(page.locator(".wallet-card").first()).toBeVisible();
+          const cards = await page.locator(".wallet-card").evaluateAll((els) =>
+            els.map((el) => ({ w: (el.getBoundingClientRect().width * 25.4) / 96, clipped: el.scrollHeight > el.clientHeight + 1 })),
+          );
+          for (const c of cards) {
+            expect(c.w).toBeCloseTo(85.6, 0);
+            expect(c.clipped, "card text cut off in the preview").toBe(false);
+          }
+          const sheet = page.getByRole("region", { name: "卡片預覽" });
+          expect(await sheet.evaluate((el) => el.scrollWidth > el.clientWidth), "the sheet scrolls sideways").toBe(true);
+          expect(await sheet.getAttribute("tabindex"), "keyboard users can scroll it").toBe("0");
+          const doc = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+          expect(doc, "the page itself does not scroll sideways").toBeLessThanOrEqual(0);
+        });
+      }
     });
   }
 
-  test.describe("on a 320 px phone", () => {
-    test.use({ viewport: { width: 320, height: 640 } });
-
-    // The phone is narrower than a card: the preview must not shrink cards (that would clip
-    // their text, or fold cards that fit on paper). The sheet scrolls sideways instead.
-    test("the preview keeps cards at true size, with nothing clipped", async ({ page, seed }) => {
-      await seed({ profile: SAMPLE_PROFILE });
-      await page.goto("#/print");
-      await expect(page.locator(".wallet-card").first()).toBeVisible();
-      const cards = await page.locator(".wallet-card").evaluateAll((els) =>
-        els.map((el) => ({ w: (el.getBoundingClientRect().width * 25.4) / 96, clipped: el.scrollHeight > el.clientHeight + 1 })),
-      );
-      for (const c of cards) {
-        expect(c.w).toBeCloseTo(85.6, 0);
-        expect(c.clipped, "card text cut off in the preview").toBe(false);
-      }
-      const sheet = page.locator(".print-sheet");
-      expect(await sheet.evaluate((el) => el.scrollWidth > el.clientWidth), "the sheet scrolls, not the page").toBe(true);
-    });
-  });
 });
 
 test("6. a share link survives being sent: URL-safe, short enough, and imports every field", async ({ page, seed, browser }) => {

@@ -72,7 +72,9 @@ export function renderPrint(root: HTMLElement): void {
         h("button", { type: "button", class: BUTTON.primary, onclick: () => window.print() }, icon("print"), "列印"),
         h("p", { class: "text-base text-muted" }, "電腦或手機都可以列印；也可以在列印畫面選「另存為 PDF」，傳給家人或自己留一份。"),
       ),
-      h("div", { class: "print-sheet mt-6" }, cards),
+      // Focusable and named: on a phone narrower than a card it scrolls sideways, and keyboard
+      // and switch users must be able to reach the hidden edge too.
+      h("div", { class: "print-sheet mt-6", role: "region", "aria-label": "卡片預覽", tabindex: "0" }, cards),
     ],
     { back: "#/" },
   );

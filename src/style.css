@@ -226,14 +226,23 @@ body {
   gap: var(--card-gap);
   /* Cards never shrink: on a phone narrower than a card (320 px) the sheet scrolls sideways
      inside its own box instead, so the preview is the print at every width. */
+  justify-content: center;
   justify-content: safe center;
   overflow-x: auto;
 }
 
+@media print {
+  /* Not a scroll box on paper. Chromium splits one across pages anyway, but other engines may
+     not, and a trip that needs a second sheet would lose its last cards. */
+  .print-sheet {
+    overflow: visible;
+  }
+}
+
 /* ISO/IEC 7810 ID-1, the size of a credit card: fits a wallet once laminated. */
 .wallet-card {
-  width: var(--card-w, 85.6mm);
-  height: var(--card-h, 54mm);
+  width: var(--card-w);
+  height: var(--card-h);
   overflow: hidden;
   border: 0.3mm dashed #000;
   border-radius: 3mm;
@@ -254,7 +263,7 @@ body {
  * so its cut lines line up with the short cards beside it.
  */
 .wallet-card-tall {
-  height: calc(2 * var(--card-h, 54mm) + var(--card-gap, 4mm));
+  height: calc(2 * var(--card-h) + var(--card-gap));
   grid-row: span 2;
 }
 

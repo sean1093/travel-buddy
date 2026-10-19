@@ -99,7 +99,7 @@ npx playwright install chromium
 | Voice choice | Only Japanese voices are offered; the choice survives a reload and is used | — |
 | Install and offline | The manifest and icons are valid for Add to Home Screen. With the network off, a scene and the help card still open. | The real install prompt and home-screen icon |
 | Sideways | On 給對方看 (Show them), the play buttons sit in the top bar and the Japanese is large and starts in view | — |
-| Print | Wallet cards are 85.6×54 mm (folded cards span two slots, 112 mm). Which cards fold doesn't depend on the screen width. The sample trip fits one A4 sheet, without the page title or any controls. | The printer's own scaling |
+| Print | Wallet cards are 85.6×54 mm (folded cards span two slots, 112 mm) and their cut lines line up. The sample trip fits one A4 sheet, without the page title or any controls; a longer trip continues on a second sheet. On a 320 px phone the preview keeps true-size cards with nothing clipped, and only the card area scrolls sideways. | The printer's own scaling |
 | Share link | The link uses only URL-safe characters, is under 2,000 characters, and imports every field in a fresh browser | How a messenger app previews or rewrites the link |
 | Screen reader | One h1, every control named, the dialog labelled with focus on 關閉 (Close). All Japanese is marked `lang="ja"`, and the furigana is not read aloud. | What VoiceOver or TalkBack actually say |
 
