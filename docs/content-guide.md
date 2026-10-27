@@ -136,7 +136,7 @@ Written in `src/content/tools.ts`. Only recommend free apps that already do the 
 - **Verification runs out.** Re-verify each entry within its window (`REVERIFY_AFTER_DAYS` in `src/content/validate.ts`):
   - emergency numbers: 365 days from `verified`
   - travel cheat sheets: 180 days, or by `recheckBy` when a known change date comes sooner (e.g. a new rule taking effect)
-  - facts dated only in a source comment (allergen lists, dialling rules, tool links): 365 days. Date them with the marker, e.g. `(@checked 2026-10-08)`, so the date can run out; `npm test` refuses "checked 2026-…" or "verified 2026-…" written as plain prose.
+  - facts dated only in a source comment (allergen lists, dialling rules, tool links): 365 days. Date them with the marker, e.g. `(@checked 2026-10-08)`, so the date can run out. `npm test` refuses a check dated in plain prose ("Checked: 2026-10-08", "last verified 2026/10/08") and a marker without a date.
 - **How it is enforced:**
   - `npm test` (`tests/content-freshness.test.ts`) fails once anything is overdue, so PR CI goes red. Deploys skip this check: the stale entry is already live, and blocking would only hold back fixes. A PR whose CI went green before a deadline can still be merged after it; the weekly issue starts a month earlier, and the next PR's CI fails.
   - Every Monday, the `freshness` workflow looks 30 days ahead and opens (or comments on, when the list changes) a `content-freshness` issue, which notifies everyone watching the repository. It closes the issue once everything is fresh. GitHub turns scheduled workflows off after 60 days without repository activity; the PR check still catches anything overdue.

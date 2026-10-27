@@ -43,21 +43,27 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           {
-            echo "Content is due to be checked against its sources again within 30 days:"
+            echo "Content that is overdue, due within 30 days, or not dated properly:"
             echo
             cat freshness-report.md
             echo
             echo "For each entry: check it against its sources, correct anything that changed, then update its date."
             echo "Never move the date alone (docs/content-guide.md §9)."
+            echo
+            echo "Found by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           } > body.md
+          # Compared without the run link, which differs every week.
+          list=$(sed '/^Found by /d' body.md)
           gh label create content-freshness --color FBCA04 --description "Content due for re-verification" --force
           number=$(gh issue list --label content-freshness --state open --json number --jq '.[0].number // empty')
           if [ -z "$number" ]; then
             gh issue create --title "Content due for re-verification" --label content-freshness --body-file body.md
             exit 0
           fi
-          last=$(gh issue view "$number" --json body,comments --jq 'if (.comments | length) > 0 then .comments[-1].body else .body end')
-          if [ "$last" != "$(cat body.md)" ]; then
+          # The bot's own last post: a maintainer's reply ("on it") must not make it repeat itself.
+          last=$(gh issue view "$number" --json body,comments \
+            --jq '([.comments[] | select(.author.login == "github-actions")] | last | .body) // .body' | sed '/^Found by /d')
+          if [ "$last" != "$list" ]; then
             gh issue comment "$number" --body-file body.md
           fi
 

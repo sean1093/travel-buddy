@@ -86,27 +86,35 @@ export function checkedContent(content: {
   return [
     ...content.emergency.map((e) => ({ where: `emergency ${e.id}`, verified: e.verified, days: REVERIFY_AFTER_DAYS.emergency, recheckBy: e.recheckBy })),
     ...content.guides.map((g) => ({ where: `guide ${g.id}`, verified: g.verified, days: REVERIFY_AFTER_DAYS.guide, recheckBy: g.recheckBy })),
-    // A malformed date here is reported by validateContent; reporting it twice helps no one.
-  ].filter((entry) => isDate(entry.verified));
+  ];
 }
 
-/** The marker a source comment uses for a dated check: `@checked` and the date. */
-const CHECKED_MARKER = /@checked\s+([^\s).,;]*)/g;
-/** A date written as prose next to "checked" or "verified", which the marker would make enforceable. */
-const UNMARKED_DATE = /(?<!@)\b(?:checked|verified)\s+(?:on\s+)?\d{4}-\d{2}-\d{2}/i;
+/** The marker a source comment uses for a dated check: `@checked` and the date (any case, `:` or `=` allowed). */
+const CHECKED_MARKER = /@checked[\s:=]*(\d[^\s).,;]*)/gi;
+/** A marker with no date after it. */
+const MARKER_WITHOUT_DATE = /@checked(?![\s:=]*\d)/i;
+/**
+ * A date written as prose next to "checked" or "verified" ("Checked: 2026-10-08",
+ * "last verified 2026/10/08"), which the marker would make enforceable. Not the
+ * `verified: "2026-10-08"` data field, which validateContent and checkFreshness cover.
+ */
+const UNMARKED_DATE = /(?<!@)\b(?:checked|verified)\b(?!:\s*")[^\n\d]{0,20}\d{4}[-/]\d{1,2}/i;
 
-/** The `@checked` markers in a source file, as checked entries (dates unvalidated: checkFreshness reports bad ones). */
+/** The `@checked` markers in a source file, as checked entries (checkFreshness reports bad dates). */
 export function checkedComments(path: string, source: string): Checked[] {
   return source.split("\n").flatMap((line, i) =>
     [...line.matchAll(CHECKED_MARKER)].map((m) => ({ where: `${path}:${i + 1}`, verified: m[1]!, days: REVERIFY_AFTER_DAYS.comment })),
   );
 }
 
-/** Lines that date a check in prose instead of with the marker: such a date would never run out. */
+/** Lines that date a check in a way that would never run out: in prose, or a marker without a date. */
 export function unmarkedChecks(path: string, source: string): string[] {
-  return source
-    .split("\n")
-    .flatMap((line, i) => (UNMARKED_DATE.test(line) ? [`${path}:${i + 1}: write the date as "@checked YYYY-MM-DD" so it runs out`] : []));
+  return source.split("\n").flatMap((line, i) => {
+    const where = `${path}:${i + 1}`;
+    if (MARKER_WITHOUT_DATE.test(line)) return [`${where}: the @checked marker needs a date after it`];
+    if (UNMARKED_DATE.test(line)) return [`${where}: write the date as an @checked marker so it runs out`];
+    return [];
+  });
 }
 
 /**

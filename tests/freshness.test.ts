@@ -52,8 +52,9 @@ describe("checkFreshness", () => {
     expect(checkFreshness(guide("2026-02-30"), "2026-10-27")).toEqual(['guide tax-refund: "2026-02-30" is not a date']);
   });
 
-  it("leaves malformed content dates to validateContent, which already reports them", () => {
-    expect(checkedContent({ emergency: [], guides: [{ id: "tax-refund", verified: "soon" }] })).toEqual([]);
+  it("reports malformed content dates too, so the weekly check sees them", () => {
+    const entries = checkedContent({ emergency: [], guides: [{ id: "tax-refund", verified: "2026-1-08" }] });
+    expect(checkFreshness(entries, "2026-10-27")).toEqual(['guide tax-refund: "2026-1-08" is not a date']);
   });
 
   it("refuses a bad lead or today instead of reporting stale content", () => {
@@ -71,20 +72,34 @@ describe("checkedComments", () => {
     ]);
   });
 
+  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;"])("reads the variant %j", (line) => {
+    expect(checkedComments("src/x.ts", line).map((e) => e.verified)).toEqual(["2026-10-08"]);
+  });
+
   it("keeps a malformed marker date, so checkFreshness reports it", () => {
-    const [entry] = checkedComments("src/x.ts", "// (@checked 2026-02-30)");
-    expect(checkFreshness([entry!], "2026-10-27")).toEqual(['src/x.ts:1: "2026-02-30" is not a date']);
+    const entries = checkedComments("src/x.ts", "// (@checked 2026/10/08)");
+    expect(checkFreshness(entries, "2026-10-27")).toEqual(['src/x.ts:1: "2026/10/08" is not a date']);
   });
 });
 
 describe("unmarkedChecks", () => {
-  it.each(["// Links were checked 2026-10-11 against …", " * Checked on 2026-10-08.", "// verified 2026-10-08 by phone"])(
-    "asks for the marker in %j",
-    (line) => expect(unmarkedChecks("src/x.ts", line)).toEqual(['src/x.ts:1: write the date as "@checked YYYY-MM-DD" so it runs out']),
+  it.each([
+    "// Links were checked 2026-10-11 against …",
+    " * Checked on 2026-10-08.",
+    "// verified 2026-10-08 by phone",
+    "// Checked: 2026-10-11 via the official site",
+    "// last verified 2026/10/08",
+  ])("asks for the marker in %j", (line) =>
+    expect(unmarkedChecks("src/x.ts", line)).toEqual(["src/x.ts:1: write the date as an @checked marker so it runs out"]),
   );
 
-  it.each(['// (@checked 2026-10-11)', '    verified: "2026-10-08",', "// changed on 2026-11-01"])("accepts %j", (line) =>
-    expect(unmarkedChecks("src/x.ts", line)).toEqual([]),
+  it.each(["// @checked", "// (@Checked: soon)"])("asks for a date after the marker in %j", (line) =>
+    expect(unmarkedChecks("src/x.ts", line)).toEqual(["src/x.ts:1: the @checked marker needs a date after it"]),
+  );
+
+  it.each(["// (@checked 2026-10-11)", '    verified: "2026-10-08",', "// changed on 2026-11-01", "// the box is checked when …"])(
+    "accepts %j",
+    (line) => expect(unmarkedChecks("src/x.ts", line)).toEqual([]),
   );
 });
 
