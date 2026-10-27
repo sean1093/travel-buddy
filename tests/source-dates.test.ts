@@ -11,10 +11,13 @@ describe("@checked markers in source comments", () => {
     expect(scans.flatMap((s) => s.undated)).toEqual([]);
   });
 
-  it("are all read: each one written is parsed as a date or reported as missing one", () => {
-    // A marker form the parser stops reading would silently stop running out.
+  it("are all written so the parser reads them", () => {
+    // Counted with a looser pattern than the parser's: "@checked" not followed by a letter or
+    // "_" (identifiers). A glued "@checked2026-10-08", or a parser change that stops reading a
+    // form, shows up as a mismatch here instead of a date that silently never runs out.
     for (const { path, text, checked, undated } of scans) {
-      expect(checked.length + undated.length, path).toBe(text.match(/@checked(?![a-z])/gi)?.length ?? 0);
+      const written = text.match(/@checked(?![a-z_])/gi)?.length ?? 0;
+      expect(checked.length + undated.length, `${path}: write markers as "(@checked YYYY-MM-DD)"`).toBe(written);
     }
     expect(scans.some((s) => s.checked.length > 0), "markers exist at all").toBe(true);
   });

@@ -91,14 +91,16 @@ export function checkedContent(content: {
 
 /**
  * The marker a source comment uses for a dated check: `@checked` and the date,
- * any case, with `:`, `=`, `_`, "on" or nothing between them. The date runs up
- * to the first character that can't be part of one, so a date in brackets or
- * before a comment's end reads cleanly, and anything but YYYY-MM-DD is
- * reported. No date at all is reported too. A date written as plain prose
- * ("checked 2026-10-08") is not read and never runs out: docs/content-guide.md
- * §9 makes the marker the rule. Not `@checkedAt`-style identifiers.
+ * written `(@checked 2026-10-08)` (any case; `:`, `=` or "on" allowed before the
+ * date). The date runs up to the first character that can't be part of one, so
+ * a date in brackets or before a comment's end reads cleanly, and anything but
+ * YYYY-MM-DD is reported. No date at all is reported too. A date written as
+ * plain prose ("checked 2026-10-08") is not read and never runs out:
+ * docs/content-guide.md §9 makes the marker the rule. `@checkedAt` or
+ * `@checked_at` identifiers aren't markers; a glued `@checked2026-10-08` isn't
+ * either, and tests/source-dates.test.ts fails on it.
  */
-const CHECKED_MARKER = /@checked(?![a-z])(?:[\s:=_]|on\b)*(\d[\w/-]*)?/gi;
+const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d[\w/-]*)?/gi;
 
 /**
  * Every `@checked` marker in a source file, in one pass: the dated ones as
