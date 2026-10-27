@@ -9,6 +9,7 @@ The app is opened in a hurry: lost on a platform, at a pharmacy counter, in a ta
 | Risk | Example | Severity | Covered by |
 |---|---|---|---|
 | Wrong or unreadable emergency information | A wrong 110/119 number, a help card without the hotel, Japanese that breaks mid-word | Critical | Content tests, card tests, e2e help journey |
+| Information that was right but has gone stale | A tax refund rule that changed, an office phone number that moved | Critical | `content-freshness.test.ts` (fails PRs when re-verification is overdue, including `@checked` source comments), `freshness.test.ts` (the rules), weekly `freshness` workflow (opens an issue 30 days ahead) |
 | A screen that can't be used under stress | A button cut off at 特大 (extra-large) text, text clipped when the phone is turned sideways, an overlay the back button can't close | Critical | Component tests, e2e layout matrix |
 | Data loss or leaks | Settings or the profile lost after a reload; share links that break or carry more than they should | High | Store and codec tests, e2e share journey |
 | Works online only | The service worker doesn't cache the app | High | e2e offline journey |

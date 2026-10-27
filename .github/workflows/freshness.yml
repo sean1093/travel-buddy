@@ -1,0 +1,82 @@
+name: freshness
+
+# Warns a month before an emergency number, cheat sheet or dated source comment
+# is due to be checked against its sources again (docs/content-guide.md §9).
+# `npm test` fails once one is overdue, which blocks PRs; this gives time first.
+# It opens (or comments on) a `content-freshness` issue, which notifies everyone
+# watching the repository, not only whoever last edited this schedule, and closes
+# it once everything is fresh again.
+# GitHub turns scheduled workflows off after 60 days without repository activity;
+# the PR gate in `npm test` still catches anything overdue after that.
+on:
+  schedule:
+    # Mondays 01:17 UTC (09:17 in Taiwan).
+    - cron: "17 1 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  due-soon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+      - id: check
+        # Writes one list: deadlines, impossible dates, and @checked markers not written "@checked YYYY-MM-DD".
+        run: npx vitest run tests/content-freshness.test.ts
+        env:
+          FRESHNESS_LEAD_DAYS: "30"
+          FRESHNESS_REPORT: freshness-report.md
+
+      # One issue per round of re-checks: a comment only when the list changes, closed once all is fresh.
+      - name: Open or update the content-freshness issue
+        # Only with a list. A crash or a bad setting is a code fault, not stale content: the failed run's
+        # own email is the signal, and an issue already open stays as it was.
+        if: failure() && steps.check.outcome == 'failure' && hashFiles('freshness-report.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The list's fingerprint, hidden in the post: survives edits, line endings and the run link.
+          hash=$(sha256sum freshness-report.md | cut -c1-16)
+          {
+            echo "Content that is overdue, due within 30 days, or not dated properly:"
+            echo
+            cat freshness-report.md
+            echo
+            echo "For each entry: check it against its sources, correct anything that changed, then update its date."
+            echo "Never move the date alone (docs/content-guide.md §9)."
+            echo
+            echo "Found by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "<!-- freshness-report:$hash -->"
+          } > body.md
+          gh label create content-freshness --color FBCA04 --description "Content due for re-verification" --force
+          number=$(gh issue list --label content-freshness --state open --json number --jq '.[0].number // empty')
+          if [ -z "$number" ]; then
+            gh issue create --title "Content due for re-verification" --label content-freshness --body-file body.md
+            exit 0
+          fi
+          # The bot's own last post (github-actions or github-actions[bot] exactly), else the issue body.
+          last=$(gh issue view "$number" --json body,comments \
+            --jq '([.comments[] | select(.author.login == "github-actions" or .author.login == "github-actions[bot]")] | last | .body) // .body')
+          if ! printf '%s' "$last" | grep -q "freshness-report:$hash"; then
+            gh issue comment "$number" --body-file body.md
+          fi
+
+      - name: Close the content-freshness issue once everything is fresh
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          number=$(gh issue list --label content-freshness --state open --json number --jq '.[0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue close "$number" --comment "Everything is within its re-verification window again (run ${{ github.run_id }})."
+          fi

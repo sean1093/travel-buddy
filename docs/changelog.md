@@ -2,6 +2,16 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-10-27
+
+### Content you can trust
+- **Verification runs out:**
+  - Every emergency number must be re-verified against its official source within a year, and every travel cheat sheet within six months, or sooner when a known rule change is coming. Facts dated in source comments (allergen lists, dialling rules, tool links) also get a year.
+  - Past that, no change can be merged until the entry is checked again. A weekly check opens an issue a month ahead.
+  - Verification dates must be real dates (no 2026-02-30) and not in the future.
+  - The tax refund cheat sheet is due for a re-check by 2026-11-15, after the new system starts.
+- **Help page:** the phone numbers' check date is now the oldest among them, so it never looks fresher than the stalest number.
+
 ## 2026-10-19
 
 ### Fixes

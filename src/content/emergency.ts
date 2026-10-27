@@ -3,10 +3,11 @@
  * the date it was checked; tests/content.test.ts refuses an entry without
  * them. Only numbers with an official source are listed.
  *
- * Checked 2026-10-08. The official sites were not reachable from the build
- * environment, so the numbers were read from search results quoting these
- * official pages (and cross-checked between two searches for TECRO Tokyo
- * and the JNTO hotline). Re-check before each release season.
+ * Each entry's `verified` says when it was last checked. At the first check
+ * the official sites were not reachable from the build environment, so the
+ * numbers were read from search results quoting these official pages (and
+ * cross-checked between two searches for TECRO Tokyo and the JNTO hotline).
+ * Each must be checked again within 365 days (tests/content-freshness.test.ts).
  */
 export interface EmergencyNumber {
   id: string;
@@ -18,6 +19,8 @@ export interface EmergencyNumber {
   when: string;
   source: string;
   verified: string;
+  /** A known date the facts change on; see `Checked.recheckBy` in validate.ts. */
+  recheckBy?: string;
 }
 
 export const EMERGENCY_NUMBERS: EmergencyNumber[] = [

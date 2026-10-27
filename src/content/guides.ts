@@ -4,10 +4,11 @@
  * was checked, and tests/content.test.ts refuses one without them. A rule
  * that could not be confirmed is left out, and the guide says to ask staff.
  *
- * Checked 2026-10-11. The official sites were not reachable from the build
- * environment, so the rules were read from the official leaflets and from
- * search results quoting these official pages. Re-check before each release
- * season.
+ * Each guide's `verified` says when it was last checked. At the first check
+ * the official sites were not reachable from the build environment, so the
+ * rules were read from the official leaflets and from search results quoting
+ * these official pages. Each guide must be checked again within 180 days, or
+ * by its `recheckBy` (tests/content-freshness.test.ts).
  */
 export interface GuideStep {
   title: string;
@@ -25,6 +26,8 @@ export interface Guide {
   notes: string[];
   sources: string[];
   verified: string;
+  /** A known date the facts change on; see `Checked.recheckBy` in validate.ts. */
+  recheckBy?: string;
 }
 
 export const GUIDES: Guide[] = [
@@ -75,6 +78,9 @@ export const GUIDES: Guide[] = [
       "https://www.centrair.jp/taxrefund/",
     ],
     verified: "2026-10-11",
+    // Written before the new system starts on 2026-11-01: confirm it once it is running
+    // (kiosks, what the airports actually ask for), and correct the guide.
+    recheckBy: "2026-11-15",
   },
   {
     id: "shinkansen-luggage",

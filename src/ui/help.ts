@@ -145,7 +145,8 @@ export function renderHelp(root: HTMLElement): void {
           "p",
           { class: "text-base text-muted" },
           "電話號碼查證日期：",
-          EMERGENCY_NUMBERS[0]?.verified ?? "",
+          // The oldest check among the numbers listed: never claim more freshness than the stalest one has.
+          EMERGENCY_NUMBERS.map((e) => e.verified).sort()[0] ?? "",
           "。來源為日本政府觀光局、日本消防廳、日本警察與中華民國外交部、駐日代表處官方網站。",
         ),
       ),

@@ -49,6 +49,123 @@ export function checkJp(markup: Jp): string[] {
   return problems;
 }
 
+/** True for a real calendar date written YYYY-MM-DD (not 2026-02-30). */
+export function isDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+/**
+ * How many days a verification lasts before the content must be checked
+ * against its source again. Cheat sheets describe rules that change (the tax
+ * refund system changed on 2026-11-01); emergency numbers rarely do. `comment`
+ * covers facts dated only in a source comment with an `@checked` marker
+ * followed by the date: allergen lists, dialling rules, tool links.
+ */
+export const REVERIFY_AFTER_DAYS = { emergency: 365, guide: 180, comment: 365 } as const;
+
+/** Something that says when it was last checked against its sources. */
+export interface Checked {
+  /** Where to look, e.g. "guide tax-refund" or "src/lib/phone.ts:8". */
+  where: string;
+  verified: string;
+  days: number;
+  /** A known date the facts change on: check again by then even if the window hasn't run out. */
+  recheckBy?: string;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+
+/** The checked content with its windows: emergency numbers and cheat sheets. */
+export function checkedContent(content: {
+  emergency: Pick<EmergencyNumber, "id" | "verified" | "recheckBy">[];
+  guides: Pick<Guide, "id" | "verified" | "recheckBy">[];
+}): Checked[] {
+  return [
+    ...content.emergency.map((e) => ({ where: `emergency ${e.id}`, verified: e.verified, days: REVERIFY_AFTER_DAYS.emergency, recheckBy: e.recheckBy })),
+    ...content.guides.map((g) => ({ where: `guide ${g.id}`, verified: g.verified, days: REVERIFY_AFTER_DAYS.guide, recheckBy: g.recheckBy })),
+  ];
+}
+
+/**
+ * The marker a source comment uses for a dated check, written exactly
+ * `@checked 2026-10-08`: `@checked`, one space, the date (e.g. inside brackets
+ * or before a comment's end). `@checked` is reserved for it: any other use
+ * (another case, separator or spelling, no date, a range) is reported with how
+ * to write it, so no form slips through unread. Only right after an ASCII
+ * letter, digit or `_` (an e-mail address, a handle) is it not a marker; after
+ * Chinese or Japanese text it is one (no spaces there), and URLs are not
+ * special. A date
+ * written as plain prose ("checked 2026-10-08") is not read and never runs
+ * out: docs/content-guide.md §9 makes the marker the rule.
+ */
+const MARKER_WORD = /(?<![A-Za-z0-9_])@checked/gi;
+/**
+ * The date ends the marker: what follows is the line's end, a space, a closing
+ * bracket or quote, other punctuation not followed by a digit (so "2026-10-08."
+ * or "2026-10-08、確認" ends it but "2026-10-08.1" or "：12" doesn't), "`" or "<".
+ * Full-width forms count by their Unicode category. Dashes (including 〜),
+ * "~", "～", "+" and every other symbol are left out, so no range can pass.
+ */
+const MARKER = /^@checked (\d{4}-\d{2}-\d{2})(?=$|\s|[\p{Pe}\p{Pf}`<]|\p{Po}(?!\p{N}))/u;
+const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
+/** Up to `max` user-perceived characters from `text`, from a bounded window. */
+function excerpt(text: string, max: number): string {
+  return [...graphemes.segment(text.slice(0, max * 8))].slice(0, max).map((s) => s.segment).join("").trim();
+}
+
+export const MARKER_FORMAT = 'write the marker as "@checked YYYY-MM-DD"';
+
+/**
+ * Every `@checked` in a source file, in one pass: each one is a checked entry
+ * (checkFreshness rejects an impossible date such as 2026-02-30) or a problem.
+ */
+export function scanMarkers(path: string, source: string): { checked: Checked[]; problems: string[] } {
+  const checked: Checked[] = [];
+  const problems: string[] = [];
+  source.split("\n").forEach((line, i) => {
+    const where = `${path}:${i + 1}`;
+    for (const match of line.matchAll(MARKER_WORD)) {
+      const date = MARKER.exec(line.slice(match.index))?.[1];
+      if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
+      else problems.push(`${where}: ${JSON.stringify(excerpt(line.slice(match.index), 24))}: ${MARKER_FORMAT}`);
+    }
+  });
+  return { checked, problems };
+}
+
+/**
+ * Entries whose check has run out on `today` (YYYY-MM-DD), or will within
+ * `leadDays`, or that are dated in the future or not a real date. Fix a problem
+ * by checking the content against its sources again, then updating the date;
+ * never by moving the date alone.
+ */
+export function checkFreshness(entries: Checked[], today: string, leadDays = 0): string[] {
+  if (!isDate(today)) throw new Error(`today must be YYYY-MM-DD, got "${today}"`);
+  if (!Number.isInteger(leadDays) || leadDays < 0) throw new Error(`leadDays must be a whole number of days, got ${leadDays}`);
+  const problems: string[] = [];
+  for (const { where, verified, days, recheckBy } of entries) {
+    if (!isDate(verified)) {
+      problems.push(`${where}: "${verified}" is not a date`);
+      continue;
+    }
+    // A day of slack: a date written in Taiwan's morning is still "yesterday" in UTC.
+    if (verified > addDays(today, 1)) {
+      problems.push(`${where}: verified ${verified} is in the future`);
+      continue;
+    }
+    const window = addDays(verified, days);
+    // A change date already passed when the entry was last checked has been dealt with.
+    const due = recheckBy && isDate(recheckBy) && recheckBy > verified && recheckBy < window ? recheckBy : window;
+    if (due <= today) problems.push(`${where}: verified ${verified}, re-verification was due ${due}`);
+    else if (due <= addDays(today, leadDays)) problems.push(`${where}: verified ${verified}, re-verification due ${due}`);
+  }
+  return problems;
+}
+
 /** Minimum counts per scene. */
 export const MIN_PHRASES = 12;
 export const MIN_TRANSPORT_PHRASES = 18;
@@ -163,7 +280,8 @@ export function validateContent(content: {
   for (const entry of content.emergency) {
     const where = `emergency ${entry.id}`;
     need(/^https:\/\//.test(entry.source), where, "needs an https source");
-    need(/^\d{4}-\d{2}-\d{2}$/.test(entry.verified), where, "needs a verified date");
+    need(isDate(entry.verified), where, "needs a verified date");
+    need(entry.recheckBy === undefined || isDate(entry.recheckBy), where, "recheckBy must be a date");
     need(/^\+?[\d-]+$/.test(entry.number), where, "number must be digits and hyphens");
     text(entry.title, where, "title");
     text(entry.when, where, "when to call");
@@ -180,7 +298,8 @@ export function validateContent(content: {
       text(step.body, `${where} step ${i}`, "body");
     });
     need(guide.sources.length > 0 && guide.sources.every((url) => /^https:\/\//.test(url)), where, "needs https sources");
-    need(/^\d{4}-\d{2}-\d{2}$/.test(guide.verified), where, "needs a verified date");
+    need(isDate(guide.verified), where, "needs a verified date");
+    need(guide.recheckBy === undefined || isDate(guide.recheckBy), where, "recheckBy must be a date");
   }
 
   for (const [name, markup] of Object.entries(content.extra)) jp(markup, name);

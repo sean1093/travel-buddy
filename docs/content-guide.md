@@ -124,15 +124,23 @@ Written in `src/content/tools.ts`. Only recommend free apps that already do the 
 - Fewer than 2 answers; using an answer set that doesn't exist.
 - Missing scene groups, phrases without a group, empty groups.
 - Too few phrases in a scene; Transport missing required phrases.
-- Emergency numbers or travel cheat sheets without an https source or verification date.
+- Emergency numbers or travel cheat sheets without an https source or a real verification date.
+- Emergency numbers or travel cheat sheets whose verification has run out (see §9).
 - Recommended tools without a purpose or without an https link.
 
 ## 9. Verification rules
 
 - **Emergency, medical and procedural information must be verified** against official sources (government, railway companies, airports). News and blogs are only leads.
-- Code comments give the source URL and verification date. With several sources, say which point each one supports.
+- Code comments give the source URL and verification date (`@checked YYYY-MM-DD`). With several sources, say which point each one supports.
 - If the official website is unreachable, you can use official content quoted in search results, but say so in the comment.
-- Before each travel season, recheck content with older `verified` dates.
+- **Verification runs out.** Re-verify each entry within its window (`REVERIFY_AFTER_DAYS` in `src/content/validate.ts`):
+  - emergency numbers: 365 days from `verified`
+  - travel cheat sheets: 180 days, or by `recheckBy` when a known change date comes sooner (e.g. a new rule taking effect)
+  - facts dated only in a source comment (allergen lists, dialling rules, tool links): 365 days. **Always date them with the marker, written exactly `@checked 2026-10-08`** (e.g. at the end of a sentence in brackets). A date written as prose ("checked 2026-10-08") is not read, so it never runs out, and reviewers check for it. `@checked` is reserved for the marker: `npm test` reports, with the line, any other way of writing it (another case or separator, no date, a date that isn't YYYY-MM-DD). Only right after an ASCII letter, digit or `_` (an e-mail address, a handle) is it not a marker; right after Chinese or Japanese text it is one. URLs are not special: a `@checked` inside one is read or reported like any other, so link to such a page without that part. `src/content/validate.ts` holds the rules themselves and isn't scanned, so don't put dated facts there.
+- **How it is enforced:**
+  - `npm test` (`tests/content-freshness.test.ts`) fails once anything is overdue, so PR CI goes red. Deploys skip this check: the stale entry is already live, and blocking would only hold back fixes. A PR whose CI went green before a deadline can still be merged after it; the weekly issue starts a month earlier, and the next PR's CI fails.
+  - Every Monday, the `freshness` workflow looks 30 days ahead and opens (or comments on, when the list changes) a `content-freshness` issue, which notifies everyone watching the repository. It closes the issue once everything is fresh. GitHub turns scheduled workflows off after 60 days without repository activity; the PR check still catches anything overdue.
+  - To fix it, check the entry against its sources again, correct anything that changed, then update `verified`. **Never move the date without checking.** If a source no longer supports the content, remove the content.
 - If you're not sure, leave it out and ask the traveller to check with on-site staff instead.
 
 ## 10. Wording

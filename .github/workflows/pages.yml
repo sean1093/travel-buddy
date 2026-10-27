@@ -32,7 +32,9 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm test
+      # Not the freshness check: an overdue entry is already live, and blocking the
+      # deploy would only hold back fixes. PRs (ci.yml) are where it is enforced.
+      - run: npx vitest run --exclude tests/content-freshness.test.ts
       # Typechecks, then builds.
       - run: npm run build
       # Browser journeys gate the deploy too: a push or a manual run that skipped the
