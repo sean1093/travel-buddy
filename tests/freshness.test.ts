@@ -72,7 +72,7 @@ describe("checkedComments", () => {
     ]);
   });
 
-  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;"])("reads the variant %j", (line) => {
+  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;", "/* @checked 2026-10-08*/", "[@checked on 2026-10-08]"])("reads the variant %j", (line) => {
     expect(checkedComments("src/x.ts", line).map((e) => e.verified)).toEqual(["2026-10-08"]);
   });
 
@@ -93,11 +93,20 @@ describe("unmarkedChecks", () => {
     expect(unmarkedChecks("src/x.ts", line)).toEqual(["src/x.ts:1: write the date as an @checked marker so it runs out"]),
   );
 
-  it.each(["// @checked", "// (@Checked: soon)"])("asks for a date after the marker in %j", (line) =>
+  it.each(["// @checked", "// (@Checked: soon)", "// @checked on Monday"])("asks for a date after the marker in %j", (line) =>
     expect(unmarkedChecks("src/x.ts", line)).toEqual(["src/x.ts:1: the @checked marker needs a date after it"]),
   );
 
-  it.each(["// (@checked 2026-10-11)", '    verified: "2026-10-08",', "// changed on 2026-11-01", "// the box is checked when …"])(
+  it.each([
+    "// (@checked 2026-10-11)",
+    "// Verified by phone (@checked 2026-10-08)",
+    '    verified: "2026-10-08",',
+    "    verified: '2026-10-08',",
+    "    verified = `2026-10-08`;",
+    "// changed on 2026-11-01",
+    "// the box is checked when …",
+    " * @checkedAt the time of the last check",
+  ])(
     "accepts %j",
     (line) => expect(unmarkedChecks("src/x.ts", line)).toEqual([]),
   );

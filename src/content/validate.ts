@@ -89,16 +89,21 @@ export function checkedContent(content: {
   ];
 }
 
-/** The marker a source comment uses for a dated check: `@checked` and the date (any case, `:` or `=` allowed). */
-const CHECKED_MARKER = /@checked[\s:=]*(\d[^\s).,;]*)/gi;
-/** A marker with no date after it. */
-const MARKER_WITHOUT_DATE = /@checked(?![\s:=]*\d)/i;
 /**
- * A date written as prose next to "checked" or "verified" ("Checked: 2026-10-08",
- * "last verified 2026/10/08"), which the marker would make enforceable. Not the
- * `verified: "2026-10-08"` data field, which validateContent and checkFreshness cover.
+ * The marker a source comment uses for a dated check: `@checked` and the date
+ * (any case; `:`, `=` or "on" before it). The capture stops at the date's own
+ * characters, so a date in brackets or right before a comment's end reads cleanly.
  */
-const UNMARKED_DATE = /(?<!@)\b(?:checked|verified)\b(?!:\s*")[^\n\d]{0,20}\d{4}[-/]\d{1,2}/i;
+const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d[\d/-]*)/gi;
+/** A marker with no date after it (not `@checkedAt`-style identifiers). */
+const MARKER_WITHOUT_DATE = /@checked\b(?!(?:[\s:=]|on\b)*\d)/i;
+/**
+ * Best effort: a date written as prose right after "checked" or "verified"
+ * ("Checked: 2026-10-08", "last verified 2026/10/08"), which the marker would
+ * make enforceable. It can't catch every phrasing; the marker is the rule.
+ * Lines with a marker, and the `verified: "…"` data field, are not prose.
+ */
+const UNMARKED_DATE = /\b(?:checked|verified)\b(?!\s*[:=]\s*["'`])[^\n\d@]{0,20}\d{4}[-/]\d{1,2}/i;
 
 /** The `@checked` markers in a source file, as checked entries (checkFreshness reports bad dates). */
 export function checkedComments(path: string, source: string): Checked[] {
@@ -112,7 +117,7 @@ export function unmarkedChecks(path: string, source: string): string[] {
   return source.split("\n").flatMap((line, i) => {
     const where = `${path}:${i + 1}`;
     if (MARKER_WITHOUT_DATE.test(line)) return [`${where}: the @checked marker needs a date after it`];
-    if (UNMARKED_DATE.test(line)) return [`${where}: write the date as an @checked marker so it runs out`];
+    if (!/@checked\b/i.test(line) && UNMARKED_DATE.test(line)) return [`${where}: write the date as an @checked marker so it runs out`];
     return [];
   });
 }

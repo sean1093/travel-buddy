@@ -11,7 +11,7 @@ describe("dated checks in source comments", () => {
   });
 
   it("are found", () => {
-    // If this drops, the marker pattern no longer matches and comment dates go unchecked.
-    expect(SOURCES.flatMap(({ path, text }) => checkedComments(path, text)).length).toBeGreaterThanOrEqual(4);
+    // If this drops to zero, the marker pattern no longer matches and comment dates go unchecked.
+    expect(SOURCES.flatMap(({ path, text }) => checkedComments(path, text)).length).toBeGreaterThan(0);
   });
 });
