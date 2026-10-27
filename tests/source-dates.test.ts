@@ -10,8 +10,13 @@ describe("dated checks in source comments", () => {
     expect(SOURCES.flatMap(({ path, text }) => unmarkedChecks(path, text))).toEqual([]);
   });
 
-  it("are found", () => {
-    // If this drops to zero, the marker pattern no longer matches and comment dates go unchecked.
-    expect(SOURCES.flatMap(({ path, text }) => checkedComments(path, text)).length).toBeGreaterThan(0);
+  it("are all read: every @checked written is parsed as a date or reported as missing one", () => {
+    // Catches a marker pattern that stops matching some forms, without hard-coding how many there are.
+    for (const { path, text } of SOURCES) {
+      const written = text.match(/@checked\b/gi)?.length ?? 0;
+      const read = checkedComments(path, text).length + unmarkedChecks(path, text).filter((p) => p.includes("needs a date")).length;
+      expect(read, path).toBe(written);
+    }
+    expect(SOURCES.some(({ text }) => /@checked\b/i.test(text)), "markers exist at all").toBe(true);
   });
 });

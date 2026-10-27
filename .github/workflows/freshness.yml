@@ -31,19 +31,19 @@ jobs:
 
       - run: npm ci
       - id: check
-        # The deadlines, and the static rules for dating a check (a bad marker never runs out).
-        run: npx vitest run tests/content-freshness.test.ts tests/source-dates.test.ts
+        # Writes one list: deadlines, and checks dated so they could never run out.
+        run: npx vitest run tests/content-freshness.test.ts
         env:
           FRESHNESS_LEAD_DAYS: "30"
           FRESHNESS_REPORT: freshness-report.md
 
       # One issue per round of re-checks: a comment only when the list changes, closed once all is fresh.
       - name: Open or update the content-freshness issue
-        if: failure() && steps.check.outcome == 'failure'
+        # Only with a list: a crash or a bad setting fails the run (the workflow's own alert) without blaming content.
+        if: failure() && steps.check.outcome == 'failure' && hashFiles('freshness-report.md') != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          [ -f freshness-report.md ] || echo "- A check failed without a list (a bad @checked marker or prose date?): see the run below." > freshness-report.md
           # The list's fingerprint, hidden in the post: survives edits, line endings and the run link.
           hash=$(sha256sum freshness-report.md | cut -c1-16)
           {
@@ -63,9 +63,9 @@ jobs:
             gh issue create --title "Content due for re-verification" --label content-freshness --body-file body.md
             exit 0
           fi
-          # The bot's own last post (github-actions or github-actions[bot]), else the issue body.
+          # The bot's own last post (github-actions or github-actions[bot] exactly), else the issue body.
           last=$(gh issue view "$number" --json body,comments \
-            --jq '([.comments[] | select(.author.login | startswith("github-actions"))] | last | .body) // .body')
+            --jq '([.comments[] | select(.author.login == "github-actions" or .author.login == "github-actions[bot]")] | last | .body) // .body')
           if ! printf '%s' "$last" | grep -q "freshness-report:$hash"; then
             gh issue comment "$number" --body-file body.md
           fi

@@ -72,7 +72,7 @@ describe("checkedComments", () => {
     ]);
   });
 
-  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;", "/* @checked 2026-10-08*/", "[@checked on 2026-10-08]"])("reads the variant %j", (line) => {
+  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;", "/* @checked 2026-10-08*/", "[@checked on 2026-10-08]", "(@checked 2026-10-08-)", "@checked 2026-10-08/09"])("reads the variant %j", (line) => {
     expect(checkedComments("src/x.ts", line).map((e) => e.verified)).toEqual(["2026-10-08"]);
   });
 
@@ -89,6 +89,8 @@ describe("unmarkedChecks", () => {
     "// verified 2026-10-08 by phone",
     "// Checked: 2026-10-11 via the official site",
     "// last verified 2026/10/08",
+    "// Allergens (@checked 2026-10-08); dialling rules last verified 2025/01/02",
+    '// Checked: "2026-10-08" against the au page',
   ])("asks for the marker in %j", (line) =>
     expect(unmarkedChecks("src/x.ts", line)).toEqual(["src/x.ts:1: write the date as an @checked marker so it runs out"]),
   );

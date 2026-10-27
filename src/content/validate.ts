@@ -94,16 +94,18 @@ export function checkedContent(content: {
  * (any case; `:`, `=` or "on" before it). The capture stops at the date's own
  * characters, so a date in brackets or right before a comment's end reads cleanly.
  */
-const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d[\d/-]*)/gi;
+const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d{4}-\d{1,2}-\d{1,2}(?!\d)|\d[\w/-]*)/gi;
 /** A marker with no date after it (not `@checkedAt`-style identifiers). */
 const MARKER_WITHOUT_DATE = /@checked\b(?!(?:[\s:=]|on\b)*\d)/i;
 /**
  * Best effort: a date written as prose right after "checked" or "verified"
  * ("Checked: 2026-10-08", "last verified 2026/10/08"), which the marker would
  * make enforceable. It can't catch every phrasing; the marker is the rule.
- * Lines with a marker, and the `verified: "…"` data field, are not prose.
+ * Markers are taken out of the line first; a `verified: "…"` data field (a code
+ * line starting with the field) is not prose.
  */
-const UNMARKED_DATE = /\b(?:checked|verified)\b(?!\s*[:=]\s*["'`])[^\n\d@]{0,20}\d{4}[-/]\d{1,2}/i;
+const UNMARKED_DATE = /\b(?:checked|verified)\b[^\n\d]{0,20}\d{4}[-/]\d{1,2}/i;
+const DATA_FIELD = /^\s*(?:verified|recheckBy)\s*[:=]/;
 
 /** The `@checked` markers in a source file, as checked entries (checkFreshness reports bad dates). */
 export function checkedComments(path: string, source: string): Checked[] {
@@ -117,7 +119,8 @@ export function unmarkedChecks(path: string, source: string): string[] {
   return source.split("\n").flatMap((line, i) => {
     const where = `${path}:${i + 1}`;
     if (MARKER_WITHOUT_DATE.test(line)) return [`${where}: the @checked marker needs a date after it`];
-    if (!/@checked\b/i.test(line) && UNMARKED_DATE.test(line)) return [`${where}: write the date as an @checked marker so it runs out`];
+    const prose = line.replace(CHECKED_MARKER, "");
+    if (!DATA_FIELD.test(line) && UNMARKED_DATE.test(prose)) return [`${where}: write the date as an @checked marker so it runs out`];
     return [];
   });
 }
