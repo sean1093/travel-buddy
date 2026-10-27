@@ -39,7 +39,8 @@ jobs:
 
       # One issue per round of re-checks: a comment only when the list changes, closed once all is fresh.
       - name: Open or update the content-freshness issue
-        # Only with a list: a crash or a bad setting fails the run (the workflow's own alert) without blaming content.
+        # Only with a list. A crash or a bad setting is a code fault, not stale content: the failed run's
+        # own email is the signal, and an issue already open stays as it was.
         if: failure() && steps.check.outcome == 'failure' && hashFiles('freshness-report.md') != ''
         env:
           GH_TOKEN: ${{ github.token }}

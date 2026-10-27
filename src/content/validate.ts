@@ -90,22 +90,16 @@ export function checkedContent(content: {
 }
 
 /**
- * The marker a source comment uses for a dated check: `@checked` and the date
- * (any case; `:`, `=` or "on" before it). The capture stops at the date's own
- * characters, so a date in brackets or right before a comment's end reads cleanly.
+ * The marker a source comment uses for a dated check: `@checked` and the date,
+ * any case, with `:`, `=` or "on" allowed before it. The date runs up to the
+ * first character that can't be part of one, so a date in brackets or before a
+ * comment's end reads cleanly, and anything but YYYY-MM-DD is reported. A date
+ * written as plain prose ("checked 2026-10-08") is not read and never runs out:
+ * docs/content-guide.md §9 makes the marker the rule.
  */
-const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d{4}-\d{1,2}-\d{1,2}(?!\d)|\d[\w/-]*)/gi;
+const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d[\w/-]*)/gi;
 /** A marker with no date after it (not `@checkedAt`-style identifiers). */
-const MARKER_WITHOUT_DATE = /@checked\b(?!(?:[\s:=]|on\b)*\d)/i;
-/**
- * Best effort: a date written as prose right after "checked" or "verified"
- * ("Checked: 2026-10-08", "last verified 2026/10/08"), which the marker would
- * make enforceable. It can't catch every phrasing; the marker is the rule.
- * Markers are taken out of the line first; a `verified: "…"` data field (a code
- * line starting with the field) is not prose.
- */
-const UNMARKED_DATE = /\b(?:checked|verified)\b[^\n\d]{0,20}\d{4}[-/]\d{1,2}/i;
-const DATA_FIELD = /^\s*(?:verified|recheckBy)\s*[:=]/;
+const MARKER_WITHOUT_DATE = /@checked\b(?!(?:[\s:=]|on\b)*\d)/gi;
 
 /** The `@checked` markers in a source file, as checked entries (checkFreshness reports bad dates). */
 export function checkedComments(path: string, source: string): Checked[] {
@@ -114,15 +108,11 @@ export function checkedComments(path: string, source: string): Checked[] {
   );
 }
 
-/** Lines that date a check in a way that would never run out: in prose, or a marker without a date. */
-export function unmarkedChecks(path: string, source: string): string[] {
-  return source.split("\n").flatMap((line, i) => {
-    const where = `${path}:${i + 1}`;
-    if (MARKER_WITHOUT_DATE.test(line)) return [`${where}: the @checked marker needs a date after it`];
-    const prose = line.replace(CHECKED_MARKER, "");
-    if (!DATA_FIELD.test(line) && UNMARKED_DATE.test(prose)) return [`${where}: write the date as an @checked marker so it runs out`];
-    return [];
-  });
+/** One problem per `@checked` marker with no date after it: such a check could never run out. */
+export function undatedMarkers(path: string, source: string): string[] {
+  return source
+    .split("\n")
+    .flatMap((line, i) => [...line.matchAll(MARKER_WITHOUT_DATE)].map(() => `${path}:${i + 1}: the @checked marker needs a date after it`));
 }
 
 /**

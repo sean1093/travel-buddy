@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type Checked, checkedComments, checkedContent, checkFreshness, isDate, REVERIFY_AFTER_DAYS, unmarkedChecks } from "../src/content/validate";
+import { type Checked, checkedComments, checkedContent, checkFreshness, isDate, REVERIFY_AFTER_DAYS, undatedMarkers } from "../src/content/validate";
 
 // The rules behind tests/content-freshness.test.ts, on fixed dates. That file
 // checks the real content against today and is the one deploys skip.
@@ -72,45 +72,32 @@ describe("checkedComments", () => {
     ]);
   });
 
-  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;", "/* @checked 2026-10-08*/", "[@checked on 2026-10-08]", "(@checked 2026-10-08-)", "@checked 2026-10-08/09"])("reads the variant %j", (line) => {
-    expect(checkedComments("src/x.ts", line).map((e) => e.verified)).toEqual(["2026-10-08"]);
-  });
+  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;", "/* @checked 2026-10-08*/", "[@checked on 2026-10-08]"])(
+    "reads the variant %j",
+    (line) => expect(checkedComments("src/x.ts", line).map((e) => e.verified)).toEqual(["2026-10-08"]),
+  );
 
-  it("keeps a malformed marker date, so checkFreshness reports it", () => {
-    const entries = checkedComments("src/x.ts", "// (@checked 2026/10/08)");
-    expect(checkFreshness(entries, "2026-10-27")).toEqual(['src/x.ts:1: "2026/10/08" is not a date']);
+  it.each([
+    ["// (@checked 2026/10/08)", "2026/10/08"],
+    ["// (@checked 2026-10-08x)", "2026-10-08x"],
+    ["// (@checked 2026-10-08/09)", "2026-10-08/09"],
+  ])("keeps the malformed date in %j, so checkFreshness reports it", (line, date) => {
+    expect(checkFreshness(checkedComments("src/x.ts", line), "2026-10-27")).toEqual([`src/x.ts:1: "${date}" is not a date`]);
   });
 });
 
-describe("unmarkedChecks", () => {
+describe("undatedMarkers", () => {
   it.each([
-    "// Links were checked 2026-10-11 against …",
-    " * Checked on 2026-10-08.",
-    "// verified 2026-10-08 by phone",
-    "// Checked: 2026-10-11 via the official site",
-    "// last verified 2026/10/08",
-    "// Allergens (@checked 2026-10-08); dialling rules last verified 2025/01/02",
-    '// Checked: "2026-10-08" against the au page',
-  ])("asks for the marker in %j", (line) =>
-    expect(unmarkedChecks("src/x.ts", line)).toEqual(["src/x.ts:1: write the date as an @checked marker so it runs out"]),
+    ["// @checked", 1],
+    ["// (@Checked: soon)", 1],
+    ["// @checked on Monday", 1],
+    ["// @checked (rules), @checked (links)", 2],
+  ])("reports each marker without a date in %j", (line, count) =>
+    expect(undatedMarkers("src/x.ts", line)).toEqual(Array(count).fill("src/x.ts:1: the @checked marker needs a date after it")),
   );
 
-  it.each(["// @checked", "// (@Checked: soon)", "// @checked on Monday"])("asks for a date after the marker in %j", (line) =>
-    expect(unmarkedChecks("src/x.ts", line)).toEqual(["src/x.ts:1: the @checked marker needs a date after it"]),
-  );
-
-  it.each([
-    "// (@checked 2026-10-11)",
-    "// Verified by phone (@checked 2026-10-08)",
-    '    verified: "2026-10-08",',
-    "    verified: '2026-10-08',",
-    "    verified = `2026-10-08`;",
-    "// changed on 2026-11-01",
-    "// the box is checked when …",
-    " * @checkedAt the time of the last check",
-  ])(
-    "accepts %j",
-    (line) => expect(unmarkedChecks("src/x.ts", line)).toEqual([]),
+  it.each(["// (@checked 2026-10-11)", " * @checkedAt the time of the last check", "// checked 2026-10-08 (prose: not read)"])("accepts %j", (line) =>
+    expect(undatedMarkers("src/x.ts", line)).toEqual([]),
   );
 });
 

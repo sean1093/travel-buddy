@@ -2,7 +2,7 @@ import { writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { EMERGENCY_NUMBERS } from "../src/content/emergency";
 import { GUIDES } from "../src/content/guides";
-import { checkedComments, checkedContent, checkFreshness, unmarkedChecks } from "../src/content/validate";
+import { checkedComments, checkedContent, checkFreshness, undatedMarkers } from "../src/content/validate";
 import { SOURCES } from "./source-files";
 
 /**
@@ -33,8 +33,8 @@ describe("content is re-verified in time", () => {
       ...checkedContent({ emergency: EMERGENCY_NUMBERS, guides: GUIDES }),
       ...SOURCES.flatMap(({ path, text }) => checkedComments(path, text)),
     ];
-    // One list for the weekly issue: deadlines, and checks dated so they could never run out.
-    const problems = [...checkFreshness(entries, today, lead), ...SOURCES.flatMap(({ path, text }) => unmarkedChecks(path, text))];
+    // One list for the weekly issue: deadlines, bad dates, and markers that could never run out.
+    const problems = [...checkFreshness(entries, today, lead), ...SOURCES.flatMap(({ path, text }) => undatedMarkers(path, text))];
     if (problems.length && process.env.FRESHNESS_REPORT) writeFileSync(process.env.FRESHNESS_REPORT, problems.map((p) => `- ${p}`).join("\n") + "\n");
     expect(problems, `today ${today}, lead ${lead} days`).toEqual([]);
   });
