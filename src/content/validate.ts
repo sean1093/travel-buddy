@@ -94,14 +94,20 @@ export function checkedContent(content: {
  * `@checked 2026-10-08`: `@checked`, one space, the date (e.g. inside brackets
  * or before a comment's end). `@checked` is reserved for it: any other use
  * (another case, separator or spelling, no date, a range) is reported with how
- * to write it, so no form slips through unread. Only right after a letter or
- * digit, as in an e-mail address or a handle, is it not a marker. A date
+ * to write it, so no form slips through unread. Only right after an ASCII
+ * letter, digit or `_` (an e-mail address, a handle) is it not a marker; after
+ * Chinese or Japanese text it is one (no spaces there), and URLs are not
+ * special. A date
  * written as plain prose ("checked 2026-10-08") is not read and never runs
  * out: docs/content-guide.md §9 makes the marker the rule.
  */
-const MARKER_WORD = /(?<![\p{L}\p{N}_])@checked/giu;
-/** The date ends the marker: then the line ends, or a space or closing punctuation (not a range or "2026-10-08.1"). */
-const MARKER = /^@checked (\d{4}-\d{2}-\d{2})(?=$|[\s)\]};,*]|\.(?!\d))/;
+const MARKER_WORD = /(?<![A-Za-z0-9_])@checked/gi;
+/**
+ * The date ends the marker: what follows must not continue it (a letter or
+ * digit, "-", "/", a dash, or "." / ":" before one, as in a range or
+ * "2026-10-08.1"). Any punctuation or space can follow, full-width included.
+ */
+const MARKER = /^@checked (\d{4}-\d{2}-\d{2})(?![\p{L}\p{N}_/\-–—]|[.:][\p{L}\p{N}])/u;
 
 export const MARKER_FORMAT = 'write the marker as "@checked YYYY-MM-DD"';
 
@@ -117,7 +123,7 @@ export function scanMarkers(path: string, source: string): { checked: Checked[];
     for (const match of line.matchAll(MARKER_WORD)) {
       const date = MARKER.exec(line.slice(match.index))?.[1];
       if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
-      else problems.push(`${where}: "${line.slice(match.index, match.index + 24).trim()}": ${MARKER_FORMAT}`);
+      else problems.push(`${where}: ${JSON.stringify([...line.slice(match.index)].slice(0, 24).join("").trim())}: ${MARKER_FORMAT}`);
     }
   });
   return { checked, problems };

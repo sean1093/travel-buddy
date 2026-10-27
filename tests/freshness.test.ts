@@ -87,6 +87,13 @@ describe("scanMarkers", () => {
     "//@checked 2026-10-08",
     "x -@checked 2026-10-08",
     "https://a.jp/@checked 2026-10-08",
+    "（@checked 2026-10-08）",
+    "確認@checked 2026-10-08。",
+    "note: '@checked 2026-10-08'",
+    "`@checked 2026-10-08`",
+    "<p>@checked 2026-10-08</p>",
+    "@checked 2026-10-08: rules",
+    "@checked 2026-10-08. Then",
   ])(
     "reads %j",
     (line) => expect(scan(line)).toEqual({ checked: [expect.objectContaining({ verified: "2026-10-08" })], problems: [] }),
@@ -113,18 +120,29 @@ describe("scanMarkers", () => {
     " * @checkedAt the time of the last check",
     "(@checked 2026-10-08–2026-11-01)",
     "(@checked 2026-10-08.1)",
+    "(@checked 2026-10-08.beta)",
+    "(@checked 2026-10-08:12)",
     "// https://x.com/@checkedjapan",
+    "// 名前@checked",
   ])("reports %j with the text and how to write the marker", (line) => {
     const { checked, problems } = scan(line);
     expect(checked).toEqual([]);
-    expect(problems).toEqual([expect.stringMatching(new RegExp(`^src/x\\.ts:1: "@checked.*": ${MARKER_FORMAT.replace(/[()]/g, "\\$&")}$`, "i"))]);
+    expect(problems).toHaveLength(1);
+    expect(problems[0]!.startsWith('src/x.ts:1: "@')).toBe(true);
+    expect(problems[0]!.endsWith(`": ${MARKER_FORMAT}`)).toBe(true);
+  });
+
+  it("quotes the text safely: escaped, and cut by character, not code unit", () => {
+    const [problem] = scan('@checked "x" 🗓️🗓️🗓️🗓️🗓️🗓️🗓️🗓️').problems;
+    const quoted = problem!.slice("src/x.ts:1: ".length, -`: ${MARKER_FORMAT}`.length);
+    expect(JSON.parse(quoted)).toBe('@checked "x" 🗓️🗓️🗓️🗓️🗓️🗓');
   });
 
   it("reports each bad marker on a line", () => {
     expect(scan("// @checked (rules), @checked (links)").problems).toHaveLength(2);
   });
 
-  it.each(['"support@checked.jp"', "// see foo@checked", "// 名前@checked"])("ignores %j, right after a letter or digit", (line) =>
+  it.each(['"support@checked.jp"', "// see foo@checked", "// foo_@checked", "// x1@checked"])("ignores %j, right after an ASCII letter, digit or _", (line) =>
     expect(scan(line)).toEqual({ checked: [], problems: [] }),
   );
 
