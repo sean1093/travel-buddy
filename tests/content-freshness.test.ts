@@ -2,7 +2,7 @@ import { writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { EMERGENCY_NUMBERS } from "../src/content/emergency";
 import { GUIDES } from "../src/content/guides";
-import { checkedComments, checkedContent, checkFreshness, undatedMarkers } from "../src/content/validate";
+import { checkedContent, checkFreshness, scanMarkers } from "../src/content/validate";
 import { SOURCES } from "./source-files";
 
 /**
@@ -29,12 +29,11 @@ describe("content is re-verified in time", () => {
   it("has nothing overdue (or due within FRESHNESS_LEAD_DAYS)", () => {
     const today = new Date().toISOString().slice(0, 10);
     const lead = leadDays();
-    const entries = [
-      ...checkedContent({ emergency: EMERGENCY_NUMBERS, guides: GUIDES }),
-      ...SOURCES.flatMap(({ path, text }) => checkedComments(path, text)),
-    ];
-    // One list for the weekly issue: deadlines, bad dates, and markers that could never run out.
-    const problems = [...checkFreshness(entries, today, lead), ...SOURCES.flatMap(({ path, text }) => undatedMarkers(path, text))];
+    const markers = SOURCES.map(({ path, text }) => scanMarkers(path, text));
+    const entries = [...checkedContent({ emergency: EMERGENCY_NUMBERS, guides: GUIDES }), ...markers.flatMap((m) => m.checked)];
+    // One list for the weekly issue: deadlines, bad dates, and markers that could never run out
+    // (also checked on every run by source-dates.test.ts, which deploys don't skip).
+    const problems = [...checkFreshness(entries, today, lead), ...markers.flatMap((m) => m.undated)];
     if (problems.length && process.env.FRESHNESS_REPORT) writeFileSync(process.env.FRESHNESS_REPORT, problems.map((p) => `- ${p}`).join("\n") + "\n");
     expect(problems, `today ${today}, lead ${lead} days`).toEqual([]);
   });

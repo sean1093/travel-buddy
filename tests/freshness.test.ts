@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { type Checked, checkedComments, checkedContent, checkFreshness, isDate, REVERIFY_AFTER_DAYS, undatedMarkers } from "../src/content/validate";
+import { type Checked, checkedContent, checkFreshness, isDate, REVERIFY_AFTER_DAYS, scanMarkers } from "../src/content/validate";
+
+const checkedComments = (path: string, source: string) => scanMarkers(path, source).checked;
+const undatedMarkers = (path: string, source: string) => scanMarkers(path, source).undated;
 
 // The rules behind tests/content-freshness.test.ts, on fixed dates. That file
 // checks the real content against today and is the one deploys skip.
@@ -72,7 +75,7 @@ describe("checkedComments", () => {
     ]);
   });
 
-  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;", "/* @checked 2026-10-08*/", "[@checked on 2026-10-08]"])(
+  it.each(["(@Checked 2026-10-08)", "(@CHECKED: 2026-10-08)", "@checked=2026-10-08;", "/* @checked 2026-10-08*/", "[@checked on 2026-10-08]", "(@checked2026-10-08)", "(@checked_2026-10-08)"])(
     "reads the variant %j",
     (line) => expect(checkedComments("src/x.ts", line).map((e) => e.verified)).toEqual(["2026-10-08"]),
   );
@@ -96,9 +99,13 @@ describe("undatedMarkers", () => {
     expect(undatedMarkers("src/x.ts", line)).toEqual(Array(count).fill("src/x.ts:1: the @checked marker needs a date after it")),
   );
 
-  it.each(["// (@checked 2026-10-11)", " * @checkedAt the time of the last check", "// checked 2026-10-08 (prose: not read)"])("accepts %j", (line) =>
+  it.each(["// (@checked 2026-10-11)", " * @checkedAt the time of the last check"])("accepts %j", (line) =>
     expect(undatedMarkers("src/x.ts", line)).toEqual([]),
   );
+
+  it("does not read a date written as prose: the marker is the rule (content guide §9)", () => {
+    expect(scanMarkers("src/x.ts", "// checked 2026-10-08 against the leaflet")).toEqual({ checked: [], undated: [] });
+  });
 });
 
 describe("isDate", () => {

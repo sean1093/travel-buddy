@@ -91,28 +91,31 @@ export function checkedContent(content: {
 
 /**
  * The marker a source comment uses for a dated check: `@checked` and the date,
- * any case, with `:`, `=` or "on" allowed before it. The date runs up to the
- * first character that can't be part of one, so a date in brackets or before a
- * comment's end reads cleanly, and anything but YYYY-MM-DD is reported. A date
- * written as plain prose ("checked 2026-10-08") is not read and never runs out:
- * docs/content-guide.md §9 makes the marker the rule.
+ * any case, with `:`, `=`, `_`, "on" or nothing between them. The date runs up
+ * to the first character that can't be part of one, so a date in brackets or
+ * before a comment's end reads cleanly, and anything but YYYY-MM-DD is
+ * reported. No date at all is reported too. A date written as plain prose
+ * ("checked 2026-10-08") is not read and never runs out: docs/content-guide.md
+ * §9 makes the marker the rule. Not `@checkedAt`-style identifiers.
  */
-const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d[\w/-]*)/gi;
-/** A marker with no date after it (not `@checkedAt`-style identifiers). */
-const MARKER_WITHOUT_DATE = /@checked\b(?!(?:[\s:=]|on\b)*\d)/gi;
+const CHECKED_MARKER = /@checked(?![a-z])(?:[\s:=_]|on\b)*(\d[\w/-]*)?/gi;
 
-/** The `@checked` markers in a source file, as checked entries (checkFreshness reports bad dates). */
-export function checkedComments(path: string, source: string): Checked[] {
-  return source.split("\n").flatMap((line, i) =>
-    [...line.matchAll(CHECKED_MARKER)].map((m) => ({ where: `${path}:${i + 1}`, verified: m[1]!, days: REVERIFY_AFTER_DAYS.comment })),
-  );
-}
-
-/** One problem per `@checked` marker with no date after it: such a check could never run out. */
-export function undatedMarkers(path: string, source: string): string[] {
-  return source
-    .split("\n")
-    .flatMap((line, i) => [...line.matchAll(MARKER_WITHOUT_DATE)].map(() => `${path}:${i + 1}: the @checked marker needs a date after it`));
+/**
+ * Every `@checked` marker in a source file, in one pass: the dated ones as
+ * checked entries (checkFreshness reports bad dates), and one problem per
+ * marker without a date, which could never run out.
+ */
+export function scanMarkers(path: string, source: string): { checked: Checked[]; undated: string[] } {
+  const checked: Checked[] = [];
+  const undated: string[] = [];
+  source.split("\n").forEach((line, i) => {
+    const where = `${path}:${i + 1}`;
+    for (const [, date] of line.matchAll(CHECKED_MARKER)) {
+      if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
+      else undated.push(`${where}: the @checked marker needs a date after it`);
+    }
+  });
+  return { checked, undated };
 }
 
 /**

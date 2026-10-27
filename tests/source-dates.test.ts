@@ -1,16 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { checkedComments, undatedMarkers } from "../src/content/validate";
+import { scanMarkers } from "../src/content/validate";
 import { SOURCES } from "./source-files";
 
-// A static guard on the @checked parser, run on every PR and deploy: a marker
-// form the parser stops reading would silently stop running out. The markers'
-// dates and deadlines are checked in tests/content-freshness.test.ts.
+// Static rules for @checked markers in source comments, run everywhere
+// (deploys included). The deadlines are in tests/content-freshness.test.ts.
 describe("@checked markers in source comments", () => {
+  const scans = SOURCES.map(({ path, text }) => ({ path, text, ...scanMarkers(path, text) }));
+
+  it("all have a date", () => {
+    expect(scans.flatMap((s) => s.undated)).toEqual([]);
+  });
+
   it("are all read: each one written is parsed as a date or reported as missing one", () => {
-    for (const { path, text } of SOURCES) {
-      const written = text.match(/@checked\b/gi)?.length ?? 0;
-      expect(checkedComments(path, text).length + undatedMarkers(path, text).length, path).toBe(written);
+    // A marker form the parser stops reading would silently stop running out.
+    for (const { path, text, checked, undated } of scans) {
+      expect(checked.length + undated.length, path).toBe(text.match(/@checked(?![a-z])/gi)?.length ?? 0);
     }
-    expect(SOURCES.some(({ text }) => /@checked\b/i.test(text)), "markers exist at all").toBe(true);
+    expect(scans.some((s) => s.checked.length > 0), "markers exist at all").toBe(true);
   });
 });
