@@ -1,8 +1,8 @@
 /**
  * Free tools that already do a job well, so this app points to them instead
- * of rebuilding them. Links were checked 2026-10-11 against search results
- * for the store listings and the publishers' own pages; only addresses that
- * could be confirmed are listed (sources below). Where a store address could
+ * of rebuilding them. Links were checked against search results for the
+ * store listings and the publishers' own pages (@checked 2026-10-11); only
+ * addresses that could be confirmed are listed (sources below). Where a store address could
  * not be confirmed, the publisher's page links to both stores.
  */
 export interface Tool {

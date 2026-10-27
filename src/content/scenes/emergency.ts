@@ -92,7 +92,7 @@ export default {
       jp: "どこ に {避難|ひなん} すれば いい です か。",
       // Safety tips, the disaster-alert app supervised by the Japan Tourism Agency, in 15 languages
       // including Traditional Chinese. Source: Nagoya City, updated 2025-10,
-      // https://www.city.nagoya.jp/bousaiportal/international/1037420.html (checked 2026-10-11).
+      // https://www.city.nagoya.jp/bousaiportal/international/1037420.html (@checked 2026-10-11).
       tip: "出發前可以下載觀光廳監修的「Safety tips」App（有繁體中文），地震、海嘯、颱風警報會推播通知。",
       answers: "direction",
     },

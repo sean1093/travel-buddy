@@ -91,7 +91,8 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 
 | Test file | What it checks |
 |---|---|
-| `freshness.test.ts` | Emergency numbers, cheat sheets and dated source comments were re-verified within their window (365 / 180 / 365 days, or by `recheckBy`) |
+| `content-freshness.test.ts` | Emergency numbers, cheat sheets and `@checked` source comments were re-verified within their window (365 / 180 / 365 days, or by `recheckBy`); depends on today's date, so deploys skip it |
+| `freshness.test.ts` | The re-verification rules on fixed dates: windows, `recheckBy`, lead time, future and impossible dates, the `@checked` marker |
 | `content.test.ts` | All content rules (see [content-guide.md §8](content-guide.md#8-what-npm-test-blocks)), and that every recommended tool has an https link |
 | `contrast.test.ts` | Reads the design tokens in `src/style.css`; every text/background pair is ≥ 4.5:1 in both light and dark (WCAG AA) |
 | `theme-color.test.ts` | The browser-bar colour in `src/state.ts` and `index.html` matches `--paper` in both themes |
@@ -128,7 +129,7 @@ In the Claude Code cloud environment, Chromium is at `/opt/pw-browsers/chromium`
 
 ## Deployment
 
-On a push to `main`, `pages.yml` tests (all but the freshness check), builds, runs the e2e suite, then deploys `dist/` to GitHub Pages. The first time, in the repo go to **Settings → Pages → Source** and choose **GitHub Actions**, and check that **Settings → Environments → github-pages** allows deploys from `main`.
+On a push to `main`, `pages.yml` tests (all but `content-freshness.test.ts`), builds, runs the e2e suite, then deploys `dist/` to GitHub Pages. The first time, in the repo go to **Settings → Pages → Source** and choose **GitHub Actions**, and check that **Settings → Environments → github-pages** allows deploys from `main`.
 
 ### URLs and countries
 

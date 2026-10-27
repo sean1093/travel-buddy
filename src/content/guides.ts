@@ -4,10 +4,11 @@
  * was checked, and tests/content.test.ts refuses one without them. A rule
  * that could not be confirmed is left out, and the guide says to ask staff.
  *
- * Checked 2026-10-11. The official sites were not reachable from the build
- * environment, so the rules were read from the official leaflets and from
- * search results quoting these official pages. Each guide must be checked
- * again within 180 days, or by its `recheckBy` (tests/freshness.test.ts).
+ * Each guide's `verified` says when it was last checked. At the first check
+ * the official sites were not reachable from the build environment, so the
+ * rules were read from the official leaflets and from search results quoting
+ * these official pages. Each guide must be checked again within 180 days, or
+ * by its `recheckBy` (tests/content-freshness.test.ts).
  */
 export interface GuideStep {
   title: string;

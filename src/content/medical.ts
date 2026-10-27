@@ -40,7 +40,7 @@ export const DRUG_ALLERGIES: Preset[] = [
  * https://www.caa.go.jp/policies/policy/food_labeling/food_sanitation/allergy/
  * カシューナッツ became mandatory on 2026-04-01 (令和8年内閣府令第34号):
  * https://www.caa.go.jp/policies/policy/food_labeling/food_labeling_act/assets/food_labeling_cms201_260401_10.pdf
- * Checked 2026-10-08 (via search results of the official pages).
+ * Read via search results of the official pages (@checked 2026-10-08).
  */
 export const FOOD_ALLERGIES: Preset[] = [
   { id: "shrimp", zh: "蝦", jp: "えび" },

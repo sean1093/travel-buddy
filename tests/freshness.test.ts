@@ -1,48 +1,8 @@
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { EMERGENCY_NUMBERS } from "../src/content/emergency";
-import { GUIDES } from "../src/content/guides";
-import { type Checked, checkedComments, checkedContent, checkFreshness, isDate, REVERIFY_AFTER_DAYS } from "../src/content/validate";
+import { type Checked, checkedComments, checkedContent, checkFreshness, isDate, REVERIFY_AFTER_DAYS, unmarkedChecks } from "../src/content/validate";
 
-/** Every "Checked YYYY-MM-DD" in a source comment under src/, with its file and line. */
-function commentDates(): Checked[] {
-  const root = new URL("../src/", import.meta.url);
-  return (readdirSync(root, { recursive: true }) as string[])
-    .filter((file) => file.endsWith(".ts"))
-    .flatMap((file) => checkedComments(`src/${file}`, readFileSync(new URL(file, root), "utf8")));
-}
-
-/** FRESHNESS_LEAD_DAYS, validated: a typo must not look like stale content. */
-function leadDays(): number {
-  const raw = process.env.FRESHNESS_LEAD_DAYS ?? "0";
-  if (!/^\d+$/.test(raw)) throw new Error(`FRESHNESS_LEAD_DAYS must be a whole number of days, got "${raw}"`);
-  return Number(raw);
-}
-
-/**
- * Emergency numbers, cheat sheets and dated source comments promise they were
- * checked against an official source. This fails once a check has run out, so
- * stale information can't be merged. The weekly `freshness` workflow runs it
- * with a lead time (FRESHNESS_LEAD_DAYS) to warn first, and writes what it
- * found to FRESHNESS_REPORT for the issue it opens.
- *
- * To fix a failure: check the entry against its sources again, correct it if
- * anything changed, then update the date. Never move the date alone.
- */
-describe("content is re-verified in time", () => {
-  it("has nothing overdue (or due within FRESHNESS_LEAD_DAYS)", () => {
-    const today = new Date().toISOString().slice(0, 10);
-    const lead = leadDays();
-    const problems = checkFreshness([...checkedContent({ emergency: EMERGENCY_NUMBERS, guides: GUIDES }), ...commentDates()], today, lead);
-    if (problems.length && process.env.FRESHNESS_REPORT) writeFileSync(process.env.FRESHNESS_REPORT, problems.map((p) => `- ${p}`).join("\n") + "\n");
-    expect(problems, `today ${today}, lead ${lead} days`).toEqual([]);
-  });
-
-  it("finds the dated source comments", () => {
-    // If this drops to zero, the comment pattern no longer matches and comment dates go unchecked.
-    expect(commentDates().length).toBeGreaterThanOrEqual(5);
-  });
-});
+// The rules behind tests/content-freshness.test.ts, on fixed dates. That file
+// checks the real content against today and is the one deploys skip.
 
 describe("checkFreshness", () => {
   const guide = (verified: string, recheckBy?: string): Checked[] => [
@@ -88,8 +48,12 @@ describe("checkFreshness", () => {
     expect(checkFreshness(guide("2026-10-29"), "2026-10-27")).toEqual(["guide tax-refund: verified 2026-10-29 is in the future"]);
   });
 
-  it("leaves malformed dates to validateContent", () => {
-    expect(checkFreshness(guide("2026-02-30"), "2026-10-27")).toEqual([]);
+  it("reports a date that doesn't exist", () => {
+    expect(checkFreshness(guide("2026-02-30"), "2026-10-27")).toEqual(['guide tax-refund: "2026-02-30" is not a date']);
+  });
+
+  it("leaves malformed content dates to validateContent, which already reports them", () => {
+    expect(checkedContent({ emergency: [], guides: [{ id: "tax-refund", verified: "soon" }] })).toEqual([]);
   });
 
   it("refuses a bad lead or today instead of reporting stale content", () => {
@@ -99,13 +63,29 @@ describe("checkFreshness", () => {
 });
 
 describe("checkedComments", () => {
-  it("finds each dated check with its line", () => {
-    const source = "/**\n * Sources: …\n * (checked 2026-10-08).\n */\n// Checked 2026-10-11 via search results\nconst x = 1;";
+  it("finds each @checked marker with its line", () => {
+    const source = "/**\n * Sources: https://example.jp/ (@checked 2026-10-08).\n */\n// Read from the leaflet (@checked 2026-10-11); see below.\nconst x = 1;";
     expect(checkedComments("src/x.ts", source)).toEqual([
-      { where: "src/x.ts:3", verified: "2026-10-08", days: REVERIFY_AFTER_DAYS.comment },
-      { where: "src/x.ts:5", verified: "2026-10-11", days: REVERIFY_AFTER_DAYS.comment },
+      { where: "src/x.ts:2", verified: "2026-10-08", days: REVERIFY_AFTER_DAYS.comment },
+      { where: "src/x.ts:4", verified: "2026-10-11", days: REVERIFY_AFTER_DAYS.comment },
     ]);
   });
+
+  it("keeps a malformed marker date, so checkFreshness reports it", () => {
+    const [entry] = checkedComments("src/x.ts", "// (@checked 2026-02-30)");
+    expect(checkFreshness([entry!], "2026-10-27")).toEqual(['src/x.ts:1: "2026-02-30" is not a date']);
+  });
+});
+
+describe("unmarkedChecks", () => {
+  it.each(["// Links were checked 2026-10-11 against …", " * Checked on 2026-10-08.", "// verified 2026-10-08 by phone"])(
+    "asks for the marker in %j",
+    (line) => expect(unmarkedChecks("src/x.ts", line)).toEqual(['src/x.ts:1: write the date as "@checked YYYY-MM-DD" so it runs out']),
+  );
+
+  it.each(['// (@checked 2026-10-11)', '    verified: "2026-10-08",', "// changed on 2026-11-01"])("accepts %j", (line) =>
+    expect(unmarkedChecks("src/x.ts", line)).toEqual([]),
+  );
 });
 
 describe("isDate", () => {

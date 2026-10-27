@@ -131,15 +131,15 @@ Written in `src/content/tools.ts`. Only recommend free apps that already do the 
 ## 9. Verification rules
 
 - **Emergency, medical and procedural information must be verified** against official sources (government, railway companies, airports). News and blogs are only leads.
-- Code comments give the source URL and verification date. With several sources, say which point each one supports.
+- Code comments give the source URL and verification date (`@checked YYYY-MM-DD`). With several sources, say which point each one supports.
 - If the official website is unreachable, you can use official content quoted in search results, but say so in the comment.
 - **Verification runs out.** Re-verify each entry within its window (`REVERIFY_AFTER_DAYS` in `src/content/validate.ts`):
   - emergency numbers: 365 days from `verified`
   - travel cheat sheets: 180 days, or by `recheckBy` when a known change date comes sooner (e.g. a new rule taking effect)
-  - facts dated only in a source comment ("Checked 2026-10-08", e.g. allergen lists, dialling rules, tool links): 365 days
+  - facts dated only in a source comment (allergen lists, dialling rules, tool links): 365 days. Date them with the marker, e.g. `(@checked 2026-10-08)`, so the date can run out; `npm test` refuses "checked 2026-…" or "verified 2026-…" written as plain prose.
 - **How it is enforced:**
-  - `npm test` fails once anything is overdue, which blocks PRs. Deploys skip this check: the stale entry is already live, and blocking would only hold back fixes.
-  - Every Monday, the `freshness` workflow looks 30 days ahead and opens (or comments on) a `content-freshness` issue, which notifies everyone watching the repository. GitHub turns scheduled workflows off after 60 days without repository activity; the PR check still catches anything overdue.
+  - `npm test` (`tests/content-freshness.test.ts`) fails once anything is overdue, so PR CI goes red. Deploys skip this check: the stale entry is already live, and blocking would only hold back fixes. A PR whose CI went green before a deadline can still be merged after it; the weekly issue starts a month earlier, and the next PR's CI fails.
+  - Every Monday, the `freshness` workflow looks 30 days ahead and opens (or comments on, when the list changes) a `content-freshness` issue, which notifies everyone watching the repository. It closes the issue once everything is fresh. GitHub turns scheduled workflows off after 60 days without repository activity; the PR check still catches anything overdue.
   - To fix it, check the entry against its sources again, correct anything that changed, then update `verified`. **Never move the date without checking.** If a source no longer supports the content, remove the content.
 - If you're not sure, leave it out and ask the traveller to check with on-site staff instead.
 

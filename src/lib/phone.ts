@@ -5,7 +5,7 @@
  * From a Japanese phone, an international call is 010 + country code +
  * the number without its leading 0 (a mobile may type "+" instead of 010).
  * Sources: NTT docomo, https://www.docomo.ne.jp/service/world/worldcall/call/ ;
- * au, https://www.au.com/mobile/service/global/call/ (checked 2026-10-08).
+ * au, https://www.au.com/mobile/service/global/call/ (@checked 2026-10-08).
  */
 
 export interface Dialable {

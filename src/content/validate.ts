@@ -60,8 +60,8 @@ export function isDate(value: string): boolean {
  * How many days a verification lasts before the content must be checked
  * against its source again. Cheat sheets describe rules that change (the tax
  * refund system changed on 2026-11-01); emergency numbers rarely do. `comment`
- * covers facts dated only in a source comment ("Checked 2026-10-08"): allergen
- * lists, dialling rules, tool links.
+ * covers facts dated only in a source comment with an `@checked` marker
+ * followed by the date: allergen lists, dialling rules, tool links.
  */
 export const REVERIFY_AFTER_DAYS = { emergency: 365, guide: 180, comment: 365 } as const;
 
@@ -86,32 +86,44 @@ export function checkedContent(content: {
   return [
     ...content.emergency.map((e) => ({ where: `emergency ${e.id}`, verified: e.verified, days: REVERIFY_AFTER_DAYS.emergency, recheckBy: e.recheckBy })),
     ...content.guides.map((g) => ({ where: `guide ${g.id}`, verified: g.verified, days: REVERIFY_AFTER_DAYS.guide, recheckBy: g.recheckBy })),
-  ];
+    // A malformed date here is reported by validateContent; reporting it twice helps no one.
+  ].filter((entry) => isDate(entry.verified));
 }
 
-/** "Checked YYYY-MM-DD" in the comments of a source file, as checked entries. */
+/** The marker a source comment uses for a dated check: `@checked` and the date. */
+const CHECKED_MARKER = /@checked\s+([^\s).,;]*)/g;
+/** A date written as prose next to "checked" or "verified", which the marker would make enforceable. */
+const UNMARKED_DATE = /(?<!@)\b(?:checked|verified)\s+(?:on\s+)?\d{4}-\d{2}-\d{2}/i;
+
+/** The `@checked` markers in a source file, as checked entries (dates unvalidated: checkFreshness reports bad ones). */
 export function checkedComments(path: string, source: string): Checked[] {
   return source.split("\n").flatMap((line, i) =>
-    [...line.matchAll(/\bchecked\s+(\d{4}-\d{2}-\d{2})/gi)].map((m) => ({
-      where: `${path}:${i + 1}`,
-      verified: m[1]!,
-      days: REVERIFY_AFTER_DAYS.comment,
-    })),
+    [...line.matchAll(CHECKED_MARKER)].map((m) => ({ where: `${path}:${i + 1}`, verified: m[1]!, days: REVERIFY_AFTER_DAYS.comment })),
   );
+}
+
+/** Lines that date a check in prose instead of with the marker: such a date would never run out. */
+export function unmarkedChecks(path: string, source: string): string[] {
+  return source
+    .split("\n")
+    .flatMap((line, i) => (UNMARKED_DATE.test(line) ? [`${path}:${i + 1}: write the date as "@checked YYYY-MM-DD" so it runs out`] : []));
 }
 
 /**
  * Entries whose check has run out on `today` (YYYY-MM-DD), or will within
- * `leadDays`, or that are dated in the future. Malformed dates are left to
- * validateContent. Fix a problem by checking the content against its sources
- * again, then updating the date; never by moving the date alone.
+ * `leadDays`, or that are dated in the future or not a real date. Fix a problem
+ * by checking the content against its sources again, then updating the date;
+ * never by moving the date alone.
  */
 export function checkFreshness(entries: Checked[], today: string, leadDays = 0): string[] {
   if (!isDate(today)) throw new Error(`today must be YYYY-MM-DD, got "${today}"`);
   if (!Number.isInteger(leadDays) || leadDays < 0) throw new Error(`leadDays must be a whole number of days, got ${leadDays}`);
   const problems: string[] = [];
   for (const { where, verified, days, recheckBy } of entries) {
-    if (!isDate(verified)) continue;
+    if (!isDate(verified)) {
+      problems.push(`${where}: "${verified}" is not a date`);
+      continue;
+    }
     // A day of slack: a date written in Taiwan's morning is still "yesterday" in UTC.
     if (verified > addDays(today, 1)) {
       problems.push(`${where}: verified ${verified} is in the future`);
