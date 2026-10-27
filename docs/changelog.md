@@ -2,6 +2,11 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-10-27
+
+### Content you can trust
+- **Verification runs out:** every emergency number must be re-verified against its official source within a year, and every travel cheat sheet within six months. Past that, the tests fail and nothing can be released until the entry is checked again. A weekly check warns a month ahead. Verification dates must also be real dates (no 2026-02-30) and not in the future.
+
 ## 2026-10-19
 
 ### Fixes

@@ -124,7 +124,8 @@ Written in `src/content/tools.ts`. Only recommend free apps that already do the 
 - Fewer than 2 answers; using an answer set that doesn't exist.
 - Missing scene groups, phrases without a group, empty groups.
 - Too few phrases in a scene; Transport missing required phrases.
-- Emergency numbers or travel cheat sheets without an https source or verification date.
+- Emergency numbers or travel cheat sheets without an https source or a real verification date.
+- Emergency numbers or travel cheat sheets whose verification has run out (see §9).
 - Recommended tools without a purpose or without an https link.
 
 ## 9. Verification rules
@@ -132,7 +133,10 @@ Written in `src/content/tools.ts`. Only recommend free apps that already do the 
 - **Emergency, medical and procedural information must be verified** against official sources (government, railway companies, airports). News and blogs are only leads.
 - Code comments give the source URL and verification date. With several sources, say which point each one supports.
 - If the official website is unreachable, you can use official content quoted in search results, but say so in the comment.
-- Before each travel season, recheck content with older `verified` dates.
+- **Verification runs out.** Emergency numbers must be re-verified within 365 days of `verified`, travel cheat sheets within 180 days (`REVERIFY_AFTER_DAYS` in `src/content/validate.ts`).
+  - `npm test` fails once anything is overdue, which blocks PRs and deploys.
+  - Every Monday, the `freshness` workflow fails 30 days before a deadline, and GitHub emails the maintainers.
+  - To fix it, check the entry against its sources again, correct anything that changed, then update `verified`. **Never move the date without checking.** If a source no longer supports the content, remove the content.
 - If you're not sure, leave it out and ask the traveller to check with on-site staff instead.
 
 ## 10. Wording

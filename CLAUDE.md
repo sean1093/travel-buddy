@@ -25,7 +25,7 @@ npm run build && npx vite preview --port 4173 &
 CHROMIUM=/opt/pw-browsers/chromium NODE_PATH=$(npm root -g) node scripts/screenshots.cjs scripts/sample-profile.json docs/screenshots
 ```
 
-UI changes follow [`docs/design.md`](docs/design.md); content changes follow [`docs/content-guide.md`](docs/content-guide.md). Add an entry to [`docs/changelog.md`](docs/changelog.md) for every user-visible change.
+UI changes follow [`docs/design.md`](docs/design.md); content changes follow [`docs/content-guide.md`](docs/content-guide.md). If `freshness.test.ts` fails, re-check the named entry against its sources and correct it before updating `verified` (content guide §9); never move the date alone, and never raise `REVERIFY_AFTER_DAYS` to get green. Add an entry to [`docs/changelog.md`](docs/changelog.md) for every user-visible change.
 
 ## Pull request workflow
 

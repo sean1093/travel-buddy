@@ -67,6 +67,7 @@ scripts/
 docs/                    documentation (see docs/README.md)
 .github/workflows/
   ci.yml                 PRs and non-main branches: test + coverage + build, and e2e
+  freshness.yml          Mondays: fails 30 days before content is due for re-verification
   pages.yml              push to main: test + build + deploy to GitHub Pages
 ```
 
@@ -90,6 +91,7 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 
 | Test file | What it checks |
 |---|---|
+| `freshness.test.ts` | Emergency numbers and cheat sheets were re-verified within their window (365 / 180 days); real verification dates |
 | `content.test.ts` | All content rules (see [content-guide.md §8](content-guide.md#8-what-npm-test-blocks)), and that every recommended tool has an https link |
 | `contrast.test.ts` | Reads the design tokens in `src/style.css`; every text/background pair is ≥ 4.5:1 in both light and dark (WCAG AA) |
 | `theme-color.test.ts` | The browser-bar colour in `src/state.ts` and `index.html` matches `--paper` in both themes |

@@ -49,6 +49,54 @@ export function checkJp(markup: Jp): string[] {
   return problems;
 }
 
+/** True for a real calendar date written YYYY-MM-DD (not 2026-02-30). */
+export function isDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+/**
+ * How many days a verification lasts before the content must be checked
+ * against its source again. Cheat sheets describe rules that change (the tax
+ * refund system changed on 2026-11-01); emergency numbers rarely do.
+ */
+export const REVERIFY_AFTER_DAYS = { emergency: 365, guide: 180 } as const;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+
+/**
+ * Content whose verification has run out on `today` (YYYY-MM-DD), or will within
+ * `leadDays`. Fix a problem by checking the content against its sources again,
+ * then updating `verified`; never by moving the date alone.
+ */
+export function checkFreshness(
+  content: { emergency: Pick<EmergencyNumber, "id" | "verified">[]; guides: Pick<Guide, "id" | "verified">[] },
+  today: string,
+  leadDays = 0,
+): string[] {
+  const entries = [
+    ...content.emergency.map((e) => ({ where: `emergency ${e.id}`, verified: e.verified, days: REVERIFY_AFTER_DAYS.emergency })),
+    ...content.guides.map((g) => ({ where: `guide ${g.id}`, verified: g.verified, days: REVERIFY_AFTER_DAYS.guide })),
+  ];
+  const problems: string[] = [];
+  for (const { where, verified, days } of entries) {
+    if (!isDate(verified)) {
+      problems.push(`${where}: verified "${verified}" is not a date`);
+      continue;
+    }
+    if (verified > today) {
+      problems.push(`${where}: verified ${verified} is in the future`);
+      continue;
+    }
+    const due = addDays(verified, days);
+    if (due <= today) problems.push(`${where}: verified ${verified}, re-verification was due ${due}`);
+    else if (due <= addDays(today, leadDays)) problems.push(`${where}: verified ${verified}, re-verification due ${due}`);
+  }
+  return problems;
+}
+
 /** Minimum counts per scene. */
 export const MIN_PHRASES = 12;
 export const MIN_TRANSPORT_PHRASES = 18;
@@ -163,7 +211,7 @@ export function validateContent(content: {
   for (const entry of content.emergency) {
     const where = `emergency ${entry.id}`;
     need(/^https:\/\//.test(entry.source), where, "needs an https source");
-    need(/^\d{4}-\d{2}-\d{2}$/.test(entry.verified), where, "needs a verified date");
+    need(isDate(entry.verified), where, "needs a verified date");
     need(/^\+?[\d-]+$/.test(entry.number), where, "number must be digits and hyphens");
     text(entry.title, where, "title");
     text(entry.when, where, "when to call");
@@ -180,7 +228,7 @@ export function validateContent(content: {
       text(step.body, `${where} step ${i}`, "body");
     });
     need(guide.sources.length > 0 && guide.sources.every((url) => /^https:\/\//.test(url)), where, "needs https sources");
-    need(/^\d{4}-\d{2}-\d{2}$/.test(guide.verified), where, "needs a verified date");
+    need(isDate(guide.verified), where, "needs a verified date");
   }
 
   for (const [name, markup] of Object.entries(content.extra)) jp(markup, name);

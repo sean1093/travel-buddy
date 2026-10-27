@@ -1,0 +1,30 @@
+name: freshness
+
+# Warns a month before an emergency number or cheat sheet is due to be checked
+# against its sources again (see docs/content-guide.md §9). `npm test` fails once
+# one is overdue, which blocks PRs and deploys; this gives time to act first.
+# A failed scheduled run emails the repository's maintainers.
+on:
+  schedule:
+    # Mondays 01:17 UTC (09:17 in Taiwan).
+    - cron: "17 1 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  due-soon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+      - run: npx vitest run tests/freshness.test.ts
+        env:
+          FRESHNESS_LEAD_DAYS: "30"
