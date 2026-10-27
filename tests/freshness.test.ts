@@ -107,7 +107,15 @@ describe("scanMarkers", () => {
     expect(scan(line).undated).toEqual(Array(count).fill(`src/x.ts:1: ${MARKER_NEEDS_DATE}`)),
   );
 
-  it.each(["(@checked-2026-10-08)", "@checked.2026-10-08", "(@checked -- 2026-10-08)", "(@checked: - 2026-10-08)"])(
+  it.each([
+    "(@checked-2026-10-08)",
+    "@checked.2026-10-08",
+    "(@checked -- 2026-10-08)",
+    "(@checked: - 2026-10-08)",
+    "(@checked on2026-10-08)",
+    "(@checked_on 2026-10-08)",
+    "(@checkedOn 2026-10-08)",
+  ])(
     "says how to write %j, which has a date behind an odd separator",
     (line) => expect(scan(line).undated).toEqual([`src/x.ts:1: ${MARKER_FORMAT}`]),
   );

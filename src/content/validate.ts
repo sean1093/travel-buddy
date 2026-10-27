@@ -92,8 +92,9 @@ export function checkedContent(content: {
 /**
  * The marker a source comment uses for a dated check: `@checked` and the date,
  * e.g. `(@checked 2026-10-08)`. Any case; spaces, `:`, `=`, `_`, "on" or nothing
- * between them. Every `@checked` that isn't an identifier (`@checkedAt`,
- * `@checked_at`) is a marker: the scan reads its date, or reports it. The date
+ * between them. The scan looks at every `@checked`: it reads the date, or
+ * reports the marker. Only an identifier (`@checkedAt`, `@checked_at`) with no
+ * date after it is skipped; `@checked_on 2026-10-08` is reported. The date
  * runs up to the first character that can't be part of one, so a date in
  * brackets or before a comment's end reads cleanly, and anything but YYYY-MM-DD
  * is reported. A marker without a date is reported, with a hint when a date
@@ -101,10 +102,10 @@ export function checkedContent(content: {
  * plain prose ("checked 2026-10-08") is not read and never runs out:
  * docs/content-guide.md §9 makes the marker the rule.
  */
-const CHECKED_MARKER = /@checked(?![a-z]|_[a-z])/gi;
+const CHECKED_MARKER = /@checked(_?[a-z]\w*)?/gi;
 const MARKER_DATE = /^(?:[\s:=_]|on\b)*(\d[\w/-]*)/i;
-/** A date a few punctuation marks away: the marker has one, behind a separator it doesn't take. */
-const DATE_NEARBY = /^[^\w\n]{0,4}\d{4}/;
+/** A date a few characters away ("-- 2026", "on2026"): the marker has one, behind a separator it doesn't take. */
+const DATE_NEARBY = /^\W{0,4}(?:on)?\W{0,2}\d{4}/i;
 
 export const MARKER_NEEDS_DATE = "the @checked marker needs a date after it";
 export const MARKER_FORMAT = 'write the marker as "(@checked YYYY-MM-DD)"';
@@ -121,6 +122,11 @@ export function scanMarkers(path: string, source: string): { checked: Checked[];
     const where = `${path}:${i + 1}`;
     for (const match of line.matchAll(CHECKED_MARKER)) {
       const after = line.slice(match.index + match[0].length);
+      if (match[1]) {
+        // `@checkedAt`, `@checked_at`: an identifier, unless a date follows it (`@checked_on 2026-…`).
+        if (DATE_NEARBY.test(after)) undated.push(`${where}: ${MARKER_FORMAT}`);
+        continue;
+      }
       const date = MARKER_DATE.exec(after)?.[1];
       if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
       else undated.push(`${where}: ${DATE_NEARBY.test(after) ? MARKER_FORMAT : MARKER_NEEDS_DATE}`);
