@@ -18,6 +18,8 @@ export interface EmergencyNumber {
   when: string;
   source: string;
   verified: string;
+  /** A known date the facts change on; see `Checked.recheckBy` in validate.ts. */
+  recheckBy?: string;
 }
 
 export const EMERGENCY_NUMBERS: EmergencyNumber[] = [

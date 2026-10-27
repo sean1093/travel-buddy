@@ -59,38 +59,67 @@ export function isDate(value: string): boolean {
 /**
  * How many days a verification lasts before the content must be checked
  * against its source again. Cheat sheets describe rules that change (the tax
- * refund system changed on 2026-11-01); emergency numbers rarely do.
+ * refund system changed on 2026-11-01); emergency numbers rarely do. `comment`
+ * covers facts dated only in a source comment ("Checked 2026-10-08"): allergen
+ * lists, dialling rules, tool links.
  */
-export const REVERIFY_AFTER_DAYS = { emergency: 365, guide: 180 } as const;
+export const REVERIFY_AFTER_DAYS = { emergency: 365, guide: 180, comment: 365 } as const;
+
+/** Something that says when it was last checked against its sources. */
+export interface Checked {
+  /** Where to look, e.g. "guide tax-refund" or "src/lib/phone.ts:8". */
+  where: string;
+  verified: string;
+  days: number;
+  /** A known date the facts change on: check again by then even if the window hasn't run out. */
+  recheckBy?: string;
+}
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
 
-/**
- * Content whose verification has run out on `today` (YYYY-MM-DD), or will within
- * `leadDays`. Fix a problem by checking the content against its sources again,
- * then updating `verified`; never by moving the date alone.
- */
-export function checkFreshness(
-  content: { emergency: Pick<EmergencyNumber, "id" | "verified">[]; guides: Pick<Guide, "id" | "verified">[] },
-  today: string,
-  leadDays = 0,
-): string[] {
-  const entries = [
-    ...content.emergency.map((e) => ({ where: `emergency ${e.id}`, verified: e.verified, days: REVERIFY_AFTER_DAYS.emergency })),
-    ...content.guides.map((g) => ({ where: `guide ${g.id}`, verified: g.verified, days: REVERIFY_AFTER_DAYS.guide })),
+/** The checked content with its windows: emergency numbers and cheat sheets. */
+export function checkedContent(content: {
+  emergency: Pick<EmergencyNumber, "id" | "verified" | "recheckBy">[];
+  guides: Pick<Guide, "id" | "verified" | "recheckBy">[];
+}): Checked[] {
+  return [
+    ...content.emergency.map((e) => ({ where: `emergency ${e.id}`, verified: e.verified, days: REVERIFY_AFTER_DAYS.emergency, recheckBy: e.recheckBy })),
+    ...content.guides.map((g) => ({ where: `guide ${g.id}`, verified: g.verified, days: REVERIFY_AFTER_DAYS.guide, recheckBy: g.recheckBy })),
   ];
+}
+
+/** "Checked YYYY-MM-DD" in the comments of a source file, as checked entries. */
+export function checkedComments(path: string, source: string): Checked[] {
+  return source.split("\n").flatMap((line, i) =>
+    [...line.matchAll(/\bchecked\s+(\d{4}-\d{2}-\d{2})/gi)].map((m) => ({
+      where: `${path}:${i + 1}`,
+      verified: m[1]!,
+      days: REVERIFY_AFTER_DAYS.comment,
+    })),
+  );
+}
+
+/**
+ * Entries whose check has run out on `today` (YYYY-MM-DD), or will within
+ * `leadDays`, or that are dated in the future. Malformed dates are left to
+ * validateContent. Fix a problem by checking the content against its sources
+ * again, then updating the date; never by moving the date alone.
+ */
+export function checkFreshness(entries: Checked[], today: string, leadDays = 0): string[] {
+  if (!isDate(today)) throw new Error(`today must be YYYY-MM-DD, got "${today}"`);
+  if (!Number.isInteger(leadDays) || leadDays < 0) throw new Error(`leadDays must be a whole number of days, got ${leadDays}`);
   const problems: string[] = [];
-  for (const { where, verified, days } of entries) {
-    if (!isDate(verified)) {
-      problems.push(`${where}: verified "${verified}" is not a date`);
-      continue;
-    }
-    if (verified > today) {
+  for (const { where, verified, days, recheckBy } of entries) {
+    if (!isDate(verified)) continue;
+    // A day of slack: a date written in Taiwan's morning is still "yesterday" in UTC.
+    if (verified > addDays(today, 1)) {
       problems.push(`${where}: verified ${verified} is in the future`);
       continue;
     }
-    const due = addDays(verified, days);
+    const window = addDays(verified, days);
+    // A change date already passed when the entry was last checked has been dealt with.
+    const due = recheckBy && isDate(recheckBy) && recheckBy > verified && recheckBy < window ? recheckBy : window;
     if (due <= today) problems.push(`${where}: verified ${verified}, re-verification was due ${due}`);
     else if (due <= addDays(today, leadDays)) problems.push(`${where}: verified ${verified}, re-verification due ${due}`);
   }
@@ -212,6 +241,7 @@ export function validateContent(content: {
     const where = `emergency ${entry.id}`;
     need(/^https:\/\//.test(entry.source), where, "needs an https source");
     need(isDate(entry.verified), where, "needs a verified date");
+    need(entry.recheckBy === undefined || isDate(entry.recheckBy), where, "recheckBy must be a date");
     need(/^\+?[\d-]+$/.test(entry.number), where, "number must be digits and hyphens");
     text(entry.title, where, "title");
     text(entry.when, where, "when to call");
@@ -229,6 +259,7 @@ export function validateContent(content: {
     });
     need(guide.sources.length > 0 && guide.sources.every((url) => /^https:\/\//.test(url)), where, "needs https sources");
     need(isDate(guide.verified), where, "needs a verified date");
+    need(guide.recheckBy === undefined || isDate(guide.recheckBy), where, "recheckBy must be a date");
   }
 
   for (const [name, markup] of Object.entries(content.extra)) jp(markup, name);

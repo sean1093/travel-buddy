@@ -267,6 +267,17 @@ describe("medical", () => {
 
 describe("help", () => {
   const render = async () => (await import("../src/ui/help")).renderHelp(app());
+
+  it("dates the numbers by the oldest check among them, never the freshest", async () => {
+    const actual = await vi.importActual<typeof import("../src/content/emergency")>("../src/content/emergency");
+    const [first, ...rest] = actual.EMERGENCY_NUMBERS;
+    // The first number re-checked recently, another one long ago.
+    const numbers = [{ ...first!, verified: "2027-09-01" }, ...rest.map((e, i) => (i === 2 ? { ...e, verified: "2026-01-15" } : e))];
+    vi.doMock("../src/content/emergency", () => ({ ...actual, EMERGENCY_NUMBERS: numbers }));
+    await render();
+    expect(app().textContent).toContain("電話號碼查證日期：2026-01-15");
+    vi.doUnmock("../src/content/emergency");
+  });
   const callDock = () => app().querySelector('nav[aria-label="撥打電話"]')!;
 
   it("docks 110 and 119", async () => {
