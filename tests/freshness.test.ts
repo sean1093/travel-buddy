@@ -85,6 +85,8 @@ describe("scanMarkers", () => {
     "[@checked on 2026-10-08]",
     "(@checked2026-10-08)",
     "(@checked_2026-10-08)",
+    "(@checked_on 2026-10-08)",
+    "(@checkedOn 2026-10-08)",
   ])("reads the variant %j", (line) => expect(scan(line).checked.map((e) => e.verified)).toEqual(["2026-10-08"]));
 
   it.each([
@@ -113,15 +115,17 @@ describe("scanMarkers", () => {
     "(@checked -- 2026-10-08)",
     "(@checked: - 2026-10-08)",
     "(@checked on2026-10-08)",
-    "(@checked_on 2026-10-08)",
-    "(@checkedOn 2026-10-08)",
-  ])(
-    "says how to write %j, which has a date behind an odd separator",
-    (line) => expect(scan(line).undated).toEqual([`src/x.ts:1: ${MARKER_FORMAT}`]),
+    "(@checked at 2026-10-08)",
+    "(@checked_on_2026-10-08)",
+    "(@checkedOn2026-10-08)",
+    "(@checkedon2026-10-08)",
+  ])("says how to write %j, which has a date written another way", (line) =>
+    expect(scan(line).undated).toEqual([`src/x.ts:1: ${MARKER_FORMAT}`]),
   );
 
-  it.each([" * @checkedAt the time of the last check", " * @checked_at the time"])("does not read the identifier %j as a marker", (line) =>
-    expect(scan(line)).toEqual({ checked: [], undated: [] }),
+  it.each([" * @checkedAt the time of the last check", " * @checked_at the time"])(
+    "reports %j: @checked is reserved for the marker, so nothing slips through unread",
+    (line) => expect(scan(line).undated).toEqual([`src/x.ts:1: ${MARKER_NEEDS_DATE}`]),
   );
 
   it("does not read a date written as prose: the marker is the rule (content guide §9)", () => {
