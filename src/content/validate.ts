@@ -103,11 +103,19 @@ export function checkedContent(content: {
  */
 const MARKER_WORD = /(?<![A-Za-z0-9_])@checked/gi;
 /**
- * The date ends the marker: what follows must not continue it (a letter or
- * digit, "-", "/", a dash, or "." / ":" before one, as in a range or
- * "2026-10-08.1"). Any punctuation or space can follow, full-width included.
+ * The date ends the marker: what follows is the line's end, a space, a closing
+ * bracket or quote, other punctuation not followed by a digit (so "2026-10-08."
+ * or "2026-10-08、確認" ends it but "2026-10-08.1" or "：12" doesn't), "`" or "<".
+ * Full-width forms count by their Unicode category. Dashes (including 〜),
+ * "~", "～", "+" and every other symbol are left out, so no range can pass.
  */
-const MARKER = /^@checked (\d{4}-\d{2}-\d{2})(?![\p{L}\p{N}_/\-–—]|[.:][\p{L}\p{N}])/u;
+const MARKER = /^@checked (\d{4}-\d{2}-\d{2})(?=$|\s|[\p{Pe}\p{Pf}`<]|\p{Po}(?!\p{N}))/u;
+const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
+/** Up to `max` user-perceived characters from `text`, from a bounded window. */
+function excerpt(text: string, max: number): string {
+  return [...graphemes.segment(text.slice(0, max * 8))].slice(0, max).map((s) => s.segment).join("").trim();
+}
 
 export const MARKER_FORMAT = 'write the marker as "@checked YYYY-MM-DD"';
 
@@ -123,7 +131,7 @@ export function scanMarkers(path: string, source: string): { checked: Checked[];
     for (const match of line.matchAll(MARKER_WORD)) {
       const date = MARKER.exec(line.slice(match.index))?.[1];
       if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
-      else problems.push(`${where}: ${JSON.stringify([...line.slice(match.index)].slice(0, 24).join("").trim())}: ${MARKER_FORMAT}`);
+      else problems.push(`${where}: ${JSON.stringify(excerpt(line.slice(match.index), 24))}: ${MARKER_FORMAT}`);
     }
   });
   return { checked, problems };

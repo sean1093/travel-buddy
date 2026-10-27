@@ -94,6 +94,10 @@ describe("scanMarkers", () => {
     "<p>@checked 2026-10-08</p>",
     "@checked 2026-10-08: rules",
     "@checked 2026-10-08. Then",
+    "@checked 2026-10-08、確認済み",
+    "「@checked 2026-10-08」",
+    "@checked 2026-10-08！",
+    "@checked 2026-10-08\t// tab",
   ])(
     "reads %j",
     (line) => expect(scan(line)).toEqual({ checked: [expect.objectContaining({ verified: "2026-10-08" })], problems: [] }),
@@ -120,22 +124,36 @@ describe("scanMarkers", () => {
     " * @checkedAt the time of the last check",
     "(@checked 2026-10-08–2026-11-01)",
     "(@checked 2026-10-08.1)",
-    "(@checked 2026-10-08.beta)",
     "(@checked 2026-10-08:12)",
+    "(@checked 2026-10-08〜2026-11-01)",
+    "(@checked 2026-10-08～2026-11-01)",
+    "(@checked 2026-10-08~2026-11-01)",
+    "(@checked 2026-10-08‐2026-11-01)",
+    "(@checked 2026-10-08−2026-11-01)",
+    "(@checked 2026-10-08+1)",
+    "(@checked 2026-10-08．1)",
+    "(@checked 2026-10-08：12)",
     "// https://x.com/@checkedjapan",
     "// 名前@checked",
   ])("reports %j with the text and how to write the marker", (line) => {
     const { checked, problems } = scan(line);
     expect(checked).toEqual([]);
     expect(problems).toHaveLength(1);
-    expect(problems[0]!.startsWith('src/x.ts:1: "@')).toBe(true);
-    expect(problems[0]!.endsWith(`": ${MARKER_FORMAT}`)).toBe(true);
+    const [, quoted, rest] = /^src\/x\.ts:1: (".*"): (.*)$/.exec(problems[0]!)!;
+    expect(rest).toBe(MARKER_FORMAT);
+    // The quote is the offending marker itself, as written.
+    const text = JSON.parse(quoted!) as string;
+    expect(text.toLowerCase().startsWith("@checked")).toBe(true);
+    expect(line.includes(text)).toBe(true);
   });
 
-  it("quotes the text safely: escaped, and cut by character, not code unit", () => {
-    const [problem] = scan('@checked "x" 🗓️🗓️🗓️🗓️🗓️🗓️🗓️🗓️').problems;
+  it("quotes the text safely: escaped, and cut between whole characters (graphemes)", () => {
+    const [problem] = scan('@checked "x" 🗓️🗓️🗓️🗓️🗓️🗓️🗓️🗓️👨‍👩‍👧').problems;
     const quoted = problem!.slice("src/x.ts:1: ".length, -`: ${MARKER_FORMAT}`.length);
-    expect(JSON.parse(quoted)).toBe('@checked "x" 🗓️🗓️🗓️🗓️🗓️🗓');
+    expect(JSON.parse(quoted)).toBe('@checked "x" 🗓️🗓️🗓️🗓️🗓️🗓️🗓️🗓️👨‍👩‍👧');
+    const [long] = scan(`@checked ${"確認".repeat(40)}`).problems;
+    // 24 graphemes: "@checked " is 9, then 15 more.
+    expect(JSON.parse(long!.slice("src/x.ts:1: ".length, -`: ${MARKER_FORMAT}`.length))).toBe(`@checked ${"確認".repeat(7)}確`);
   });
 
   it("reports each bad marker on a line", () => {
