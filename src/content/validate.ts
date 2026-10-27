@@ -90,42 +90,36 @@ export function checkedContent(content: {
 }
 
 /**
- * The marker a source comment uses for a dated check: `@checked` and the date,
- * e.g. `(@checked 2026-10-08)`. Any case; spaces, `:`, `=`, `_`, "on" or nothing
- * between them. `@checked` is reserved for this marker: every occurrence must
- * be followed by a readable date, or it is reported, so no form can slip
- * through unread. The date runs up to the first character that can't be part
- * of one, so a date in brackets or before a comment's end reads cleanly, and
- * anything but YYYY-MM-DD is reported. When a date is there behind something
- * else ("@checked at 2026-10-08", "@checkedOn2026-10-08"), the report says how
- * to write the marker. A date written as plain prose ("checked 2026-10-08") is
- * not read and never runs out: docs/content-guide.md §9 makes the marker the rule.
+ * The marker a source comment uses for a dated check, written exactly
+ * `@checked 2026-10-08`: `@checked`, one space, the date (e.g. inside brackets
+ * or before a comment's end). `@checked` is reserved for it: any other use as a
+ * word (another case, separator or spelling, or no date) is reported with how
+ * to write it, so no form slips through unread. Inside a URL, an e-mail address
+ * or another word it isn't a marker. A date written as plain prose ("checked
+ * 2026-10-08") is not read and never runs out: docs/content-guide.md §9 makes
+ * the marker the rule.
  */
-const CHECKED_MARKER = /@checked/gi;
-const MARKER_DATE = /^(?:[\s:=_]|on\b)*(\d[\w/-]*)/i;
-/** A date behind a short word or odd separator: the marker has one, written another way. */
-const DATE_NEARBY = /^[\W_]{0,4}(?:[a-z]{1,3}[\W_]{0,3})?\d{4}/i;
+const MARKER_WORD = /(?<![\w./@-])@checked/gi;
+const MARKER = /^@checked (\d{4}-\d{2}-\d{2})(?![\w/-])/;
 
-export const MARKER_NEEDS_DATE = "the @checked marker needs a date after it";
-export const MARKER_FORMAT = 'write the marker as "(@checked YYYY-MM-DD)"';
+export const MARKER_FORMAT = 'write the marker as "@checked YYYY-MM-DD"';
 
 /**
- * Every `@checked` in a source file, in one pass: each is a checked entry (its
- * date is validated by checkFreshness) or one reported problem.
+ * Every `@checked` in a source file, in one pass: each one is a checked entry
+ * (checkFreshness rejects an impossible date such as 2026-02-30) or a problem.
  */
-export function scanMarkers(path: string, source: string): { checked: Checked[]; undated: string[] } {
+export function scanMarkers(path: string, source: string): { checked: Checked[]; problems: string[] } {
   const checked: Checked[] = [];
-  const undated: string[] = [];
+  const problems: string[] = [];
   source.split("\n").forEach((line, i) => {
     const where = `${path}:${i + 1}`;
-    for (const match of line.matchAll(CHECKED_MARKER)) {
-      const after = line.slice(match.index + match[0].length);
-      const date = MARKER_DATE.exec(after)?.[1];
+    for (const match of line.matchAll(MARKER_WORD)) {
+      const date = MARKER.exec(line.slice(match.index))?.[1];
       if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
-      else undated.push(`${where}: ${DATE_NEARBY.test(after) ? MARKER_FORMAT : MARKER_NEEDS_DATE}`);
+      else problems.push(`${where}: ${MARKER_FORMAT}`);
     }
   });
-  return { checked, undated };
+  return { checked, problems };
 }
 
 /**

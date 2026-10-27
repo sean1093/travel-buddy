@@ -31,9 +31,9 @@ describe("content is re-verified in time", () => {
     const lead = leadDays();
     const markers = SOURCES.map(({ path, text }) => scanMarkers(path, text));
     const entries = [...checkedContent({ emergency: EMERGENCY_NUMBERS, guides: GUIDES }), ...markers.flatMap((m) => m.checked)];
-    // One list for the weekly issue: deadlines, bad dates, and markers that could never run out
+    // One list for the weekly issue: deadlines, bad dates, and badly written markers
     // (also checked on every run by source-dates.test.ts, which deploys don't skip).
-    const problems = [...checkFreshness(entries, today, lead), ...markers.flatMap((m) => m.undated)];
+    const problems = [...checkFreshness(entries, today, lead), ...markers.flatMap((m) => m.problems)];
     if (problems.length && process.env.FRESHNESS_REPORT) writeFileSync(process.env.FRESHNESS_REPORT, problems.map((p) => `- ${p}`).join("\n") + "\n");
     expect(problems, `today ${today}, lead ${lead} days`).toEqual([]);
   });

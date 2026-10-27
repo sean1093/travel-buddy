@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type Checked, checkedContent, checkFreshness, isDate, MARKER_FORMAT, MARKER_NEEDS_DATE, REVERIFY_AFTER_DAYS, scanMarkers } from "../src/content/validate";
+import { type Checked, checkedContent, checkFreshness, isDate, MARKER_FORMAT, REVERIFY_AFTER_DAYS, scanMarkers } from "../src/content/validate";
 
 // The rules behind tests/content-freshness.test.ts, on fixed dates. That file
 // checks the real content against today and is the one deploys skip.
@@ -66,70 +66,53 @@ describe("checkFreshness", () => {
 describe("scanMarkers", () => {
   const scan = (line: string) => scanMarkers("src/x.ts", line);
 
-  it("reads each dated @checked marker with its line", () => {
+  it("reads each marker with its line", () => {
     const source = "/**\n * Sources: https://example.jp/ (@checked 2026-10-08).\n */\n// Read from the leaflet (@checked 2026-10-11); see below.\nconst x = 1;";
     expect(scanMarkers("src/x.ts", source)).toEqual({
       checked: [
         { where: "src/x.ts:2", verified: "2026-10-08", days: REVERIFY_AFTER_DAYS.comment },
         { where: "src/x.ts:4", verified: "2026-10-11", days: REVERIFY_AFTER_DAYS.comment },
       ],
-      undated: [],
+      problems: [],
     });
   });
 
-  it.each([
-    "(@Checked 2026-10-08)",
-    "(@CHECKED: 2026-10-08)",
-    "@checked=2026-10-08;",
-    "/* @checked 2026-10-08*/",
-    "[@checked on 2026-10-08]",
-    "(@checked2026-10-08)",
-    "(@checked_2026-10-08)",
-    "(@checked_on 2026-10-08)",
-    "(@checkedOn 2026-10-08)",
-  ])("reads the variant %j", (line) => expect(scan(line).checked.map((e) => e.verified)).toEqual(["2026-10-08"]));
+  it.each(["(@checked 2026-10-08)", "@checked 2026-10-08", "/* @checked 2026-10-08*/", "[@checked 2026-10-08]", "@checked 2026-10-08; see below"])(
+    "reads %j",
+    (line) => expect(scan(line)).toEqual({ checked: [expect.objectContaining({ verified: "2026-10-08" })], problems: [] }),
+  );
 
-  it.each([
-    ["// (@checked 2026/10/08)", "2026/10/08"],
-    ["// (@checked 2026-10-08x)", "2026-10-08x"],
-    ["// (@checked 2026-10-08/09)", "2026-10-08/09"],
-    ["// @checked1st pass", "1st"],
-  ])("keeps the malformed date in %j, so checkFreshness reports it", (line, date) => {
-    expect(checkFreshness(scan(line).checked, "2026-10-27")).toEqual([`src/x.ts:1: "${date}" is not a date`]);
+  it("reads an impossible date in the right shape, so checkFreshness reports it", () => {
+    expect(checkFreshness(scan("(@checked 2026-02-30)").checked, "2026-10-27")).toEqual(['src/x.ts:1: "2026-02-30" is not a date']);
   });
 
   it.each([
-    ["// @checked", 1],
-    ["// (@Checked: soon)", 1],
-    ["// @checked on Monday", 1],
-    ["// @checked v2 of the API", 1],
-    ["// @checked #42", 1],
-    ["// @checked (rules), @checked (links)", 2],
-  ])("reports each marker without a date in %j", (line, count) =>
-    expect(scan(line).undated).toEqual(Array(count).fill(`src/x.ts:1: ${MARKER_NEEDS_DATE}`)),
-  );
+    "// @checked",
+    "// (@checked soon)",
+    "(@Checked 2026-10-08)",
+    "(@checked: 2026-10-08)",
+    "(@checked  2026-10-08)",
+    "(@checked on 2026-10-08)",
+    "(@checked2026-10-08)",
+    "(@checked_2026-10-08)",
+    "(@checkedOn 2026-10-08)",
+    "(@checked 2026/10/08)",
+    "(@checked 2026-10-8)",
+    "(@checked 2026-10-08x)",
+    "(@checked 2026-10-08/09)",
+    " * @checkedAt the time of the last check",
+  ])("reports %j with how to write the marker", (line) => expect(scan(line)).toEqual({ checked: [], problems: [`src/x.ts:1: ${MARKER_FORMAT}`] }));
 
-  it.each([
-    "(@checked-2026-10-08)",
-    "@checked.2026-10-08",
-    "(@checked -- 2026-10-08)",
-    "(@checked: - 2026-10-08)",
-    "(@checked on2026-10-08)",
-    "(@checked at 2026-10-08)",
-    "(@checked_on_2026-10-08)",
-    "(@checkedOn2026-10-08)",
-    "(@checkedon2026-10-08)",
-  ])("says how to write %j, which has a date written another way", (line) =>
-    expect(scan(line).undated).toEqual([`src/x.ts:1: ${MARKER_FORMAT}`]),
-  );
+  it("reports each bad marker on a line", () => {
+    expect(scan("// @checked (rules), @checked (links)").problems).toHaveLength(2);
+  });
 
-  it.each([" * @checkedAt the time of the last check", " * @checked_at the time"])(
-    "reports %j: @checked is reserved for the marker, so nothing slips through unread",
-    (line) => expect(scan(line).undated).toEqual([`src/x.ts:1: ${MARKER_NEEDS_DATE}`]),
+  it.each(["// https://x.com/@checkedjapan", '"support@checked.jp"', "// see foo@checked"])("ignores %j, which isn't a marker", (line) =>
+    expect(scan(line)).toEqual({ checked: [], problems: [] }),
   );
 
   it("does not read a date written as prose: the marker is the rule (content guide §9)", () => {
-    expect(scan("// checked 2026-10-08 against the leaflet")).toEqual({ checked: [], undated: [] });
+    expect(scan("// checked 2026-10-08 against the leaflet")).toEqual({ checked: [], problems: [] });
   });
 });
 

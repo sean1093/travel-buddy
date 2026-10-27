@@ -92,7 +92,7 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 | Test file | What it checks |
 |---|---|
 | `content-freshness.test.ts` | Emergency numbers, cheat sheets and `@checked` source comments were re-verified within their window (365 / 180 / 365 days, or by `recheckBy`); depends on today's date, so deploys skip it |
-| `source-dates.test.ts` | Every `@checked` marker in `src/` has a readable date |
+| `source-dates.test.ts` | Every `@checked` in `src/` is written exactly `@checked YYYY-MM-DD` |
 | `freshness.test.ts` | The re-verification rules on fixed dates: windows, `recheckBy`, lead time, future and impossible dates, the `@checked` marker |
 | `content.test.ts` | All content rules (see [content-guide.md §8](content-guide.md#8-what-npm-test-blocks)), and that every recommended tool has an https link |
 | `contrast.test.ts` | Reads the design tokens in `src/style.css`; every text/background pair is ≥ 4.5:1 in both light and dark (WCAG AA) |
