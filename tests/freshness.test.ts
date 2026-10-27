@@ -99,7 +99,16 @@ describe("scanMarkers", () => {
     expect(scan(line).undated).toEqual(Array(count).fill("src/x.ts:1: the @checked marker needs a date after it")),
   );
 
-  it.each([" * @checkedAt the time of the last check", " * @checked_at the time", "// @checked2026-10-08 (glued: source-dates.test.ts fails on it)"])(
+  it.each(["(@checked-2026-10-08)", "@checked.2026-10-08", "@checked on2026-10-08"])("says how to write %j, which has a date", (line) =>
+    expect(scan(line).undated).toEqual(['src/x.ts:1: write the marker as "(@checked YYYY-MM-DD)"']),
+  );
+
+  it.each([
+    " * @checkedAt the time of the last check",
+    " * @checked_at the time",
+    "// @checked2026-10-08 (glued: source-dates.test.ts fails on it)",
+    "// @checked_2026-10-08 (glued: source-dates.test.ts fails on it)",
+  ])(
     "does not read %j as a marker",
     (line) => expect(scan(line)).toEqual({ checked: [], undated: [] }),
   );

@@ -97,8 +97,8 @@ export function checkedContent(content: {
  * YYYY-MM-DD is reported. No date at all is reported too. A date written as
  * plain prose ("checked 2026-10-08") is not read and never runs out:
  * docs/content-guide.md §9 makes the marker the rule. `@checkedAt` or
- * `@checked_at` identifiers aren't markers; a glued `@checked2026-10-08` isn't
- * either, and tests/source-dates.test.ts fails on it.
+ * `@checked_at` identifiers aren't markers; a glued `@checked2026-10-08` or
+ * `@checked_2026-10-08` isn't either, and tests/source-dates.test.ts fails on it.
  */
 const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d[\w/-]*)?/gi;
 
@@ -112,9 +112,19 @@ export function scanMarkers(path: string, source: string): { checked: Checked[];
   const undated: string[] = [];
   source.split("\n").forEach((line, i) => {
     const where = `${path}:${i + 1}`;
-    for (const [, date] of line.matchAll(CHECKED_MARKER)) {
-      if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
-      else undated.push(`${where}: the @checked marker needs a date after it`);
+    for (const match of line.matchAll(CHECKED_MARKER)) {
+      const date = match[1];
+      if (date) {
+        checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
+        continue;
+      }
+      // A date right after an odd separator ("@checked-2026-…", "on2026-…"): say how to write it.
+      const after = line.slice(match.index + match[0].length);
+      undated.push(
+        /^\S{0,3}\d/.test(after)
+          ? `${where}: write the marker as "(@checked YYYY-MM-DD)"`
+          : `${where}: the @checked marker needs a date after it`,
+      );
     }
   });
   return { checked, undated };

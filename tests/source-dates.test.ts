@@ -12,13 +12,19 @@ describe("@checked markers in source comments", () => {
   });
 
   it("are all written so the parser reads them", () => {
-    // Counted with a looser pattern than the parser's: "@checked" not followed by a letter or
-    // "_" (identifiers). A glued "@checked2026-10-08", or a parser change that stops reading a
-    // form, shows up as a mismatch here instead of a date that silently never runs out.
-    for (const { path, text, checked, undated } of scans) {
-      const written = text.match(/@checked(?![a-z_])/gi)?.length ?? 0;
-      expect(checked.length + undated.length, `${path}: write markers as "(@checked YYYY-MM-DD)"`).toBe(written);
-    }
+    // Counted line by line with a looser pattern than the parser's: "@checked" not followed by a
+    // letter or "_" + letter (identifiers such as @checkedAt, @checked_at). A glued
+    // "@checked2026-10-08" or "@checked_2026-10-08", or a parser change that stops reading a
+    // form, shows up here with its line instead of a date that silently never runs out.
+    const unread = scans.flatMap(({ path, text, checked, undated }) => {
+      const read = [...checked.map((c) => c.where), ...undated.map((u) => u.split(": ")[0]!)];
+      return text.split("\n").flatMap((line, i) => {
+        const where = `${path}:${i + 1}`;
+        const written = line.match(/@checked(?![a-z]|_[a-z])/gi)?.length ?? 0;
+        return written > read.filter((w) => w === where).length ? [`${where}: write the marker as "(@checked YYYY-MM-DD)"`] : [];
+      });
+    });
+    expect(unread).toEqual([]);
     expect(scans.some((s) => s.checked.length > 0), "markers exist at all").toBe(true);
   });
 });
