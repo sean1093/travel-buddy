@@ -91,21 +91,28 @@ export function checkedContent(content: {
 
 /**
  * The marker a source comment uses for a dated check: `@checked` and the date,
- * written `(@checked 2026-10-08)` (any case; `:`, `=` or "on" allowed before the
- * date). The date runs up to the first character that can't be part of one, so
- * a date in brackets or before a comment's end reads cleanly, and anything but
- * YYYY-MM-DD is reported. No date at all is reported too. A date written as
+ * e.g. `(@checked 2026-10-08)`. Any case; spaces, `:`, `=`, `_`, "on" or nothing
+ * between them. Every `@checked` that isn't an identifier (`@checkedAt`,
+ * `@checked_at`) is a marker: the scan reads its date, or reports it. The date
+ * runs up to the first character that can't be part of one, so a date in
+ * brackets or before a comment's end reads cleanly, and anything but YYYY-MM-DD
+ * is reported. A marker without a date is reported, with a hint when a date
+ * follows an unusual separator (`@checked -- 2026-10-08`). A date written as
  * plain prose ("checked 2026-10-08") is not read and never runs out:
- * docs/content-guide.md §9 makes the marker the rule. `@checkedAt` or
- * `@checked_at` identifiers aren't markers; a glued `@checked2026-10-08` or
- * `@checked_2026-10-08` isn't either, and tests/source-dates.test.ts fails on it.
+ * docs/content-guide.md §9 makes the marker the rule.
  */
-const CHECKED_MARKER = /@checked\b(?:[\s:=]|on\b)*(\d[\w/-]*)?/gi;
+const CHECKED_MARKER = /@checked(?![a-z]|_[a-z])/gi;
+const MARKER_DATE = /^(?:[\s:=_]|on\b)*(\d[\w/-]*)/i;
+/** A date a few punctuation marks away: the marker has one, behind a separator it doesn't take. */
+const DATE_NEARBY = /^[^\w\n]{0,4}\d{4}/;
+
+export const MARKER_NEEDS_DATE = "the @checked marker needs a date after it";
+export const MARKER_FORMAT = 'write the marker as "(@checked YYYY-MM-DD)"';
 
 /**
  * Every `@checked` marker in a source file, in one pass: the dated ones as
  * checked entries (checkFreshness reports bad dates), and one problem per
- * marker without a date, which could never run out.
+ * marker without a readable date, which could never run out.
  */
 export function scanMarkers(path: string, source: string): { checked: Checked[]; undated: string[] } {
   const checked: Checked[] = [];
@@ -113,18 +120,10 @@ export function scanMarkers(path: string, source: string): { checked: Checked[];
   source.split("\n").forEach((line, i) => {
     const where = `${path}:${i + 1}`;
     for (const match of line.matchAll(CHECKED_MARKER)) {
-      const date = match[1];
-      if (date) {
-        checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
-        continue;
-      }
-      // A date right after an odd separator ("@checked-2026-…", "on2026-…"): say how to write it.
       const after = line.slice(match.index + match[0].length);
-      undated.push(
-        /^\S{0,3}\d/.test(after)
-          ? `${where}: write the marker as "(@checked YYYY-MM-DD)"`
-          : `${where}: the @checked marker needs a date after it`,
-      );
+      const date = MARKER_DATE.exec(after)?.[1];
+      if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
+      else undated.push(`${where}: ${DATE_NEARBY.test(after) ? MARKER_FORMAT : MARKER_NEEDS_DATE}`);
     }
   });
   return { checked, undated };
