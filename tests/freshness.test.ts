@@ -77,7 +77,17 @@ describe("scanMarkers", () => {
     });
   });
 
-  it.each(["(@checked 2026-10-08)", "@checked 2026-10-08", "/* @checked 2026-10-08*/", "[@checked 2026-10-08]", "@checked 2026-10-08; see below"])(
+  it.each([
+    "(@checked 2026-10-08)",
+    "@checked 2026-10-08",
+    "/* @checked 2026-10-08*/",
+    "[@checked 2026-10-08]",
+    "@checked 2026-10-08; see below",
+    "Sources: … (@checked 2026-10-08).",
+    "//@checked 2026-10-08",
+    "x -@checked 2026-10-08",
+    "https://a.jp/@checked 2026-10-08",
+  ])(
     "reads %j",
     (line) => expect(scan(line)).toEqual({ checked: [expect.objectContaining({ verified: "2026-10-08" })], problems: [] }),
   );
@@ -101,13 +111,20 @@ describe("scanMarkers", () => {
     "(@checked 2026-10-08x)",
     "(@checked 2026-10-08/09)",
     " * @checkedAt the time of the last check",
-  ])("reports %j with how to write the marker", (line) => expect(scan(line)).toEqual({ checked: [], problems: [`src/x.ts:1: ${MARKER_FORMAT}`] }));
+    "(@checked 2026-10-08–2026-11-01)",
+    "(@checked 2026-10-08.1)",
+    "// https://x.com/@checkedjapan",
+  ])("reports %j with the text and how to write the marker", (line) => {
+    const { checked, problems } = scan(line);
+    expect(checked).toEqual([]);
+    expect(problems).toEqual([expect.stringMatching(new RegExp(`^src/x\\.ts:1: "@checked.*": ${MARKER_FORMAT.replace(/[()]/g, "\\$&")}$`, "i"))]);
+  });
 
   it("reports each bad marker on a line", () => {
     expect(scan("// @checked (rules), @checked (links)").problems).toHaveLength(2);
   });
 
-  it.each(["// https://x.com/@checkedjapan", '"support@checked.jp"', "// see foo@checked"])("ignores %j, which isn't a marker", (line) =>
+  it.each(['"support@checked.jp"', "// see foo@checked", "// 名前@checked"])("ignores %j, right after a letter or digit", (line) =>
     expect(scan(line)).toEqual({ checked: [], problems: [] }),
   );
 

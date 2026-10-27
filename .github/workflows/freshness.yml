@@ -31,7 +31,7 @@ jobs:
 
       - run: npm ci
       - id: check
-        # Writes one list: deadlines, bad marker dates, and @checked markers without a date.
+        # Writes one list: deadlines, impossible dates, and @checked markers not written "@checked YYYY-MM-DD".
         run: npx vitest run tests/content-freshness.test.ts
         env:
           FRESHNESS_LEAD_DAYS: "30"

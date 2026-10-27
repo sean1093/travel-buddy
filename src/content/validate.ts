@@ -92,15 +92,16 @@ export function checkedContent(content: {
 /**
  * The marker a source comment uses for a dated check, written exactly
  * `@checked 2026-10-08`: `@checked`, one space, the date (e.g. inside brackets
- * or before a comment's end). `@checked` is reserved for it: any other use as a
- * word (another case, separator or spelling, or no date) is reported with how
- * to write it, so no form slips through unread. Inside a URL, an e-mail address
- * or another word it isn't a marker. A date written as plain prose ("checked
- * 2026-10-08") is not read and never runs out: docs/content-guide.md §9 makes
- * the marker the rule.
+ * or before a comment's end). `@checked` is reserved for it: any other use
+ * (another case, separator or spelling, no date, a range) is reported with how
+ * to write it, so no form slips through unread. Only right after a letter or
+ * digit, as in an e-mail address or a handle, is it not a marker. A date
+ * written as plain prose ("checked 2026-10-08") is not read and never runs
+ * out: docs/content-guide.md §9 makes the marker the rule.
  */
-const MARKER_WORD = /(?<![\w./@-])@checked/gi;
-const MARKER = /^@checked (\d{4}-\d{2}-\d{2})(?![\w/-])/;
+const MARKER_WORD = /(?<![\p{L}\p{N}_])@checked/giu;
+/** The date ends the marker: then the line ends, or a space or closing punctuation (not a range or "2026-10-08.1"). */
+const MARKER = /^@checked (\d{4}-\d{2}-\d{2})(?=$|[\s)\]};,*]|\.(?!\d))/;
 
 export const MARKER_FORMAT = 'write the marker as "@checked YYYY-MM-DD"';
 
@@ -116,7 +117,7 @@ export function scanMarkers(path: string, source: string): { checked: Checked[];
     for (const match of line.matchAll(MARKER_WORD)) {
       const date = MARKER.exec(line.slice(match.index))?.[1];
       if (date) checked.push({ where, verified: date, days: REVERIFY_AFTER_DAYS.comment });
-      else problems.push(`${where}: ${MARKER_FORMAT}`);
+      else problems.push(`${where}: "${line.slice(match.index, match.index + 24).trim()}": ${MARKER_FORMAT}`);
     }
   });
   return { checked, problems };
