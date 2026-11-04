@@ -1,10 +1,34 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from "vite";
+import { writeFileSync } from "node:fs";
+import { defineConfig, type Plugin } from "vite";
+import { GUIDES } from "./src/content/guides";
+import { renderGuidePage, sitemapXml } from "./src/seo/pages";
+
+/**
+ * Static pages for search engines (src/seo/pages.ts): each travel cheat sheet
+ * at guide/<id>/index.html in the Japan edition, and the sitemap at the site
+ * root (dist/sitemap.xml, next to the root page npm run build copies in).
+ */
+function staticPages(): Plugin {
+  return {
+    name: "static-pages",
+    apply: "build",
+    generateBundle() {
+      for (const guide of GUIDES) {
+        this.emitFile({ type: "asset", fileName: `guide/${guide.id}/index.html`, source: renderGuidePage(guide, GUIDES) });
+      }
+    },
+    closeBundle() {
+      writeFileSync(new URL("./dist/sitemap.xml", import.meta.url), sitemapXml(GUIDES));
+    },
+  };
+}
 
 export default defineConfig({
   // Relative asset URLs. Routing lives entirely in the hash, so the built site
   // works from any GitHub Pages subpath without hard-coding the repo name.
   base: "./",
+  plugins: [staticPages()],
   build: {
     // Each country edition is served from its own path; the root page
     // (site/index.html) is copied in by `npm run build`.

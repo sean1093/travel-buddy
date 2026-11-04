@@ -45,19 +45,27 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(request.mode === "navigate" ? navigation(request) : asset(request));
 });
 
-/** Pages: the network wins when it answers, so a new build is picked up at once. */
+/** The app's own page; any other page in scope (a static guide page) is not the shell. */
+const SHELL_PATHS = new Set([new URL("./", self.registration.scope).pathname, new URL("./index.html", self.registration.scope).pathname]);
+
+/**
+ * Pages: the network wins when it answers, so a new build is picked up at once.
+ * Only the app's own page is stored as the offline shell; another page (a static
+ * guide page) is kept under its own address, so it never replaces the app.
+ */
 async function navigation(request) {
+  const shell = SHELL_PATHS.has(new URL(request.url).pathname);
   try {
     const response = await fetch(request);
     // A 404 page or a captive portal's answer must never become the offline
     // shell, and a cache that refuses the write must not cost a good response.
     if (response.ok && response.type === "basic") {
       const cache = await caches.open(CACHE);
-      await cache.put("./index.html", response.clone()).catch(() => {});
+      await cache.put(shell ? "./index.html" : request, response.clone()).catch(() => {});
     }
     return response;
   } catch {
-    const cached = (await caches.match("./index.html")) ?? (await caches.match("./"));
+    const cached = shell ? ((await caches.match("./index.html")) ?? (await caches.match("./"))) : await caches.match(request);
     return cached ?? Response.error();
   }
 }

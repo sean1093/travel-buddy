@@ -4,6 +4,12 @@ Newest first. Every item goes through the "issue → development → PR → revi
 
 ## 2026-11-04
 
+### Travel cheat sheets in search
+- **Each travel cheat sheet has a page of its own**, e.g. `…/japan/guide/tax-refund/`. Search engines can show it as its own result: 出境退稅新制 (the new departure tax refund system), 新幹線大型行李 (large luggage on the Shinkansen), 看病與保險理賠 (seeing a doctor and insurance claims).
+  - It shows the steps, notes, sources and check date as a plain page that loads fast and needs no JavaScript.
+  - A button opens the same guide in the app, which works offline.
+- **Offline app stays the app:** after opening a guide page, the offline app still opens as the app, and the guide page is kept offline under its own address.
+
 ### Search and sharing
 - **Found in search:** a title and description written for Taiwanese searches about Japan travel (不會日文也能在日本求救、問路、點餐 (get help, ask the way and order in Japan without Japanese)), a canonical address, structured data that describes the app as a free web app, and a sitemap for Google Search Console.
 - **Link previews:** sharing the link on LINE, Facebook or X now shows a preview card with the app's name, what it does and an image.
