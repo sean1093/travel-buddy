@@ -1,5 +1,5 @@
 import { GUIDES, guideById } from "../src/content/guides";
-import { expect, SAMPLE_PROFILE, test } from "./fixtures";
+import { expect, SAMPLE_PROFILE, serviceWorkerInControl, test } from "./fixtures";
 
 // What crawlers and link previews get from the built site. tests/seo.test.ts checks
 // the source files; this checks that the build keeps them and serves what they name.
@@ -67,12 +67,7 @@ test.describe("travel cheat sheets as pages of their own", () => {
   test("visiting one doesn't replace the offline app", async ({ page, context, seed }) => {
     await seed({ profile: SAMPLE_PROFILE });
     await page.goto("./");
-    await page.evaluate(async () => {
-      await navigator.serviceWorker.ready;
-      if (!navigator.serviceWorker.controller) {
-        await new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
-      }
-    });
+    await serviceWorkerInControl(page);
     await page.goto(`guide/${GUIDES[0]!.id}/`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(GUIDES[0]!.title);
     await context.setOffline(true);
@@ -91,12 +86,7 @@ test.describe("travel cheat sheets as pages of their own", () => {
   test("a guide page never opened online opens the same guide in the app when offline", async ({ page, context, seed }) => {
     await seed({ profile: SAMPLE_PROFILE });
     await page.goto("./");
-    await page.evaluate(async () => {
-      await navigator.serviceWorker.ready;
-      if (!navigator.serviceWorker.controller) {
-        await new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
-      }
-    });
+    await serviceWorkerInControl(page);
     const guide = GUIDES[1]!;
     await context.setOffline(true);
     try {

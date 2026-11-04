@@ -1,6 +1,6 @@
 /// <reference types="vitest/config" />
 import { copyFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import { GUIDES } from "./src/content/guides";
 import { renderGuidePage, sitemapXml } from "./src/seo/pages";
@@ -21,6 +21,9 @@ function staticPages(): Plugin {
       }
     },
     writeBundle(options) {
+      // The site root is one level above the edition (dist/japan → dist). With any other
+      // outDir that would be a source folder, so refuse rather than overwrite index.html.
+      if (basename(options.dir!) !== "japan") throw new Error(`static-pages: outDir must be <site>/japan, got ${options.dir}`);
       const siteRoot = resolve(options.dir!, "..");
       copyFileSync(new URL("./site/index.html", import.meta.url), resolve(siteRoot, "index.html"));
       writeFileSync(resolve(siteRoot, "sitemap.xml"), sitemapXml(GUIDES));

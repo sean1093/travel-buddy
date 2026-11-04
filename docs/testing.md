@@ -73,7 +73,7 @@ For each case it checks three things:
 
 ## Offline in e2e
 
-`playwright.config.ts` sets `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1`. Without it, `context.setOffline()` does not reach the service worker's own requests: the worker quietly fetches from the network, and an "offline" test passes without ever using the offline cache. That hid a real bug (the app opened blank offline) until 2026-11-04. Don't remove it.
+`playwright.config.ts` sets `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1`. Without it, `context.setOffline()` does not reach the service worker's own requests: the worker quietly fetches from the network, and an "offline" test passes without ever using the offline cache. That hid a real bug (the app opened blank offline) until 2026-11-04. Don't remove it. If a Playwright upgrade ever stops honouring it, the e2e test "a guide page never opened online opens the same guide in the app when offline" fails (the worker would load the page from the network instead of redirecting), so the offline tests can't go back to passing falsely without anyone noticing.
 
 ## Running the tests
 

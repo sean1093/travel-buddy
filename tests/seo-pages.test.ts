@@ -64,7 +64,10 @@ describe("colours", () => {
     ["dark", ':root[data-theme="dark"]'],
   ] as const)("match the app's %s tokens in src/style.css", (theme, selector) => {
     const app = tokens(selector);
-    for (const [name, value] of Object.entries(PAGE_COLOURS[theme])) expect(value, `--${name}`).toBe(hex(app[name]!));
+    for (const [name, value] of Object.entries(PAGE_COLOURS[theme])) {
+      expect(app[name], `--${name} in style.css`).toBeDefined();
+      expect(value, `--${name}`).toBe(hex(app[name]!));
+    }
   });
 });
 

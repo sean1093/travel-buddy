@@ -46,6 +46,8 @@ self.addEventListener("fetch", (event) => {
 });
 
 /** The app's own page; any other page in scope (a static guide page) is not the shell. */
+/** Where the static guide pages live: <scope>guide/<id>/. */
+const GUIDE_PATH = new URL("./guide/", self.registration.scope).pathname;
 const SHELL_PATHS = new Set([new URL("./", self.registration.scope).pathname, new URL("./index.html", self.registration.scope).pathname]);
 
 /**
@@ -64,7 +66,11 @@ async function navigation(request) {
     // shell, and a cache that refuses the write must not cost a good response.
     if (response.ok && response.type === "basic") {
       const cache = await caches.open(CACHE);
-      await cache.put(shell ? "./index.html" : key, response.clone()).catch(() => {});
+      // After a redirect (…/guide/x → …/guide/x/), keep it under the address it ended at:
+      // a redirected response can't answer a navigation to the address that redirected.
+      const final = new URL(response.url || request.url);
+      const target = shell ? "./index.html" : response.redirected ? final.origin + final.pathname : key;
+      await cache.put(target, response.clone()).catch(() => {});
     }
     return response;
   } catch {
@@ -72,7 +78,7 @@ async function navigation(request) {
     const cached = await caches.match(key, { ignoreVary: true });
     if (cached) return cached;
     // A guide page never opened online: the same guide is in the app, which works offline.
-    const guide = /\/guide\/([a-z0-9-]+)\/?$/.exec(url.pathname)?.[1];
+    const guide = url.pathname.startsWith(GUIDE_PATH) ? /^([a-z0-9-]+)\/?$/.exec(url.pathname.slice(GUIDE_PATH.length))?.[1] : undefined;
     return guide ? Response.redirect(new URL(`./#/guide/${guide}`, self.registration.scope).href, 302) : Response.error();
   }
 }
@@ -90,7 +96,8 @@ async function asset(request) {
   const response = await fetch(request);
   if (response.ok && response.type === "basic") {
     const cache = await caches.open(CACHE);
-    await cache.put(request, response.clone());
+    // A full or refusing cache must not cost the response the page is waiting for.
+    await cache.put(request, response.clone()).catch(() => {});
   }
   return response;
 }
