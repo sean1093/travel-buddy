@@ -39,6 +39,11 @@ test("the tab title follows the page, and home gets the full title back", async 
   await expect(page).toHaveTitle("交通｜隨身旅伴・日本");
   await page.goto("#/help");
   await expect(page).toHaveTitle("我需要幫忙｜隨身旅伴・日本");
+  await page.goto("#/guide/tax-refund");
+  await expect(page).toHaveTitle("出境退稅新制｜隨身旅伴・日本");
+  await page.goto("#/tools");
+  await expect(page).toHaveTitle("推薦的免費工具｜隨身旅伴・日本");
+  // The router resets the title before each page: home, which names nothing, gets its own back.
   await page.goto("#/");
   await expect(page).toHaveTitle(home);
 });

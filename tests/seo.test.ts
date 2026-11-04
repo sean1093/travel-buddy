@@ -92,6 +92,7 @@ describe("the root page (site/index.html)", () => {
 
   it("gives link previews the same card as the app page", () => {
     for (const key of ["og:site_name", "og:locale", "og:title", "og:description", "og:image", "og:image:width", "og:image:height", "og:image:alt", "twitter:card"]) {
+      expect(meta(app, key), `${key} on the app page`).toBeTruthy();
       expect(meta(root, key), key).toBe(meta(app, key));
     }
   });
@@ -118,6 +119,15 @@ describe("link-preview image (public/og-image.png)", () => {
     const png = read("public/og-image.png");
     expect(png.subarray(1, 4).toString()).toBe("PNG");
     expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
+  });
+});
+
+describe("test date", () => {
+  it("is the same for the e2e tests and the screenshots, so both show the same day", () => {
+    const e2e = read("e2e/fixtures.ts").toString("utf8").match(/TEST_NOW = new Date\("([^"]+)"\)/)?.[1];
+    const shots = read("scripts/screenshots.cjs").toString("utf8").match(/setFixedTime\(new Date\("([^"]+)"\)\)/)?.[1];
+    expect(e2e).toBeTruthy();
+    expect(shots).toBe(e2e);
   });
 });
 

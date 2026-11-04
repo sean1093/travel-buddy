@@ -24,7 +24,8 @@ export function page(
   root: HTMLElement,
   title: string,
   body: Child[],
-  options: { back?: string; backLabel?: string; icon?: Child } = {},
+  /** `docTitle`: the tab and history title when it differs from the heading (a guide under 旅遊小抄). */
+  options: { back?: string; backLabel?: string; icon?: Child; docTitle?: string } = {},
 ): void {
   const compact = h(
     "span",
@@ -54,7 +55,7 @@ export function page(
     compact,
   );
   fill(root, header, large, h("main", { class: "px-4 pb-16" }, body));
-  setTitle(title);
+  setTitle(options.docTitle ?? title);
   if (typeof IntersectionObserver === "undefined") return;
   titleObserver = new IntersectionObserver(([entry]) => compact.classList.toggle("opacity-0", entry?.isIntersecting ?? true), {
     // Measured, not fixed: the bar grows with the text size and the safe-area inset.

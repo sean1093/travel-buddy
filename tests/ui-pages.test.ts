@@ -162,6 +162,17 @@ describe("page layout", () => {
     }
   });
 
+  it("names the tools page by its own title, not 旅遊小抄", async () => {
+    const { renderTools } = await import("../src/ui/guide");
+    try {
+      renderTools(app());
+      expect(document.title).toBe("推薦的免費工具｜隨身旅伴・日本");
+      expect(app().querySelector("h1")!.textContent).toBe("旅遊小抄");
+    } finally {
+      document.title = "";
+    }
+  });
+
   it("names each travel cheat sheet by its own title", async () => {
     const { GUIDES } = await import("../src/content/guides");
     const { renderGuide } = await import("../src/ui/guide");

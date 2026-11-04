@@ -3,7 +3,7 @@ import { voiceStatus } from "../lib/speech";
 import { isEmpty, isPlannedFor, loadProfile, type Place, type Profile, today } from "../profile/profile";
 import { fill, h, icon, pictogram } from "./dom";
 import { guideRows } from "./guide";
-import { heading, setTitle } from "./layout";
+import { heading } from "./layout";
 import { pickPlace } from "./scene";
 
 // Pictogram beside the label: two columns of short buttons fit all ten scenes on about one screen.
@@ -54,7 +54,6 @@ function todayRow(places: Place[]): HTMLElement {
 }
 
 export function renderHome(root: HTMLElement): void {
-  setTitle();
   const profile = loadProfile();
   const empty = isEmpty(profile);
   const places = todaysPlaces(profile);

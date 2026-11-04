@@ -49,7 +49,7 @@ function route(): void {
   const [name = "", ...args] = location.hash.replace(/^#\/?/, "").split("/");
   // hasOwn: the name comes from the URL, and "constructor" must not reach Object.prototype.
   const render = Object.hasOwn(PAGES, name) ? PAGES[name]! : PAGES[""]!;
-  // Home's title unless the page names itself, so no page keeps the previous one's.
+  // Home's title (home itself sets none), unless the page names itself: no page keeps the previous one's.
   setTitle();
   render(root, args);
   if (routed) focusHeading(root);

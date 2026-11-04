@@ -1,7 +1,7 @@
 import { GUIDES, guideById } from "../content/guides";
 import { TOOLS } from "../content/tools";
 import { h, icon } from "./dom";
-import { heading, page, section, setTitle } from "./layout";
+import { heading, page, section } from "./layout";
 
 function row(href: string, title: string, summary: string): HTMLElement {
   return h(
@@ -70,8 +70,7 @@ export function renderTools(root: HTMLElement): void {
       ),
     ),
     section(null, h("p", { class: "text-base text-muted" }, "日本政府觀光局的 24 小時中文熱線在「我需要幫忙」頁。")),
-  ]);
-  setTitle("推薦的免費工具");
+  ], { docTitle: "推薦的免費工具" });
 }
 
 /** `#/guide/<id>`: numbered steps, then what goes wrong, then where it comes from. */
@@ -81,6 +80,7 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
     location.replace("#/");
     return;
   }
+  // The heading says 旅遊小抄; the tab and history name the guide itself.
   page(root, "旅遊小抄", [
     h("h2", { class: "mt-2 text-2xl font-bold leading-snug" }, guide.title),
     h("p", { class: "mt-2 text-lg leading-relaxed text-muted" }, guide.summary),
@@ -120,7 +120,5 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
         `查證日期：${guide.verified}。來源：${guide.sources.map((url) => new URL(url).hostname).join("、")}。規定可能會改，以現場人員的說明為準。`,
       ),
     ),
-  ]);
-  // Each guide is its own entry in tabs and history, not all "旅遊小抄".
-  setTitle(guide.title);
+  ], { docTitle: guide.title });
 }
