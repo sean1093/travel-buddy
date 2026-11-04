@@ -5,7 +5,7 @@
  * a real phone is listed in docs/testing.md.
  */
 import type { Page } from "@playwright/test";
-import { expect, SAMPLE_PROFILE, test } from "./fixtures";
+import { expect, SAMPLE_PROFILE, TEST_NOW, test } from "./fixtures";
 
 /** Records what the app asks the speech engine to do; installed before any app script runs. */
 async function fakeSpeech(page: Page): Promise<void> {
@@ -259,6 +259,8 @@ test("6. a share link survives being sent: URL-safe, short enough, and imports e
   expect(link.length, "fits a messenger link (LINE, SMS split)").toBeLessThan(2000);
 
   const context = await browser.newContext({ locale: "zh-TW" });
+  // The fixture pins only its own page's clock; this context gets the same day.
+  await context.clock.setFixedTime(TEST_NOW);
   try {
     const other = await context.newPage();
     await other.goto(link);

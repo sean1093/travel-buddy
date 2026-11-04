@@ -2,6 +2,7 @@ import "./style.css";
 import { onVoicesChanged } from "./lib/speech";
 import { applySettings } from "./state";
 import { focusHeading } from "./ui/dom";
+import { setTitle } from "./ui/layout";
 import { renderGuide, renderTools } from "./ui/guide";
 import { renderHelp } from "./ui/help";
 import { renderHome } from "./ui/home";
@@ -48,6 +49,8 @@ function route(): void {
   const [name = "", ...args] = location.hash.replace(/^#\/?/, "").split("/");
   // hasOwn: the name comes from the URL, and "constructor" must not reach Object.prototype.
   const render = Object.hasOwn(PAGES, name) ? PAGES[name]! : PAGES[""]!;
+  // Home's title unless the page names itself, so no page keeps the previous one's.
+  setTitle();
   render(root, args);
   if (routed) focusHeading(root);
   routed = true;

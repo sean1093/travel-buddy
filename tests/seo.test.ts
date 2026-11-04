@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { SCENES } from "../src/content/scenes";
+import { HOME_TITLE } from "../src/ui/layout";
 
 /**
  * What search engines and link previews (LINE, Facebook, X) read. Routes live in
@@ -27,6 +29,10 @@ describe("the app page (index.html)", () => {
     // Search results cut titles at about 30 CJK characters.
     expect(title(app)).toMatch(/^隨身旅伴・日本｜/);
     expect([...title(app)!].length).toBeLessThanOrEqual(30);
+  });
+
+  it("is the title the app gives home when you come back to it", () => {
+    expect(title(app)).toBe(HOME_TITLE);
   });
 
   it("has a description that fits a search result", () => {
@@ -66,6 +72,11 @@ describe("the app page (index.html)", () => {
     expect(noscript.replace(/<[^>]+>/g, "").length).toBeGreaterThan(100);
   });
 
+  it("names every scene in the no-JavaScript summary", () => {
+    const noscript = app.match(/<noscript>([\s\S]*?)<\/noscript>/)?.[1] ?? "";
+    for (const scene of SCENES) expect(noscript, scene.title).toContain(scene.title);
+  });
+
   it("keeps the no-referrer policy: share links carry personal data in the #", () => {
     expect(meta(app, "referrer")).toBe("no-referrer");
   });
@@ -77,6 +88,12 @@ describe("the root page (site/index.html)", () => {
     expect(meta(root, "og:url")).toBe(SITE_URL);
     expect(meta(root, "og:image")).toBe(OG_IMAGE);
     expect(meta(root, "description")).toBeTruthy();
+  });
+
+  it("gives link previews the same card as the app page", () => {
+    for (const key of ["og:site_name", "og:locale", "og:title", "og:description", "og:image", "og:image:width", "og:image:height", "og:image:alt", "twitter:card"]) {
+      expect(meta(root, key), key).toBe(meta(app, key));
+    }
   });
 
   it("forwards without JavaScript too", () => {

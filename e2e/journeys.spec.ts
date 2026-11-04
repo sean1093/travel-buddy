@@ -1,4 +1,4 @@
-import { expect, SAMPLE_PROFILE, test, watchErrors } from "./fixtures";
+import { expect, SAMPLE_PROFILE, TEST_NOW, test, watchErrors } from "./fixtures";
 
 test("first run with an empty profile: home invites setup", async ({ page, seed }) => {
   await seed();
@@ -114,6 +114,8 @@ test("setup → share link → import in a fresh browser", async ({ page, seed, 
   expect(new URL(link).hash).toMatch(/^#\/s\//);
 
   const context = await browser.newContext();
+  // The fixture pins only its own page's clock; this context gets the same day.
+  await context.clock.setFixedTime(TEST_NOW);
   try {
     const other = await context.newPage();
     const errors: string[] = [];

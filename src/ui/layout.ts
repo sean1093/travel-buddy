@@ -3,11 +3,8 @@ import { fill, h, icon, type Child } from "./dom";
 /** The edition's name, after a page's own title in the tab ("交通｜隨身旅伴・日本"). */
 export const SITE_NAME = "隨身旅伴・日本";
 
-/**
- * The home page's full title, as index.html has it for search engines; read
- * once, before any page changes it.
- */
-const HOME_TITLE = typeof document === "undefined" ? SITE_NAME : document.title || SITE_NAME;
+/** The home page's full title: the same as index.html's <title> (tests/seo.test.ts checks). */
+export const HOME_TITLE = `${SITE_NAME}｜不會日文也能在日本求救、問路、點餐`;
 
 /**
  * The tab and history title: the page's own name first, so tabs, bookmarks and

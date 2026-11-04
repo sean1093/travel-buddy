@@ -158,7 +158,7 @@ Routes live in the `#` fragment, which search engines ignore, so `https://sean10
   - a `<noscript>` summary for crawlers that don't run JavaScript
 - **`site/index.html`:** the root page is canonical to the Japan edition and forwards without JavaScript too.
 - **`site/sitemap.xml`:** copied to `dist/` by `npm run build`, so it is served at `https://sean1093.github.io/travel-buddy/sitemap.xml`.
-- **Tab titles:** each page sets its own (`setTitle` in `src/ui/layout.ts`, e.g. 「交通｜隨身旅伴・日本」), for tabs, bookmarks and screen readers. Home gets the full title back.
+- **Tab titles:** the router resets the title to home's before each page, and each page sets its own (`setTitle` in `src/ui/layout.ts`, e.g. 交通｜隨身旅伴・日本 (Transport ｜ TravelBuddy Japan); a cheat sheet uses its own title). For tabs, bookmarks and screen readers.
 - **Link-preview image:** `public/og-image.png`. Re-render it after changing its copy: `CHROMIUM=/path/to/chrome NODE_PATH=$(npm root -g) node scripts/og-image.cjs`.
 - **robots.txt:** a project site on GitHub Pages can't have one. It only counts at the domain root (`sean1093.github.io/robots.txt`), which belongs to the `sean1093.github.io` repository. Nothing is blocked, and the sitemap is submitted through Search Console instead.
 
