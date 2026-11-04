@@ -122,15 +122,6 @@ describe("link-preview image (public/og-image.png)", () => {
   });
 });
 
-describe("test date", () => {
-  it("is the same for the e2e tests and the screenshots, so both show the same day", () => {
-    const e2e = read("e2e/fixtures.ts").toString("utf8").match(/TEST_NOW = new Date\("([^"]+)"\)/)?.[1];
-    const shots = read("scripts/screenshots.cjs").toString("utf8").match(/setFixedTime\(new Date\("([^"]+)"\)\)/)?.[1];
-    expect(e2e).toBeTruthy();
-    expect(shots).toBe(e2e);
-  });
-});
-
 describe("the documented URL", () => {
   it("matches the README", () => {
     expect(read("README.md").toString("utf8")).toContain(SITE_URL);

@@ -24,8 +24,13 @@ export function page(
   root: HTMLElement,
   title: string,
   body: Child[],
-  /** `docTitle`: the tab and history title when it differs from the heading (a guide under 旅遊小抄). */
-  options: { back?: string; backLabel?: string; icon?: Child; docTitle?: string } = {},
+  options: {
+    back?: string;
+    backLabel?: string;
+    icon?: Child;
+    /** The tab and history title when it differs from the heading, e.g. a guide or the tools page under 旅遊小抄. */
+    docTitle?: string;
+  } = {},
 ): void {
   const compact = h(
     "span",

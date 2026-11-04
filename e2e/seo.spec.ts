@@ -1,3 +1,4 @@
+import { guideById } from "../src/content/guides";
 import { expect, SAMPLE_PROFILE, test } from "./fixtures";
 
 // What crawlers and link previews get from the built site. tests/seo.test.ts checks
@@ -40,7 +41,7 @@ test("the tab title follows the page, and home gets the full title back", async 
   await page.goto("#/help");
   await expect(page).toHaveTitle("我需要幫忙｜隨身旅伴・日本");
   await page.goto("#/guide/tax-refund");
-  await expect(page).toHaveTitle("出境退稅新制｜隨身旅伴・日本");
+  await expect(page).toHaveTitle(`${guideById("tax-refund")!.title}｜隨身旅伴・日本`);
   await page.goto("#/tools");
   await expect(page).toHaveTitle("推薦的免費工具｜隨身旅伴・日本");
   // The router resets the title before each page: home, which names nothing, gets its own back.

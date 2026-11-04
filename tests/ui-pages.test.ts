@@ -162,6 +162,20 @@ describe("page layout", () => {
     }
   });
 
+  it("gives home its own title back after another page", async () => {
+    const { GUIDES } = await import("../src/content/guides");
+    const { renderGuide } = await import("../src/ui/guide");
+    const { renderHome } = await import("../src/ui/home");
+    const { HOME_TITLE } = await layout();
+    try {
+      renderGuide(app(), [GUIDES[0]!.id]);
+      renderHome(app());
+      expect(document.title).toBe(HOME_TITLE);
+    } finally {
+      document.title = "";
+    }
+  });
+
   it("names the tools page by its own title, not 旅遊小抄", async () => {
     const { renderTools } = await import("../src/ui/guide");
     try {
