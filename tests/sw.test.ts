@@ -12,8 +12,4 @@ describe("service worker (public/sw.js)", () => {
     expect(() => new Script(source, { filename: "sw.js" })).not.toThrow();
   });
 
-  it("stores only the app's own page as the offline shell", () => {
-    // Other pages in scope (the static guide pages) are cached under their own address.
-    expect(source).toMatch(/cache\.put\(shell \? "\.\/index\.html" : request,/);
-  });
 });

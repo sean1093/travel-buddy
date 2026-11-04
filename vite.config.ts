@@ -1,13 +1,15 @@
 /// <reference types="vitest/config" />
-import { writeFileSync } from "node:fs";
+import { copyFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import { GUIDES } from "./src/content/guides";
 import { renderGuidePage, sitemapXml } from "./src/seo/pages";
 
 /**
- * Static pages for search engines (src/seo/pages.ts): each travel cheat sheet
- * at guide/<id>/index.html in the Japan edition, and the sitemap at the site
- * root (dist/sitemap.xml, next to the root page npm run build copies in).
+ * The pages outside the app (src/seo/pages.ts): each travel cheat sheet at
+ * guide/<id>/index.html in the Japan edition, and, one level up at the site
+ * root, the root page (site/index.html) and the sitemap. writeBundle runs only
+ * after a successful build, into whatever outDir is configured.
  */
 function staticPages(): Plugin {
   return {
@@ -18,8 +20,10 @@ function staticPages(): Plugin {
         this.emitFile({ type: "asset", fileName: `guide/${guide.id}/index.html`, source: renderGuidePage(guide, GUIDES) });
       }
     },
-    closeBundle() {
-      writeFileSync(new URL("./dist/sitemap.xml", import.meta.url), sitemapXml(GUIDES));
+    writeBundle(options) {
+      const siteRoot = resolve(options.dir!, "..");
+      copyFileSync(new URL("./site/index.html", import.meta.url), resolve(siteRoot, "index.html"));
+      writeFileSync(resolve(siteRoot, "sitemap.xml"), sitemapXml(GUIDES));
     },
   };
 }
@@ -31,7 +35,7 @@ export default defineConfig({
   plugins: [staticPages()],
   build: {
     // Each country edition is served from its own path; the root page
-    // (site/index.html) is copied in by `npm run build`.
+    // (site/index.html) and the sitemap are written next to it by staticPages().
     outDir: "dist/japan",
     emptyOutDir: true,
   },

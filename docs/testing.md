@@ -71,6 +71,10 @@ For each case it checks three things:
 - Every visible button and link must have an accessible name.
 - Tappable targets must be at least 44px tall. This covers the page header, the content and any open layer.
 
+## Offline in e2e
+
+`playwright.config.ts` sets `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1`. Without it, `context.setOffline()` does not reach the service worker's own requests: the worker quietly fetches from the network, and an "offline" test passes without ever using the offline cache. That hid a real bug (the app opened blank offline) until 2026-11-04. Don't remove it.
+
 ## Running the tests
 
 ```bash

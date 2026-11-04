@@ -20,6 +20,20 @@ const ESCAPES: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;"
 /** Text and attribute values for HTML. */
 export const esc = (text: string) => text.replace(/[&<>"']/g, (c) => ESCAPES[c]!);
 
+/**
+ * The app's colour tokens (src/style.css), for the static pages, which load no
+ * app CSS. tests/seo-pages.test.ts checks every value against style.css.
+ */
+export const PAGE_COLOURS = {
+  light: { paper: "#f4efe6", card: "#fbf8f2", ink: "#2b2a27", muted: "#6b6357", ai: "#3d4f7a", shu: "#a8402f", "warn-soft": "#f5eacd", "on-accent": "#ffffff" },
+  dark: { paper: "#1c1a17", card: "#282521", ink: "#ece6dc", muted: "#b0a89b", ai: "#a5b6e4", shu: "#e88c76", "warn-soft": "#44381c", "on-accent": "#181614" },
+} as const;
+
+const cssVars = (colours: Record<string, string>) =>
+  Object.entries(colours)
+    .map(([name, value]) => `--${name}: ${value};`)
+    .join(" ");
+
 /** JSON for a <script> block: "<" escaped, so no text in it can close the tag. */
 const json = (value: unknown) => JSON.stringify(value, null, 2).replace(/</g, "\\u003c");
 
@@ -67,7 +81,8 @@ export function renderGuidePage(guide: Guide, all: Guide[]): string {
     <title>${esc(title)}</title>
     <meta name="description" content="${esc(desc)}" />
     <link rel="canonical" href="${url}" />
-    <meta name="theme-color" content="#f4efe6" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="${PAGE_COLOURS.light.paper}" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="${PAGE_COLOURS.dark.paper}" />
     <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="隨身旅伴 TravelBuddy" />
@@ -83,31 +98,31 @@ export function renderGuidePage(guide: Guide, all: Guide[]): string {
 ${json(data)}
     </script>
     <style>
-      :root { --paper: #f4efe6; --card: #fbf8f2; --ink: #2b2a27; --muted: #6b6357; --ai: #3d4f7a; --shu: #a8402f; --warn: #f5eacd; color-scheme: light; }
+      :root { ${cssVars(PAGE_COLOURS.light)} color-scheme: light; }
       @media (prefers-color-scheme: dark) {
-        :root { --paper: #1c1a17; --card: #282521; --ink: #ece6dc; --muted: #b0a89b; --ai: #a5b6e4; --shu: #e88c76; --warn: #443819; color-scheme: dark; }
+        :root { ${cssVars(PAGE_COLOURS.dark)} color-scheme: dark; }
       }
       * { box-sizing: border-box; }
       body { margin: 0; background: var(--paper); color: var(--ink); font: 20px/1.7 "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; }
       main { max-width: 36rem; margin: 0 auto; padding: 24px 16px 48px; }
-      a { color: var(--ai); font-weight: 700; }
+      a { color: var(--ai); }
       .crumbs { font-size: 16px; color: var(--muted); }
-      h1 { font-family: "Noto Serif TC", "Songti TC", serif; font-size: 32px; line-height: 1.3; margin: 8px 0 0; }
+      h1 { font-family: "Noto Serif TC", "Source Han Serif TC", "Songti TC", "PMingLiU", serif; font-weight: 600; font-size: 32px; line-height: 1.3; margin: 8px 0 0; }
       .summary { color: var(--muted); margin: 8px 0 0; }
       ol { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; counter-reset: step; }
       ol li { counter-increment: step; background: var(--card); border-radius: 16px; padding: 16px 16px 16px 64px; position: relative; }
-      ol li::before { content: counter(step); position: absolute; left: 16px; top: 16px; width: 36px; height: 36px; border-radius: 50%; background: var(--ai); color: var(--paper); display: grid; place-items: center; font-weight: 700; }
-      h2 { font-size: 22px; margin: 0; }
+      ol li::before { content: counter(step); position: absolute; left: 16px; top: 16px; width: 36px; height: 36px; border-radius: 50%; background: var(--ai); color: var(--on-accent); display: grid; place-items: center; font-weight: 700; }
+      h2 { font-size: 22px; font-weight: 600; margin: 0; }
       ol p { margin: 4px 0 0; }
-      .notes { background: var(--warn); border-radius: 16px; padding: 16px; margin-top: 24px; }
-      .notes h2 { color: var(--shu); font-size: 18px; letter-spacing: .2em; }
+      .notes { background: var(--warn-soft); border-radius: 16px; padding: 16px; margin-top: 24px; }
+      .notes h2 { color: var(--shu); font-size: 18px; font-weight: 500; letter-spacing: .2em; }
       .notes ul { margin: 8px 0 0; padding-left: 1.4em; }
-      .open { display: block; margin-top: 24px; background: var(--ai); color: var(--paper); text-align: center; text-decoration: none; border-radius: 16px; padding: 16px; }
+      .open { display: block; margin-top: 24px; background: var(--ai); color: var(--on-accent); font-weight: 700; text-align: center; text-decoration: none; border-radius: 16px; padding: 16px; }
       .meta { font-size: 16px; color: var(--muted); margin-top: 24px; }
       .meta ul { padding-left: 1.2em; margin: 4px 0 0; }
-      .meta a { font-weight: 400; overflow-wrap: anywhere; }
+      .meta a { overflow-wrap: anywhere; }
       nav.more { margin-top: 32px; }
-      nav.more h2 { font-size: 18px; color: var(--muted); letter-spacing: .2em; }
+      nav.more h2 { font-size: 18px; font-weight: 500; color: var(--muted); letter-spacing: .2em; }
       nav.more ul { padding-left: 1.2em; }
     </style>
   </head>

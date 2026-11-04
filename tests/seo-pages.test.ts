@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { type Guide, GUIDES } from "../src/content/guides";
-import { esc, guideUrl, OG_IMAGE, renderGuidePage, SITE_URL } from "../src/seo/pages";
+import { esc, guideUrl, OG_IMAGE, PAGE_COLOURS, renderGuidePage, SITE_URL } from "../src/seo/pages";
+import { hex, tokens } from "./css-tokens";
 
 // The static travel-cheat-sheet pages written at build time (src/seo/pages.ts).
 const pages = GUIDES.map((guide) => ({ guide, html: renderGuidePage(guide, GUIDES) }));
@@ -54,6 +55,16 @@ describe.each(pages)("the page for $guide.id", ({ guide, html }) => {
 
   it("needs no script to read: no <script> but the structured data", () => {
     expect([...html.matchAll(/<script\b[^>]*>/g)].map((m) => m[0])).toEqual(['<script type="application/ld+json">']);
+  });
+});
+
+describe("colours", () => {
+  it.each([
+    ["light", ":root"],
+    ["dark", ':root[data-theme="dark"]'],
+  ] as const)("match the app's %s tokens in src/style.css", (theme, selector) => {
+    const app = tokens(selector);
+    for (const [name, value] of Object.entries(PAGE_COLOURS[theme])) expect(value, `--${name}`).toBe(hex(app[name]!));
   });
 });
 

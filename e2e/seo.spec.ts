@@ -79,9 +79,30 @@ test.describe("travel cheat sheets as pages of their own", () => {
     try {
       await page.goto("./");
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("媽媽，旅途平安");
-      // The guide page itself is there offline too, under its own address.
-      await page.goto(`guide/${GUIDES[0]!.id}/`);
+      // The guide page itself is there offline too, under its own address, with or without a
+      // share's ?fbclid=… (it was cached without the query).
+      await page.goto(`guide/${GUIDES[0]!.id}/?fbclid=abc`);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(GUIDES[0]!.title);
+    } finally {
+      await context.setOffline(false);
+    }
+  });
+
+  test("a guide page never opened online opens the same guide in the app when offline", async ({ page, context, seed }) => {
+    await seed({ profile: SAMPLE_PROFILE });
+    await page.goto("./");
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+      if (!navigator.serviceWorker.controller) {
+        await new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
+      }
+    });
+    const guide = GUIDES[1]!;
+    await context.setOffline(true);
+    try {
+      await page.goto(`guide/${guide.id}/`);
+      await expect(page).toHaveURL(new RegExp(`/japan/#/guide/${guide.id}$`));
+      await expect(page.getByRole("heading", { level: 2, name: guide.title })).toBeVisible();
     } finally {
       await context.setOffline(false);
     }
