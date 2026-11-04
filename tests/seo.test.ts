@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { GUIDES } from "../src/content/guides";
 import { SCENES } from "../src/content/scenes";
@@ -131,6 +131,18 @@ describe("link-preview image (public/og-image.png)", () => {
     const png = read("public/og-image.png");
     expect(png.subarray(1, 4).toString()).toBe("PNG");
     expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
+  });
+});
+
+describe("Google Search Console verification (site/google*.html)", () => {
+  const files = readdirSync(new URL("../site/", import.meta.url)).filter((f) => /^google[0-9a-f]+\.html$/.test(f));
+
+  it("keeps this property's file: removing it un-verifies the site", () => {
+    expect(files).toContain("googleba773c0e975ffdb4.html");
+  });
+
+  it("has each file as Google's exact one line, named after its own token", () => {
+    for (const file of files) expect(read(`site/${file}`).toString("utf8").trim(), file).toBe(`google-site-verification: ${file}`);
   });
 });
 
