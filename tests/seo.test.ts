@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { GUIDES } from "../src/content/guides";
 import { SCENES } from "../src/content/scenes";
@@ -135,12 +135,14 @@ describe("link-preview image (public/og-image.png)", () => {
 });
 
 describe("Google Search Console verification (site/google*.html)", () => {
-  it("is Google's exact one-line file, named after its own token", async () => {
-    const { readdirSync } = await import("node:fs");
-    const files = readdirSync(new URL("../site/", import.meta.url)).filter((f) => /^google[0-9a-f]+\.html$/.test(f));
-    // Removing it un-verifies the site in Search Console.
-    expect(files).toEqual(["googleba773c0e975ffdb4.html"]);
-    expect(read(`site/${files[0]}`).toString("utf8").trim()).toBe(`google-site-verification: ${files[0]}`);
+  const files = readdirSync(new URL("../site/", import.meta.url)).filter((f) => /^google[0-9a-f]+\.html$/.test(f));
+
+  it("keeps this property's file: removing it un-verifies the site", () => {
+    expect(files).toContain("googleba773c0e975ffdb4.html");
+  });
+
+  it("has each file as Google's exact one line, named after its own token", () => {
+    for (const file of files) expect(read(`site/${file}`).toString("utf8").trim(), file).toBe(`google-site-verification: ${file}`);
   });
 });
 

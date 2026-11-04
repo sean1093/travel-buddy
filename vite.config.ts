@@ -27,8 +27,10 @@ function staticPages(): Plugin {
       const siteRoot = resolve(options.dir!, "..");
       // Everything in site/ belongs at the site root: the root page, and the Google Search
       // Console verification file (googleXXXX.html), which must stay for verification to hold.
-      for (const file of readdirSync(new URL("./site/", import.meta.url))) {
-        copyFileSync(new URL(`./site/${file}`, import.meta.url), resolve(siteRoot, file));
+      // Files only, no dotfiles (a stray .DS_Store must not be deployed).
+      for (const entry of readdirSync(new URL("./site/", import.meta.url), { withFileTypes: true })) {
+        if (!entry.isFile() || entry.name.startsWith(".")) continue;
+        copyFileSync(new URL(`./site/${entry.name}`, import.meta.url), resolve(siteRoot, entry.name));
       }
       writeFileSync(resolve(siteRoot, "sitemap.xml"), sitemapXml(GUIDES));
     },
