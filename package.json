@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && node -e \"for (const f of ['index.html', 'sitemap.xml']) require('fs').copyFileSync('site/' + f, 'dist/' + f)\"",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

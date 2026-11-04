@@ -81,4 +81,14 @@ export const test = base.extend<Fixtures>({
   ],
 });
 
+/** Waits until the service worker is installed and controls the page, so the next load goes through it. */
+export async function serviceWorkerInControl(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller) {
+      await new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
+    }
+  });
+}
+
 export { expect };

@@ -1,4 +1,4 @@
-import { expect, SAMPLE_PROFILE, TEST_NOW, test, watchErrors } from "./fixtures";
+import { expect, SAMPLE_PROFILE, serviceWorkerInControl, TEST_NOW, test, watchErrors } from "./fixtures";
 
 test("first run with an empty profile: home invites setup", async ({ page, seed }) => {
   await seed();
@@ -162,13 +162,7 @@ for (const hash of ["#/nope", "#/scene/nope", "#/constructor"]) {
 test("offline: after the first visit, home and a scene still open", async ({ page, context, seed }) => {
   await seed({ profile: SAMPLE_PROFILE });
   await page.goto("#/");
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.ready;
-    // Wait for clients.claim(), so the reload below goes through the worker.
-    if (!navigator.serviceWorker.controller) {
-      await new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
-    }
-  });
+  await serviceWorkerInControl(page);
   await context.setOffline(true);
   try {
     await page.reload();

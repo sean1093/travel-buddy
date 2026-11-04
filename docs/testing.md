@@ -52,7 +52,7 @@ Rules of thumb:
 | Routing, unknown routes | — | — | routing journey |
 | Offline | — | — | offline journey |
 | Colours | `contrast.test.ts` | — | layout matrix (dark) |
-| Search and link previews | `seo.test.ts` | `ui-pages.test.ts` (tab titles) | `seo.spec.ts` |
+| Search and link previews, static guide pages | `seo.test.ts`, `seo-pages.test.ts`, `sw.test.ts` | `ui-pages.test.ts` (tab titles) | `seo.spec.ts` |
 
 ## Layout matrix
 
@@ -70,6 +70,10 @@ For each case it checks three things:
 - The page must not scroll sideways.
 - Every visible button and link must have an accessible name.
 - Tappable targets must be at least 44px tall. This covers the page header, the content and any open layer.
+
+## Offline in e2e
+
+`playwright.config.ts` sets `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1`. Without it, `context.setOffline()` does not reach the service worker's own requests: the worker quietly fetches from the network, and an "offline" test passes without ever using the offline cache. That hid a real bug (the app opened blank offline) until 2026-11-04. Don't remove it. If a Playwright upgrade ever stops honouring it, the e2e test "a guide page never opened online opens the same guide in the app when offline" fails (the worker would load the page from the network instead of redirecting), so the offline tests can't go back to passing falsely without anyone noticing.
 
 ## Running the tests
 
