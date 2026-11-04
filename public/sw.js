@@ -45,9 +45,9 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(request.mode === "navigate" ? navigation(request) : asset(request));
 });
 
-/** The app's own page; any other page in scope (a static guide page) is not the shell. */
 /** Where the static guide pages live: <scope>guide/<id>/. */
 const GUIDE_PATH = new URL("./guide/", self.registration.scope).pathname;
+/** The app's own page; any other page in scope (a static guide page) is not the shell. */
 const SHELL_PATHS = new Set([new URL("./", self.registration.scope).pathname, new URL("./index.html", self.registration.scope).pathname]);
 
 /**
