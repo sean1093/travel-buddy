@@ -25,6 +25,12 @@ test("the preview image and the sitemap are served where the tags say", async ({
   for (const guide of GUIDES) expect(text).toContain(`<loc>${SITE_URL}guide/${guide.id}/</loc>`);
 });
 
+test("the Search Console verification file is served at the site root", async ({ request, baseURL }) => {
+  const file = await request.get(new URL("../googleba773c0e975ffdb4.html", baseURL).href);
+  expect(file.ok()).toBe(true);
+  expect((await file.text()).trim()).toBe("google-site-verification: googleba773c0e975ffdb4.html");
+});
+
 test.describe("travel cheat sheets as pages of their own", () => {
   for (const guide of GUIDES) {
     test(`${guide.id}: built, readable without JavaScript, and links into the app`, async ({ browser, baseURL }) => {

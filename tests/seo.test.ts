@@ -134,6 +134,16 @@ describe("link-preview image (public/og-image.png)", () => {
   });
 });
 
+describe("Google Search Console verification (site/google*.html)", () => {
+  it("is Google's exact one-line file, named after its own token", async () => {
+    const { readdirSync } = await import("node:fs");
+    const files = readdirSync(new URL("../site/", import.meta.url)).filter((f) => /^google[0-9a-f]+\.html$/.test(f));
+    // Removing it un-verifies the site in Search Console.
+    expect(files).toEqual(["googleba773c0e975ffdb4.html"]);
+    expect(read(`site/${files[0]}`).toString("utf8").trim()).toBe(`google-site-verification: ${files[0]}`);
+  });
+});
+
 describe("the documented URL", () => {
   it("matches the README", () => {
     expect(read("README.md").toString("utf8")).toContain(SITE_URL);

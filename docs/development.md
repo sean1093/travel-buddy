@@ -60,6 +60,7 @@ public/
   og-image.png           link-preview image, 1200×630 (scripts/og-image.cjs renders it)
 site/
   index.html             redirect page at the site root (later becomes a country picker)
+  google*.html           Google Search Console verification file (keep it)
 tests/                   unit, content and component tests (Vitest)
 e2e/                     browser journeys and layout matrix (Playwright)
 scripts/
@@ -171,7 +172,7 @@ Routes live in the `#` fragment, which search engines ignore, so the app is one 
 
 Steps only the site owner can do (they need a Google account):
 
-1. In [Google Search Console](https://search.google.com/search-console), add the URL-prefix property `https://sean1093.github.io/travel-buddy/` and verify it. The HTML-tag method gives a `<meta name="google-site-verification">` line: add it to the `<head>` of `site/index.html` and `index.html`, then deploy.
+1. In [Google Search Console](https://search.google.com/search-console), add the URL-prefix property `https://sean1093.github.io/travel-buddy/` and verify it. Done with the HTML-file method: `site/googleba773c0e975ffdb4.html` is served at `https://sean1093.github.io/travel-buddy/googleba773c0e975ffdb4.html` (the build copies everything in `site/` to the site root). **Don't delete it**: Google re-checks it, and the property is un-verified without it.
 2. Under **Sitemaps**, submit `https://sean1093.github.io/travel-buddy/sitemap.xml`.
 3. Use **URL inspection** on `https://sean1093.github.io/travel-buddy/japan/` and click **Request indexing**. Do the same for each guide page (`…/japan/guide/<id>/`), or let the sitemap bring them in.
 4. Optional: do the same in Bing Webmaster Tools, which can import the property from Search Console.

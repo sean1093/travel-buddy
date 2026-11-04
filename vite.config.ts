@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import { copyFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import { GUIDES } from "./src/content/guides";
@@ -25,7 +25,11 @@ function staticPages(): Plugin {
       // outDir that would be a source folder, so refuse rather than overwrite index.html.
       if (basename(options.dir!) !== "japan") throw new Error(`static-pages: outDir must be <site>/japan, got ${options.dir}`);
       const siteRoot = resolve(options.dir!, "..");
-      copyFileSync(new URL("./site/index.html", import.meta.url), resolve(siteRoot, "index.html"));
+      // Everything in site/ belongs at the site root: the root page, and the Google Search
+      // Console verification file (googleXXXX.html), which must stay for verification to hold.
+      for (const file of readdirSync(new URL("./site/", import.meta.url))) {
+        copyFileSync(new URL(`./site/${file}`, import.meta.url), resolve(siteRoot, file));
+      }
       writeFileSync(resolve(siteRoot, "sitemap.xml"), sitemapXml(GUIDES));
     },
   };
