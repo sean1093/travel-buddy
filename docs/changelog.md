@@ -2,6 +2,13 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-11-04
+
+### Search and sharing
+- **Found in search:** a title and description written for Taiwanese searches about Japan travel ("不會日文也能在日本求救、問路、點餐"), a canonical address, structured data that describes the app as a free web app, and a sitemap for Google Search Console.
+- **Link previews:** sharing the link on LINE, Facebook or X now shows a preview card with the app's name, what it does and an image.
+- **Tab titles:** each page names itself in the browser tab and history, e.g. 「交通｜隨身旅伴・日本」. This also helps screen readers say where you are.
+
 ## 2026-10-27
 
 ### Content you can trust

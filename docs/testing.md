@@ -52,6 +52,7 @@ Rules of thumb:
 | Routing, unknown routes | — | — | routing journey |
 | Offline | — | — | offline journey |
 | Colours | `contrast.test.ts` | — | layout matrix (dark) |
+| Search and link previews | `seo.test.ts` | `ui-pages.test.ts` (tab titles) | `seo.spec.ts` |
 
 ## Layout matrix
 

@@ -4,7 +4,7 @@ import { dialable } from "../lib/phone";
 import { type CardBlock, helpCard, LINES } from "../profile/cards";
 import { loadProfile } from "../profile/profile";
 import { fill, h, icon, type IconName } from "./dom";
-import { dock, heading } from "./layout";
+import { dock, heading, setTitle } from "./layout";
 import { playButton } from "./japanese";
 import { lineNode } from "./lines";
 import { showToOther } from "./overlay";
@@ -49,6 +49,7 @@ export function callButton(label: string, sub: string, tel: string, numberOnly =
 
 /** `#/help`: the card to show a passer-by, station staff or the police. */
 export function renderHelp(root: HTMLElement): void {
+  setTitle("我需要幫忙");
   const profile = loadProfile();
   const blocks = helpCard(profile);
   const family = profile.contacts[0];

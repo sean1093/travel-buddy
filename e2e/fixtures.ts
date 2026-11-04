@@ -7,6 +7,13 @@ export const SAMPLE_PROFILE: Record<string, unknown> = JSON.parse(
 );
 
 export const PROFILE_KEY = "travelbuddy.japan.profile";
+
+/**
+ * Every test runs on the same day, before the sample trip starts. What the app
+ * shows depends on today (today's places come first, the current hotel), so
+ * without this a test written in October fails once the trip's dates arrive.
+ */
+export const TEST_NOW = new Date("2026-10-20T09:00:00+09:00");
 export const SETTINGS_KEY = "travelbuddy.japan.settings";
 
 export interface SeedOptions {
@@ -40,6 +47,8 @@ interface Fixtures {
   seed: (options?: SeedOptions) => Promise<void>;
   /** Auto: any uncaught exception or console error fails the test. */
   failOnErrors: void;
+  /** Auto: the page's clock reads TEST_NOW (timers still run normally). */
+  fixedDate: void;
 }
 
 /** Errors collected per page; exported so a test that opens its own context can watch that page too. */
@@ -54,6 +63,13 @@ export const test = base.extend<Fixtures>({
   seed: async ({ page }, use) => {
     await use((options) => seed(page, options));
   },
+  fixedDate: [
+    async ({ page }, use) => {
+      await page.clock.setFixedTime(TEST_NOW);
+      await use();
+    },
+    { auto: true },
+  ],
   failOnErrors: [
     async ({ page }, use) => {
       const errors: string[] = [];

@@ -1,5 +1,22 @@
 import { fill, h, icon, type Child } from "./dom";
 
+/** The edition's name, after a page's own title in the tab ("交通｜隨身旅伴・日本"). */
+export const SITE_NAME = "隨身旅伴・日本";
+
+/**
+ * The home page's full title, as index.html has it for search engines; read
+ * once, before any page changes it.
+ */
+const HOME_TITLE = typeof document === "undefined" ? SITE_NAME : document.title || SITE_NAME;
+
+/**
+ * The tab and history title: the page's own name first, so tabs, bookmarks and
+ * screen readers say where you are. Home (no name) gets the full title back.
+ */
+export function setTitle(name?: string): void {
+  document.title = name ? `${name}｜${SITE_NAME}` : HOME_TITLE;
+}
+
 /**
  * A page with a "back" link and a large title. Every page is one step from
  * home, so back always goes home unless `back` says otherwise. The title sits
@@ -40,6 +57,7 @@ export function page(
     compact,
   );
   fill(root, header, large, h("main", { class: "px-4 pb-16" }, body));
+  setTitle(title);
   if (typeof IntersectionObserver === "undefined") return;
   titleObserver = new IntersectionObserver(([entry]) => compact.classList.toggle("opacity-0", entry?.isIntersecting ?? true), {
     // Measured, not fixed: the bar grows with the text size and the safe-area inset.

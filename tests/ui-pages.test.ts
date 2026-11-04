@@ -147,6 +147,16 @@ describe("page layout", () => {
   });
 
   const layout = () => import("../src/ui/layout");
+
+  it("names the tab after the page, then the edition; home gets the full title back", async () => {
+    // index.html's full title, as the browser has it before any page changes it.
+    document.title = "隨身旅伴・日本｜不會日文也能在日本求救、問路、點餐";
+    const { page, setTitle } = await layout();
+    page(app(), "交通", body());
+    expect(document.title).toBe("交通｜隨身旅伴・日本");
+    setTitle();
+    expect(document.title).toBe("隨身旅伴・日本｜不會日文也能在日本求救、問路、點餐");
+  });
   const body = () => [document.createElement("p")];
 
   it("has a back link home and a large title", async () => {
