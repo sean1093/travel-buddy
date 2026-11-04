@@ -57,8 +57,10 @@ public/
   sw.js                  offline cache (network first for pages, cache first for assets)
   manifest.webmanifest   PWA settings
   favicon.svg icon-*.png apple-touch-icon.png
+  og-image.png           link-preview image, 1200×630 (scripts/og-image.cjs renders it)
 site/
   index.html             redirect page at the site root (later becomes a country picker)
+  sitemap.xml            sitemap at the site root, for Search Console
 tests/                   unit, content and component tests (Vitest)
 e2e/                     browser journeys and layout matrix (Playwright)
 scripts/
@@ -106,6 +108,7 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 | `store.test.ts` `state.test.ts` | Versioned local storage that survives bad data and blocked storage; settings parsing |
 | `speech.test.ts` | Voice ranking, voice status, speaking, interrupting, safety timeout (fake speech engine) |
 | `home.test.ts` `summary.test.ts` | Home page greeting, settings page summaries |
+| `seo.test.ts` | Title and description lengths, one canonical URL that every preview tag, the structured data, the root page and the sitemap point at, the preview image's size |
 | `site.test.ts` | The root redirect page goes to `./japan/` and keeps the `#` |
 | `ui-overlay.test.ts` | Full-screen layers: stacking, inert page, Escape and back button, focus trap and return; 給對方看 (Show them) and 給對方點選 (Let them tap) |
 | `ui-japanese.test.ts` | Ruby and romaji rendering, play buttons and their speaking state |
@@ -114,7 +117,7 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 
 The `ui-*` files run in happy-dom (`// @vitest-environment happy-dom`); the rest run in Node.
 
-`npm run test:e2e` runs `e2e/journeys.spec.ts` (first run, help, ask and answer, heard reply, symptoms, share and import, settings, unknown routes, offline), `e2e/device.spec.ts` (the device checks a browser can do: speech requests, voice choice, install and offline, sideways, print size, share links, screen-reader text; see [testing.md](testing.md#device-checks)), and `e2e/layout.spec.ts` (every main route and full-screen layer at 390 px, 320 px, extra-large text, dark and landscape: no sideways scroll, accessible names, 44 px targets). The e2e server runs on port 4310, so it never collides with the screenshot server on 4173.
+`npm run test:e2e` runs `e2e/seo.spec.ts` (what crawlers and link previews get from the built site, and tab titles), `e2e/journeys.spec.ts` (first run, help, ask and answer, heard reply, symptoms, share and import, settings, unknown routes, offline), `e2e/device.spec.ts` (the device checks a browser can do: speech requests, voice choice, install and offline, sideways, print size, share links, screen-reader text; see [testing.md](testing.md#device-checks)), and `e2e/layout.spec.ts` (every main route and full-screen layer at 390 px, 320 px, extra-large text, dark and landscape: no sideways scroll, accessible names, 44 px targets). The e2e server runs on port 4310, so it never collides with the screenshot server on 4173.
 
 ## Screenshots
 
@@ -142,6 +145,29 @@ https://sean1093.github.io/travel-buddy/japan/#/s/1.<data>   share link
 
 - The root redirect page keeps everything after the `#`, so share links that point at the root can still import data.
 - When there is a second country, the root becomes a country picker page (see [roadmap.md](roadmap.md)).
+
+### Search engines and link previews
+
+Routes live in the `#` fragment, which search engines ignore, so `https://sean1093.github.io/travel-buddy/japan/` is the one indexed page. Everything that describes it points there; `tests/seo.test.ts` and `e2e/seo.spec.ts` keep it in step.
+
+- **`index.html`:**
+  - title and description, written for Taiwanese searches about Japan travel
+  - canonical URL
+  - Open Graph and Twitter tags for link previews (LINE, Facebook, X)
+  - `WebApplication` structured data (JSON-LD)
+  - a `<noscript>` summary for crawlers that don't run JavaScript
+- **`site/index.html`:** the root page is canonical to the Japan edition and forwards without JavaScript too.
+- **`site/sitemap.xml`:** copied to `dist/` by `npm run build`, so it is served at `https://sean1093.github.io/travel-buddy/sitemap.xml`.
+- **Tab titles:** the router resets the title to home's before each page, and each page sets its own (`setTitle` in `src/ui/layout.ts`, e.g. 交通｜隨身旅伴・日本 (Transport ｜ TravelBuddy Japan); a cheat sheet uses its own title). For tabs, bookmarks and screen readers.
+- **Link-preview image:** `public/og-image.png`. Re-render it after changing its copy: `CHROMIUM=/path/to/chrome NODE_PATH=$(npm root -g) node scripts/og-image.cjs`.
+- **robots.txt:** a project site on GitHub Pages can't have one. It only counts at the domain root (`sean1093.github.io/robots.txt`), which belongs to the `sean1093.github.io` repository. Nothing is blocked, and the sitemap is submitted through Search Console instead.
+
+Steps only the site owner can do (they need a Google account):
+
+1. In [Google Search Console](https://search.google.com/search-console), add the URL-prefix property `https://sean1093.github.io/travel-buddy/` and verify it. The HTML-tag method gives a `<meta name="google-site-verification">` line: add it to the `<head>` of `site/index.html` and `index.html`, then deploy.
+2. Under **Sitemaps**, submit `https://sean1093.github.io/travel-buddy/sitemap.xml`.
+3. Use **URL inspection** on `https://sean1093.github.io/travel-buddy/japan/` and click **Request indexing**.
+4. Optional: do the same in Bing Webmaster Tools, which can import the property from Search Console.
 
 ### Local storage
 

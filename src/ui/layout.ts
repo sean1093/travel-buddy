@@ -1,5 +1,19 @@
 import { fill, h, icon, type Child } from "./dom";
 
+/** The edition's name, after a page's own title in the tab ("交通｜隨身旅伴・日本"). */
+export const SITE_NAME = "隨身旅伴・日本";
+
+/** The home page's full title: the same as index.html's <title> (tests/seo.test.ts checks). */
+export const HOME_TITLE = `${SITE_NAME}｜不會日文也能在日本求救、問路、點餐`;
+
+/**
+ * The tab and history title: the page's own name first, so tabs, bookmarks and
+ * screen readers say where you are. Home (no name) gets the full title back.
+ */
+export function setTitle(name?: string): void {
+  document.title = name ? `${name}｜${SITE_NAME}` : HOME_TITLE;
+}
+
 /**
  * A page with a "back" link and a large title. Every page is one step from
  * home, so back always goes home unless `back` says otherwise. The title sits
@@ -10,7 +24,13 @@ export function page(
   root: HTMLElement,
   title: string,
   body: Child[],
-  options: { back?: string; backLabel?: string; icon?: Child } = {},
+  options: {
+    back?: string;
+    backLabel?: string;
+    icon?: Child;
+    /** The tab and history title when it differs from the heading, e.g. a guide or the tools page under 旅遊小抄. */
+    docTitle?: string;
+  } = {},
 ): void {
   const compact = h(
     "span",
@@ -40,6 +60,7 @@ export function page(
     compact,
   );
   fill(root, header, large, h("main", { class: "px-4 pb-16" }, body));
+  setTitle(options.docTitle ?? title);
   if (typeof IntersectionObserver === "undefined") return;
   titleObserver = new IntersectionObserver(([entry]) => compact.classList.toggle("opacity-0", entry?.isIntersecting ?? true), {
     // Measured, not fixed: the bar grows with the text size and the safe-area inset.

@@ -4,11 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f4efe6" />
-    <title>隨身旅伴・日本 (TravelBuddy)</title>
+    <title>隨身旅伴・日本｜不會日文也能在日本求救、問路、點餐</title>
     <meta
       name="description"
-      content="不會日文也能在日本 10 秒內把事情辦完：替你念出日文，或放大給對方看。求救卡、交通與購物情境句、指指卡、醫療與過敏卡，離線也能用。"
+      content="出國不會日文也不怕：點一下就念出日文，或放大給店員、站務員看。求救卡、交通與購物會話、醫療與過敏卡，家人可先填好分享，免註冊、離線可用。"
     />
+    <!--
+      SEO and link previews. SITE_URL is https://sean1093.github.io/travel-buddy/japan/;
+      tests/seo.test.ts keeps every absolute URL here, the root page and the sitemap in step.
+      Routes live in the # fragment, which search engines ignore: this is the one indexed page.
+    -->
+    <link rel="canonical" href="https://sean1093.github.io/travel-buddy/japan/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="隨身旅伴 TravelBuddy" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:url" content="https://sean1093.github.io/travel-buddy/japan/" />
+    <meta property="og:title" content="隨身旅伴・日本｜不會日文，出國也不怕" />
+    <meta
+      property="og:description"
+      content="替你念出日文，或放大給對方看。求救、問路、點餐、看醫生，免註冊、離線可用。"
+    />
+    <meta property="og:image" content="https://sean1093.github.io/travel-buddy/japan/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="隨身旅伴・日本：我需要幫忙的求救按鈕，和放大給對方看的日文句子" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "隨身旅伴・日本",
+        "alternateName": "TravelBuddy Japan",
+        "url": "https://sean1093.github.io/travel-buddy/japan/",
+        "description": "出國不會日文也不怕：點一下就念出日文，或放大給店員、站務員看。求救卡、交通與購物會話、醫療與過敏卡，家人可先填好分享，免註冊、離線可用。",
+        "image": "https://sean1093.github.io/travel-buddy/japan/og-image.png",
+        "inLanguage": "zh-Hant-TW",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Any (web browser)",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TWD" }
+      }
+    </script>
     <!-- Personal data travels in the URL fragment: never leak the page URL to other sites. -->
     <meta name="referrer" content="no-referrer" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
@@ -40,7 +77,13 @@
   </head>
   <body>
     <div id="app" class="mx-auto min-h-dvh max-w-xl"></div>
-    <noscript>請開啟 JavaScript 才能使用隨身旅伴。</noscript>
+    <noscript>
+      <h1>隨身旅伴・日本</h1>
+      <p>請開啟 JavaScript 才能使用隨身旅伴。</p>
+      <p>
+        出國不會日文也不怕：點一下就念出日文，或放大給店員、站務員看。我需要幫忙的求救卡、交通、飯店、行李、餐廳、便利商店、購物、藥妝店、廁所・問路、帶小孩、緊急・醫療的情境會話，醫療卡與過敏卡，出境退稅與新幹線大型行李的旅遊小抄。家人可以先填好飯店、行程和聯絡人，再分享連結。免註冊，資料只存在手機裡，離線也能用。
+      </p>
+    </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

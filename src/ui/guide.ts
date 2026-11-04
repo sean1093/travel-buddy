@@ -32,8 +32,9 @@ export function guideRows(): HTMLElement {
 
 /** `#/tools`: free apps that already do a job well, named so they can be found in the app store. */
 export function renderTools(root: HTMLElement): void {
+  const title = "推薦的免費工具";
   page(root, "旅遊小抄", [
-    h("h2", { class: "mt-2 text-2xl font-bold leading-snug" }, "推薦的免費工具"),
+    h("h2", { class: "mt-2 text-2xl font-bold leading-snug" }, title),
     h(
       "p",
       { class: "mt-2 text-lg leading-relaxed text-muted" },
@@ -70,7 +71,7 @@ export function renderTools(root: HTMLElement): void {
       ),
     ),
     section(null, h("p", { class: "text-base text-muted" }, "日本政府觀光局的 24 小時中文熱線在「我需要幫忙」頁。")),
-  ]);
+  ], { docTitle: title });
 }
 
 /** `#/guide/<id>`: numbered steps, then what goes wrong, then where it comes from. */
@@ -80,6 +81,7 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
     location.replace("#/");
     return;
   }
+  // The heading says 旅遊小抄; the tab and history name the guide itself.
   page(root, "旅遊小抄", [
     h("h2", { class: "mt-2 text-2xl font-bold leading-snug" }, guide.title),
     h("p", { class: "mt-2 text-lg leading-relaxed text-muted" }, guide.summary),
@@ -119,5 +121,5 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
         `查證日期：${guide.verified}。來源：${guide.sources.map((url) => new URL(url).hostname).join("、")}。規定可能會改，以現場人員的說明為準。`,
       ),
     ),
-  ]);
+  ], { docTitle: guide.title });
 }

@@ -64,6 +64,9 @@ const SHOTS = [
   const errors = [];
   for (const shot of SHOTS) {
     const ctx = await browser.newContext({ viewport: shot.viewport ?? PHONE, deviceScaleFactor: 1, colorScheme: shot.theme ?? "light" });
+    // Same day as the e2e tests (TEST_NOW in e2e/fixtures.ts), before the sample trip: the
+    // screenshots don't change with the date they are taken on.
+    await ctx.clock.setFixedTime(new Date("2026-10-20T09:00:00+09:00"));
     const p = await ctx.newPage();
     p.on("pageerror", (e) => errors.push(`${shot.name}: ${e.message}`));
     await p.goto("http://localhost:4173/");

@@ -1,6 +1,7 @@
 import { isEmpty, loadProfile, type Profile, saveProfile } from "../profile/profile";
 import { decodeProfile } from "../share/codec";
 import { BUTTON, fill, focusHeading, h, icon, type IconName } from "./dom";
+import { setTitle } from "./layout";
 
 /**
  * `#/s/<payload>`: a shared profile arriving. The URL is replaced at once so
@@ -36,6 +37,7 @@ function done(root: HTMLElement, profile: Profile): void {
 }
 
 function screen(root: HTMLElement, glyph: IconName, title: string, body: string, actions: HTMLElement[]): void {
+  setTitle(title);
   fill(
     root,
     h(

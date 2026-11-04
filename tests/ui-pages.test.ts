@@ -147,7 +147,56 @@ describe("page layout", () => {
   });
 
   const layout = () => import("../src/ui/layout");
+
   const body = () => [document.createElement("p")];
+
+  it("names the tab after the page, then the edition; home gets the full title back", async () => {
+    const { HOME_TITLE, page, setTitle } = await layout();
+    try {
+      page(app(), "交通", body());
+      expect(document.title).toBe("交通｜隨身旅伴・日本");
+      setTitle();
+      expect(document.title).toBe(HOME_TITLE);
+    } finally {
+      document.title = "";
+    }
+  });
+
+  it("gives home its own title back after another page", async () => {
+    const { GUIDES } = await import("../src/content/guides");
+    const { renderGuide } = await import("../src/ui/guide");
+    const { renderHome } = await import("../src/ui/home");
+    const { HOME_TITLE } = await layout();
+    try {
+      renderGuide(app(), [GUIDES[0]!.id]);
+      renderHome(app());
+      expect(document.title).toBe(HOME_TITLE);
+    } finally {
+      document.title = "";
+    }
+  });
+
+  it("names the tools page by its own title, not 旅遊小抄", async () => {
+    const { renderTools } = await import("../src/ui/guide");
+    try {
+      renderTools(app());
+      expect(document.title).toBe("推薦的免費工具｜隨身旅伴・日本");
+      expect(app().querySelector("h1")!.textContent).toBe("旅遊小抄");
+    } finally {
+      document.title = "";
+    }
+  });
+
+  it("names each travel cheat sheet by its own title", async () => {
+    const { GUIDES } = await import("../src/content/guides");
+    const { renderGuide } = await import("../src/ui/guide");
+    try {
+      renderGuide(app(), [GUIDES[0]!.id]);
+      expect(document.title).toBe(`${GUIDES[0]!.title}｜隨身旅伴・日本`);
+    } finally {
+      document.title = "";
+    }
+  });
 
   it("has a back link home and a large title", async () => {
     (await layout()).page(app(), "醫療・過敏", body());
