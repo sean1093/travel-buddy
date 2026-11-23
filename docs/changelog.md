@@ -24,6 +24,9 @@ From an expert panel review (UX for older travellers, Japanese content, accessib
 - **Setup:** each 刪除 (Delete) button says which card it deletes, focus stays nearby after a delete, and 已儲存 (Saved) is said once a field is finished instead of on every key. A birth year that can't be kept (e.g. 195) is marked, explained under the field and said, and the year saved before stays; 完成 (Done) and 分享 (Share) wait until it is fixed.
 - **Nothing hidden:** a focused field, or a heading the page scrolls to, is kept clear of the page header and the bottom buttons, at every text size and sideways.
 
+### Build
+- **CI runners pinned to Ubuntu 24.04:** GitHub's `ubuntu-latest` moved to 26.04, where Playwright 1.56 can't install Chromium, so every e2e run (and every deploy) failed before its first test.
+
 ### Content
 - **出境退稅新制 (New tax refund system)** re-checked after the system started on 2026-11-01: everything still holds; a note now says the procedure must be done within 90 days of buying.
 - **Lost items:** the phrase now clearly reports a loss (遺失届), and the tip says to note the reference number (受理番号), used when the item is found and for any enquiry.
