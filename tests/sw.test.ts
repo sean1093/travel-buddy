@@ -40,7 +40,7 @@ function worker(network: Fetch, { slow = false } = {}) {
     put: async (u: string, r: Response) => void stored.set(abs(u), r),
     add: async (u: string) => void stored.set(abs(u), await get(u)),
     keys: async () => [...stored.keys()].map((url) => ({ url })),
-    delete: async (req: { url: string }) => stored.delete(req.url),
+    delete: async (req: string | { url: string }) => stored.delete(abs(req)),
     addAll: async (urls: string[]) => {
       const responses = await Promise.all(urls.map(get));
       urls.forEach((u, i) => stored.set(abs(u), responses[i]!));
@@ -169,10 +169,13 @@ describe("page loads (sw.js navigation)", () => {
     }
   });
 
-  it("passes a guide page's 404 through: the page was removed", async () => {
+  it("passes a guide page's 404 through, and forgets its copy: the page was removed", async () => {
     const sw = worker(async () => page("gone", 404));
     await sw.seed("guide/old/", "old guide");
-    expect((await sw.open("guide/old/").answer).status).toBe(404);
+    const { answer, done } = sw.open("guide/old/");
+    expect((await answer).status).toBe(404);
+    await done;
+    expect(sw.stored.has(`${SCOPE}guide/old/`)).toBe(false);
   });
 
   it("shows the error page for a page it has no copy of", async () => {

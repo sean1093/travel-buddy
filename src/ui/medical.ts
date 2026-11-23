@@ -131,7 +131,7 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
   const health = profile.health;
   const ins = profile.insurance;
   const filled = [
-    profile.passportName,
+    profile.passportName.trim(),
     profile.birthYear,
     health.bloodType,
     health.conditions.length || health.conditionsOther.trim(),

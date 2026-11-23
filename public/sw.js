@@ -88,7 +88,15 @@ async function navigation(event) {
     // A 404 page or a captive portal's answer must never become the offline shell.
     copy: response.ok && response.type === "basic" ? response.clone() : null,
   }));
-  event.waitUntil(network.then(({ response, copy }) => copy && keep(copy, response, request, shell, key)).catch(() => {}));
+  event.waitUntil(
+    network
+      .then(async ({ response, copy }) => {
+        if (copy) return keep(copy, response, request, shell, key);
+        // A page the site removed: its old copy must not keep opening offline.
+        if (!shell && (response.status === 404 || response.status === 410)) await (await caches.open(CACHE)).delete(key);
+      })
+      .catch(() => {}),
+  );
 
   const cached = shell ? await cachedShell() : await caches.match(key, { ignoreVary: true });
   try {

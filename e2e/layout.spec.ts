@@ -29,6 +29,7 @@ const VARIANTS: Variant[] = [
   { name: "xlarge-360", viewport: { width: 360, height: 780 }, settings: { textSize: "xlarge" } },
   { name: "dark", viewport: { width: 390, height: 844 }, settings: { theme: "dark" } },
   { name: "landscape", viewport: { width: 844, height: 390 } },
+  { name: "landscape-xlarge", viewport: { width: 844, height: 390 }, settings: { textSize: "xlarge" } },
 ];
 
 /** WCAG 2.5.5 / Apple HIG minimum; docs/design.md asks for more, this is the floor. */
@@ -140,10 +141,12 @@ for (const variant of VARIANTS) {
           const box = el.getBoundingClientRect();
           const top = document.querySelector("header")!.getBoundingClientRect().bottom;
           const bottom = document.querySelector("[data-dock]")!.getBoundingClientRect().top;
-          // The first line, where the caret and the text being typed are: a box taller than the
-          // space (the 電梯筆記 text area when sideways) can't show whole, and needn't (WCAG 2.4.11).
+          // Its first line, where the caret and the text being typed are, must show: browsers scroll a
+          // text area only that far, and that is what WCAG 2.4.11 asks (not hidden entirely). The top
+          // edge too, unless the box is taller than the clear space (the 電梯筆記 text area sideways at 特大).
           const firstLine = Math.min(box.height, 48);
-          return { what: `${el.tagName} ${el.getAttribute("aria-label") ?? ""} ${box.top.toFixed(0)}–${box.bottom.toFixed(0)}, clear ${top.toFixed(0)}–${bottom.toFixed(0)}`, covered: box.top < top - 0.5 || box.top + firstLine > bottom + 0.5 };
+          const from = box.height <= bottom - top ? box.top : box.top + 12;
+          return { what: `${el.tagName} ${el.getAttribute("aria-label") ?? ""} ${box.top.toFixed(0)}–${box.bottom.toFixed(0)}, clear ${top.toFixed(0)}–${bottom.toFixed(0)}`, covered: from < top - 0.5 || box.top + firstLine > bottom + 0.5 };
         });
         if (r?.covered) hidden.push(r.what);
         await page.keyboard.press("Tab");

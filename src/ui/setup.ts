@@ -152,9 +152,11 @@ function listEditor<T>(options: {
                   options.items.splice(i, 1);
                   options.onChange();
                   draw();
-                  // The pressed button is gone: keep focus nearby, not on the page itself.
-                  const deletes = box.querySelectorAll<HTMLElement>(":scope > div button[aria-label^='刪除']");
-                  (deletes[Math.max(0, i - 1)] ?? box.querySelector<HTMLElement>(":scope > button"))?.focus();
+                  // The pressed button is gone: keep focus nearby, on the card before (or the one that
+                  // moved up), never on another 刪除, where a held Enter would delete again.
+                  const cards = box.querySelectorAll<HTMLElement>(":scope > div");
+                  const near = cards[Math.max(0, i - 1)]?.querySelector<HTMLElement>("input:not([type=radio]), textarea");
+                  (near ?? box.querySelector<HTMLElement>(":scope > button"))?.focus();
                   announce(`已刪除${options.noun} ${i + 1}`);
                 },
               },
@@ -339,6 +341,20 @@ export function renderSetup(root: HTMLElement): void {
     saved.replaceChildren(icon("check", "mr-1 inline h-4 w-4 align-[-2px]"), "已儲存");
     window.clearTimeout(savedTimer);
     savedTimer = window.setTimeout(() => (saved.textContent = ""), 1500);
+  }
+
+  /**
+   * 完成 and 分享: not while a field holds a value it couldn't keep (marked as the
+   * field lost focus to this tap), or the message would leave with the page.
+   */
+  function leave(event: Event): void {
+    const invalid = root.querySelector<HTMLElement>('[aria-invalid="true"]');
+    if (invalid) {
+      event.preventDefault();
+      invalid.focus();
+      return;
+    }
+    keepStorage();
   }
 
   function group(id: SetupSectionId, ...children: Child[]): HTMLElement {
@@ -526,8 +542,8 @@ export function renderSetup(root: HTMLElement): void {
         { class: "grid grid-cols-2 gap-2" },
         // 完成 is what everyone does; 分享 is for family filling it in for someone else, so it stays soft.
         // Asked here, on a deliberate tap, not while typing: Firefox shows a prompt for it.
-        h("a", { href: "#/share", class: `${BUTTON.soft} min-h-14`, onclick: keepStorage }, icon("share"), "分享"),
-        h("a", { href: "#/", class: `${BUTTON.primary} min-h-14`, onclick: keepStorage }, icon("check"), "完成"),
+        h("a", { href: "#/share", class: `${BUTTON.soft} min-h-14`, onclick: leave }, icon("share"), "分享"),
+        h("a", { href: "#/", class: `${BUTTON.primary} min-h-14`, onclick: leave }, icon("check"), "完成"),
       ),
     ),
   ]);

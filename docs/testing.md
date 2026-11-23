@@ -62,7 +62,7 @@ Rules of thumb:
 - narrow 320×640
 - 特大 (extra-large) text, at 390×844 and at 360×780 (the most common Android width)
 - dark theme
-- landscape 844×390
+- landscape 844×390, also at 特大
 
 It also opens the full-screen layers at each variant: the phrase page, 給對方點選 (Let them tap), 給對方看 (Show them) and 萬用句 (All-purpose phrases).
 

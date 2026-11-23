@@ -52,13 +52,15 @@ describe("setup", () => {
     expect(hotelDeletes().map((b) => b.getAttribute("aria-label"))).toEqual(sampleProfile().hotels.map((_, i) => `刪除飯店 ${i + 1}`));
   });
 
-  it("keeps focus next to a deleted card, and says what went", async () => {
+  it("keeps focus next to a deleted card, never on another delete button, and says what went", async () => {
     saveProfile(sampleProfile());
     await render();
     const count = sampleProfile().hotels.length;
     hotelDeletes()[1]!.click();
     expect(stored().hotels).toHaveLength(count - 1);
-    expect(document.activeElement?.getAttribute("aria-label")).toBe("刪除飯店 1");
+    // The first field of hotel 1: a held Enter there deletes nothing.
+    expect(document.activeElement?.tagName).toBe("INPUT");
+    expect((document.activeElement as HTMLInputElement).value).toBe(sampleProfile().hotels[0]!.name);
     expect(await spoken()).toBe("已刪除飯店 2");
   });
 
@@ -113,6 +115,21 @@ describe("setup", () => {
     expect(year.hasAttribute("aria-invalid")).toBe(false);
     expect(error.textContent).toBe("");
     expect(await spoken()).toBe("已儲存");
+  });
+
+  it("doesn't leave with 完成 while the birth year shows a problem", async () => {
+    await render();
+    const year = app().querySelector<HTMLInputElement>('input[inputmode="numeric"]')!;
+    year.value = "195";
+    year.dispatchEvent(new Event("input", { bubbles: true }));
+    year.dispatchEvent(new Event("change", { bubbles: true }));
+    const done = [...app().querySelectorAll("a")].find((a) => a.textContent === "完成")!;
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+    done.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(year);
+    await settle();
+    expect(persist).not.toHaveBeenCalled();
   });
 
   it("asks the browser to keep the data on 完成, not while typing (Firefox shows a prompt for it)", async () => {
