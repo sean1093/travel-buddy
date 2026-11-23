@@ -143,6 +143,7 @@ function listEditor<T>(options: {
                 options.items.push(options.make());
                 options.onChange();
                 draw(true);
+                announce(`已新增${options.noun} ${options.items.length}`);
               },
             },
             icon("plus"),

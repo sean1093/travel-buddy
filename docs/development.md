@@ -187,7 +187,7 @@ Steps only the site owner can do (they need a Google account):
 
 All country versions share one domain (`sean1093.github.io`), so each version uses its own prefix (`STORE_PREFIX` in `src/lib/store.ts`). `index.html` reads the settings key directly before the page appears, so if you change the prefix, change both places.
 
-The offline cache is named `travel-buddy-v2` (`public/sw.js`). On activation it only clears this app's own old caches (names starting with `travel-buddy-`), so other projects on the same domain are not affected.
+The offline cache is named `travel-buddy-v3` (`public/sw.js`). On activation it only clears this app's own old caches (names starting with `travel-buddy-`), so other projects on the same domain are not affected.
 
 ### Renaming the repo
 

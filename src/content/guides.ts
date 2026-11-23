@@ -72,7 +72,7 @@ export const GUIDES: Guide[] = [
       // Steps and notes: the official zh-TW leaflet 「外國人旅客免稅（退稅）手續指南」 by the Japan Tourism
       // Agency, National Tax Agency and Japan Customs (shared by the owner, 2026-10-11), and the JTA page:
       // refund model from purchases on 2026-11-01, passport at a kiosk within 90 days.
-      // Re-checked after launch on 2026-11-23. The official sites were unreachable from the checking
+      // Re-checked after launch (see `verified`). The official sites were unreachable from the checking
       // environment, so this used their text as quoted in search results (content guide §9): JTA traveller
       // page and FAQ (page01_000001_00023), Customs, NTA refund-model Q&A and the Narita and Haneda pages.
       // All steps and notes still hold, including: online procedure at the same 7 airports up to

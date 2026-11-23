@@ -12,7 +12,7 @@ From an expert panel review (UX for older travellers, Japanese content, accessib
 - **Home-screen tip:** 設定完成 (Setup complete) now suggests adding the site to the home screen.
 
 ### Under stress
-- **Weak signal:** a page load waits at most 4 seconds for the network, then opens the copy on the phone, so 我需要幫忙 (I need help) no longer hangs on a connection that neither answers nor fails. An error page from the network (a hotel Wi-Fi login page, a server error) no longer replaces the app when the phone has it. A new version is still picked up when the network answers in time, and is only kept for offline use once its script and stylesheet are cached too.
+- **Weak signal:** a page load waits at most 4 seconds for the network, then opens the copy on the phone, so 我需要幫忙 (I need help) no longer hangs on a connection that neither answers nor fails. A server error no longer replaces the app when the phone has it. A new version is still picked up when the network answers in time, and is only kept for offline use once its script and stylesheet are cached too.
 - **Offline from the first visit:** the site icon, the manifest and the home-screen icons are now cached with the app on the first visit.
 - **醫療卡 (Medical card) shortcut** opens the medical page at the medical card, not at the symptom list above it; the 打開醫療卡 (Open medical card) links in scenes do the same, and 打開過敏卡 (Open allergy card) at the restaurant opens at the allergy card.
 - **One word for one action:** 放大 (Enlarge) on the help page and the back-to-hotel card is now 給對方看 (Show them), as everywhere else, and the lift note's button is 給站務員看 (Show the station staff). On the help page it has its own row.

@@ -7,7 +7,7 @@
  * All URLs are relative to the service worker's own scope, so the site works
  * from a GitHub Pages subpath as well as from the domain root.
  */
-const CACHE = "travel-buddy-v2";
+const CACHE = "travel-buddy-v3";
 /** This app's cache names; other projects on the same origin keep theirs. */
 const OWN_CACHE = /^travel-buddy-/;
 const SHELL = ["./", "./index.html"];
@@ -93,8 +93,9 @@ async function navigation(event) {
     if (!cached) return (await network).response;
     const timer = new Promise((resolve) => setTimeout(resolve, NETWORK_TIMEOUT, null));
     const answer = (await Promise.race([network, timer]))?.response;
-    // An error page (a captive portal's, a server's 5xx) is no better than no answer: use the copy.
-    return answer?.ok ? answer : cached;
+    // A server error is no better than no answer: use the copy. Anything else is the site's real
+    // answer and passes, a redirect (the site moved) or a 404 (a guide page removed) included.
+    return answer && answer.status < 500 ? answer : cached;
   } catch {
     if (cached) return cached;
     // A guide page never opened online: the same guide is in the app, which works offline.

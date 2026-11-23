@@ -135,13 +135,19 @@ describe("page loads (sw.js navigation)", () => {
     expect(await sw.stored.get(`${SCOPE}index.html`)!.text()).toBe(shellHtml("index-old.js"));
   });
 
-  it("opens the cached app instead of an error page (a captive portal's, a 5xx), and never keeps the error", async () => {
+  it("opens the cached app instead of a server error, and never keeps the error", async () => {
     const sw = worker(async () => page("captive portal", 503));
     await sw.seed("./index.html", "cached app");
     const { answer, done } = sw.open("");
     expect(await (await answer).text()).toBe("cached app");
     await done;
     expect(await sw.stored.get(`${SCOPE}index.html`)!.text()).toBe("cached app");
+  });
+
+  it("passes the site's real answers through, a 404 for a page it has a copy of included", async () => {
+    const sw = worker(async () => page("gone", 404));
+    await sw.seed("guide/old/", "old guide");
+    expect((await sw.open("guide/old/").answer).status).toBe(404);
   });
 
   it("shows the error page for a page it has no copy of", async () => {

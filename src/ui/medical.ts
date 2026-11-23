@@ -1,6 +1,7 @@
 import { SYMPTOMS, SYMPTOMS_INTRO } from "../content/medical";
 import { sceneById } from "../content/scenes";
 import { allergyCard, type CardBlock, medicalCard } from "../profile/cards";
+import { sectionSummaries } from "../profile/summary";
 import { isEmpty, loadProfile } from "../profile/profile";
 import { BUTTON, h, icon } from "./dom";
 import { cardBlock } from "./help";
@@ -106,7 +107,7 @@ const TARGETS: Record<string, string> = { card: "醫療卡", allergy: "過敏卡
  * `#/medical`, or `#/medical/card` (home's 醫療卡 shortcut, 打開醫療卡 links) and
  * `#/medical/allergy` (打開過敏卡): the same page, opened at that card, because
  * whoever taps it is about to hand the phone over. Without that card (nothing
- * filled in), it stays at the top, where the setup prompt is.
+ * filled in), it stays at the top: the symptom cards, and the setup prompt.
  */
 export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): void {
   const profile = loadProfile();
@@ -126,7 +127,9 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
     section("常用句", rowGroup(phrases.map((p) => phraseRow(p, { jp: p.jp, zh: p.zh }, "醫療・過敏")))),
   ]);
   const start = Object.hasOwn(TARGETS, target) ? TARGETS[target] : undefined;
-  if (start && !isEmpty(profile)) {
+  // Only to a card with something on it: otherwise the symptom cards at the top help more.
+  const health = sectionSummaries(profile).find((s) => s.id === "health")!.done;
+  if (start && (target === "allergy" ? allergy : health || allergy)) {
     const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith(start));
     if (!heading) return;
     heading.tabIndex = -1;

@@ -59,6 +59,12 @@ describe("setup", () => {
     expect(await spoken()).toBe("已刪除飯店 2");
   });
 
+  it("says a card was added, since 已儲存 is said only on change", async () => {
+    await render();
+    [...app().querySelectorAll("button")].find((b) => b.textContent === "新增飯店")!.click();
+    expect(await spoken()).toBe("已新增飯店 1");
+  });
+
   it("moves focus to the add button when the last card goes", async () => {
     saveProfile({ ...sampleProfile(), hotels: [sampleProfile().hotels[0]] });
     await render();

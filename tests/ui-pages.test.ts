@@ -329,6 +329,13 @@ describe("medical", () => {
     expect(document.activeElement?.textContent).toBe("過敏卡（給餐廳看）");
   });
 
+  it("stays at the symptom cards when the medical card would be empty, e.g. only a hotel filled in", async () => {
+    saveProfile({ hotels: sampleProfile().hotels });
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement).toBe(document.body);
+  });
+
   it("stays at the setup prompt when the shortcut finds nothing filled in", async () => {
     (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
     await new Promise((resolve) => requestAnimationFrame(resolve));
