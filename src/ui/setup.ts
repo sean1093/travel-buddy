@@ -302,7 +302,6 @@ export function renderSetup(root: HTMLElement): void {
   function save(): void {
     const parsed = parseProfile(profile);
     saveProfile(parsed);
-    keepStorage();
     refresh(parsed);
     saved.replaceChildren(icon("check", "mr-1 inline h-4 w-4 align-[-2px]"), "已儲存");
     window.clearTimeout(savedTimer);
@@ -486,8 +485,9 @@ export function renderSetup(root: HTMLElement): void {
         "div",
         { class: "grid grid-cols-2 gap-2" },
         // 完成 is what everyone does; 分享 is for family filling it in for someone else, so it stays soft.
-        h("a", { href: "#/share", class: `${BUTTON.soft} min-h-14` }, icon("share"), "分享"),
-        h("a", { href: "#/", class: `${BUTTON.primary} min-h-14` }, icon("check"), "完成"),
+        // Asked here, on a deliberate tap, not while typing: Firefox shows a prompt for it.
+        h("a", { href: "#/share", class: `${BUTTON.soft} min-h-14`, onclick: keepStorage }, icon("share"), "分享"),
+        h("a", { href: "#/", class: `${BUTTON.primary} min-h-14`, onclick: keepStorage }, icon("check"), "完成"),
       ),
     ),
   ]);

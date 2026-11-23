@@ -90,7 +90,6 @@ export default {
       replies: [{ jp: "ありません。", zh: "沒有" }, SEE_CARD],
     },
     {
-      // Class 1 drugs (e.g. Loxonin S) can only be sold while a pharmacist is in.
       id: "drugstore-heard-no-pharmacist",
       jp: "ただいま {薬剤師|やくざいし} が {不在|ふざい} の ため、こちら の {薬|くすり} は {販売|はんばい} できません。",
       zh: "藥劑師現在不在，這個藥不能賣。",

@@ -28,6 +28,14 @@ async function precache() {
   const html = await (await cache.match("./index.html"))?.text();
   const assets = [ASSET_HREF, ICON_HREF].flatMap((pattern) => [...(html ?? "").matchAll(pattern)].map((match) => match[1]));
   await Promise.allSettled(assets.map((url) => cache.add(url)));
+  // The home-screen icons are named in the manifest, not the page.
+  try {
+    const manifest = await (await cache.match("./manifest.webmanifest"))?.json();
+    const icons = (manifest?.icons ?? []).map((icon) => icon.src).filter((src) => typeof src === "string" && src.startsWith("./"));
+    await Promise.allSettled(icons.map((url) => cache.add(url)));
+  } catch {
+    // No manifest or not JSON: the app works without its icons.
+  }
 }
 
 self.addEventListener("activate", (event) => {
@@ -84,7 +92,9 @@ async function navigation(event) {
   try {
     if (!cached) return (await network).response;
     const timer = new Promise((resolve) => setTimeout(resolve, NETWORK_TIMEOUT, null));
-    return (await Promise.race([network, timer]))?.response ?? cached;
+    const answer = (await Promise.race([network, timer]))?.response;
+    // An error page (a captive portal's, a server's 5xx) is no better than no answer: use the copy.
+    return answer?.ok ? answer : cached;
   } catch {
     if (cached) return cached;
     // A guide page never opened online: the same guide is in the app, which works offline.

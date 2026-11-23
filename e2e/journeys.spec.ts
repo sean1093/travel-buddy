@@ -73,6 +73,17 @@ test("konbini heard tab: a reply opens 我的回答 in Japanese", async ({ page,
   await expect(answer).toContainText("不用");
 });
 
+test("medical: 打開醫療卡 on a drugstore phrase lands on the medical card, focused", async ({ page, seed }) => {
+  await seed({ profile: SAMPLE_PROFILE });
+  await page.goto("#/scene/drugstore");
+  await page.getByRole("button", { name: /我有過敏，這個藥我可以吃嗎/ }).first().click();
+  await page.getByRole("dialog").getByRole("link", { name: "打開醫療卡" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  // The link closes the phrase page on the way: focus lands once the page is no longer inert.
+  await expect(page.getByRole("heading", { name: "醫療卡（給醫生、救護人員看）" })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "醫療卡（給醫生、救護人員看）" })).toBeInViewport();
+});
+
 test("medical: two symptoms, the show button stays on screen", async ({ page, seed }) => {
   await seed({ profile: SAMPLE_PROFILE });
   await page.goto("#/medical");

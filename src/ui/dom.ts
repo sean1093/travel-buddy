@@ -38,12 +38,16 @@ let liveRegion: HTMLElement | null = null;
 
 /**
  * Says `text` to a screen reader without showing it. One polite region for
- * the whole app, so two announcements never race.
+ * the whole app, so two announcements never race. It sits in the open
+ * full-screen layer when there is one: screen readers (VoiceOver) ignore
+ * everything outside an aria-modal dialog, live regions included.
  */
 export function announce(text: string): void {
-  if (!liveRegion?.isConnected) {
+  const host = [...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].at(-1) ?? document.body;
+  if (!liveRegion?.isConnected || liveRegion.parentElement !== host) {
+    liveRegion?.remove();
     liveRegion = h("div", { class: "sr-only", "aria-live": "polite", "aria-atomic": "true" });
-    document.body.append(liveRegion);
+    host.append(liveRegion);
   }
   const region = liveRegion;
   // The same text twice in a row is not a change, and would stay unread:

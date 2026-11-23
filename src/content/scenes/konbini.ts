@@ -110,7 +110,6 @@ export default {
       ],
     },
     {
-      // Most chains now turn a screen to the customer to pick how to pay.
       id: "konbini-heard-pay-screen",
       jp: "お{支払|しはら}い {方法|ほうほう} を {画面|がめん} で お{選|えら}び ください。",
       zh: "請在面前的螢幕上選付款方式。",

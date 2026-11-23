@@ -99,7 +99,6 @@ function symptomPicker(): HTMLElement {
   );
 }
 
-/** `#/medical`: medical card, allergy card, symptom pointing card. */
 /**
  * `#/medical`, or `#/medical/card` from home's 醫療卡 shortcut: the same page,
  * opened at the medical card, because whoever taps it is about to hand the
@@ -125,11 +124,14 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
   ]);
   if (target === "card" && !isEmpty(profile)) {
     const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith("醫療卡"));
-    if (heading) {
-      heading.tabIndex = -1;
+    if (!heading) return;
+    heading.tabIndex = -1;
+    // On the next frame: a link from a phrase page arrives while that layer is still closing
+    // and the page is inert, where focus can't land.
+    requestAnimationFrame(() => {
       heading.focus({ preventScroll: true });
       // scroll-padding (style.css) keeps it clear of the sticky header.
       heading.scrollIntoView({ block: "start" });
-    }
+    });
   }
 }

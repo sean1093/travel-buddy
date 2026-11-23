@@ -290,6 +290,8 @@ describe("askOther", () => {
     ov.askOther(question, replies);
     button(topDialog(), "1番線").click();
     expect(await spoken()).toBe("對方回答：1 號月台");
+    // Inside the dialog: VoiceOver ignores a live region outside an aria-modal layer.
+    expect(topDialog().querySelector('[aria-live="polite"]')?.textContent).toBe("對方回答：1 號月台");
   });
 
   it("goes back to the question with 再問一次", () => {

@@ -73,7 +73,11 @@ export function keepStorage(): void {
   if (keepAsked) return;
   keepAsked = true;
   try {
-    void navigator.storage?.persist?.().catch(() => undefined);
+    const storage = navigator.storage;
+    // Already kept: asking again could only show a prompt.
+    void Promise.resolve(storage?.persisted?.())
+      .then((kept) => kept || storage?.persist?.())
+      .catch(() => undefined);
   } catch {
     // An old or locked-down browser: nothing to ask.
   }

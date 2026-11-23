@@ -52,8 +52,9 @@ function route(): void {
   // A safety net: every page sets its own title, but one that forgets gets home's, never the previous page's.
   setTitle();
   render(root, args);
+  // On the next frame, once a layer the link was in has closed and the page is no longer inert.
   // A page that put focus somewhere itself (e.g. #/medical/card on the card) keeps it.
-  if (routed && !root.contains(document.activeElement)) focusHeading(root);
+  if (routed) requestAnimationFrame(() => root.contains(document.activeElement) || focusHeading(root));
   routed = true;
 }
 

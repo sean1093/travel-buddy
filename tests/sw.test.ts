@@ -87,10 +87,11 @@ function worker(network: Fetch, { slow = false } = {}) {
 describe("first visit (sw.js install)", () => {
   it("keeps the app, its script and its icons, so the first visit is enough to go offline", async () => {
     const html = `${shellHtml("index-a.js")}<link rel="icon" href="./favicon.svg" /><link rel="manifest" href="./manifest.webmanifest" /><a href="./guide/tax-refund/">`;
-    const sw = worker(async (url) => page(url.endsWith("/japan/") || url.endsWith("index.html") ? html : "file"));
+    const manifest = JSON.stringify({ icons: [{ src: "./icon-192.png" }, { src: "https://elsewhere.test/x.png" }] });
+    const sw = worker(async (url) => page(url.endsWith("/japan/") || url.endsWith("index.html") ? html : url.endsWith(".webmanifest") ? manifest : "file"));
     await sw.install();
     expect([...sw.stored.keys()].map((u) => u.slice(SCOPE.length)).sort()).toEqual(
-      ["", "assets/index-a.js", "favicon.svg", "index.html", "manifest.webmanifest"].sort(),
+      ["", "assets/index-a.js", "favicon.svg", "icon-192.png", "index.html", "manifest.webmanifest"].sort(),
     );
   });
 });
@@ -134,13 +135,18 @@ describe("page loads (sw.js navigation)", () => {
     expect(await sw.stored.get(`${SCOPE}index.html`)!.text()).toBe(shellHtml("index-old.js"));
   });
 
-  it("never keeps an error page as the app", async () => {
-    const sw = worker(async () => page("captive portal", 404));
+  it("opens the cached app instead of an error page (a captive portal's, a 5xx), and never keeps the error", async () => {
+    const sw = worker(async () => page("captive portal", 503));
     await sw.seed("./index.html", "cached app");
     const { answer, done } = sw.open("");
-    expect((await answer).status).toBe(404);
+    expect(await (await answer).text()).toBe("cached app");
     await done;
     expect(await sw.stored.get(`${SCOPE}index.html`)!.text()).toBe("cached app");
+  });
+
+  it("shows the error page for a page it has no copy of", async () => {
+    const sw = worker(async () => page("not found", 404));
+    expect((await sw.open("guide/nope/").answer).status).toBe(404);
   });
 
   it("offline: opens the cached app, and sends a guide page never opened to the same guide in the app", async () => {

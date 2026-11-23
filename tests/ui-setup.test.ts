@@ -14,6 +14,9 @@ function resetPage(): void {
 }
 
 const persist = vi.fn(() => Promise.resolve(true));
+const persisted = vi.fn(() => Promise.resolve(false));
+/** persist() runs after persisted() answers. */
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 beforeEach(() => {
   resetPage();
@@ -23,7 +26,8 @@ beforeEach(() => {
   // store.ts asks for persistent storage once per page: fresh modules per test.
   vi.resetModules();
   persist.mockClear();
-  Object.defineProperty(navigator, "storage", { value: { persist }, configurable: true });
+  persisted.mockClear();
+  Object.defineProperty(navigator, "storage", { value: { persist, persisted }, configurable: true });
 });
 
 afterEach(resetPage);
@@ -76,14 +80,27 @@ describe("setup", () => {
     expect(await spoken()).toBe("已儲存");
   });
 
-  it("asks the browser to keep the data once something is saved", async () => {
+  it("asks the browser to keep the data on 完成, not while typing (Firefox shows a prompt for it)", async () => {
     await render();
-    expect(persist).not.toHaveBeenCalled();
     const name = app().querySelector<HTMLInputElement>("input")!;
     name.value = "媽媽";
     name.dispatchEvent(new Event("input", { bubbles: true }));
-    name.dispatchEvent(new Event("input", { bubbles: true }));
+    await settle();
+    expect(persist).not.toHaveBeenCalled();
+    [...app().querySelectorAll("a")].find((a) => a.textContent === "完成")!.addEventListener("click", (e) => e.preventDefault());
+    [...app().querySelectorAll("a")].find((a) => a.textContent === "完成")!.click();
+    await settle();
     expect(persist).toHaveBeenCalledTimes(1);
+  });
+
+  it("doesn't ask again when the browser already keeps the data", async () => {
+    persisted.mockResolvedValueOnce(true);
+    await render();
+    const done = [...app().querySelectorAll("a")].find((a) => a.textContent === "分享")!;
+    done.addEventListener("click", (e) => e.preventDefault());
+    done.click();
+    await settle();
+    expect(persist).not.toHaveBeenCalled();
   });
 });
 
@@ -94,6 +111,7 @@ describe("import", () => {
     history.replaceState(null, "", `${location.pathname}?openExternalBrowser=1#/s/${encodeProfile(sampleProfile())}`);
     await render(encodeProfile(sampleProfile()));
     expect(stored()).toEqual(JSON.parse(JSON.stringify(sampleProfile())));
+    await settle();
     expect(persist).toHaveBeenCalledTimes(1);
     expect(app().querySelector("h1")?.textContent).toBe("設定完成");
     const { HOME_SCREEN_TIP } = await import("../src/ui/import");
@@ -110,6 +128,7 @@ describe("import", () => {
   it("doesn't ask to keep anything for a broken link", async () => {
     await render("1.AAAA");
     expect(app().querySelector("h1")?.textContent).toBe("這個連結好像不完整");
+    await settle();
     expect(persist).not.toHaveBeenCalled();
   });
 });

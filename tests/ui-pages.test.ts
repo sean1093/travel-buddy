@@ -316,12 +316,15 @@ describe("medical", () => {
   it("opens at the medical card from the 醫療卡 shortcut", async () => {
     saveProfile(sampleProfile());
     (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    // On the next frame, so a phrase page the link was in has closed and the page isn't inert.
+    await new Promise((resolve) => requestAnimationFrame(resolve));
     expect(document.activeElement?.tagName).toBe("H2");
     expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
   });
 
   it("stays at the setup prompt when the shortcut finds nothing filled in", async () => {
     (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
     expect(document.activeElement).toBe(document.body);
     expect(app().querySelector('main a[href="#/setup"]')).not.toBeNull();
   });
