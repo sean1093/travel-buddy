@@ -129,10 +129,9 @@ export function decodeProfile(payload: string): Profile | null {
 export const OPEN_EXTERNAL = "?openExternalBrowser=1";
 
 /**
- * The full link to this app with `profile` in the fragment. `forLine`: the
- * link that is copied or shared; a QR code goes to the camera, which opens the
- * phone's browser anyway, so it leaves the query out and stays less dense.
+ * The full link to this app with `profile` in the fragment. The QR code uses
+ * it too: many people scan with LINE's own reader, which opens LINE's browser.
  */
-export function shareUrl(profile: Profile, { forLine = true, base = `${location.origin}${location.pathname}` } = {}): string {
-  return `${base}${forLine ? OPEN_EXTERNAL : ""}${SHARE_PREFIX}${encodeProfile(profile)}`;
+export function shareUrl(profile: Profile, base = `${location.origin}${location.pathname}`): string {
+  return `${base}${OPEN_EXTERNAL}${SHARE_PREFIX}${encodeProfile(profile)}`;
 }

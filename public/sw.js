@@ -55,6 +55,8 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(request.mode === "navigate" ? navigation(event) : asset(request));
 });
 
+/** Where the hashed build files live. */
+const ASSETS = new URL("./assets/", self.registration.scope).href;
 /** Where the static guide pages live: <scope>guide/<id>/. */
 const GUIDE_PATH = new URL("./guide/", self.registration.scope).pathname;
 /** The app's own page; any other page in scope (a static guide page) is not the shell. */
@@ -116,12 +118,18 @@ async function keep(copy, response, request, shell, key) {
     // A new shell names new hashed files: store them first, and the shell only once they are
     // all in. Otherwise an offline start could load a shell whose script was never cached,
     // which shows a blank page.
-    const html = await copy.clone().text();
-    const assets = [...html.matchAll(ASSET_HREF)].map((match) => match[1]);
+    const named = (html) => [...html.matchAll(ASSET_HREF)].map((match) => match[1]);
+    const assets = named(await copy.clone().text());
     const missing = [];
     for (const asset of assets) if (!(await cache.match(asset, { ignoreVary: true }))) missing.push(asset);
     await cache.addAll(missing);
+    const previous = named((await (await cache.match("./index.html"))?.text()) ?? "");
     await cache.put("./index.html", copy);
+    // Asset names are hashed per build: without this, every deploy would add its files to the phone
+    // for good. The build being replaced keeps its files, since a page may have just opened it.
+    const keep = new Set([...assets, ...previous].map((asset) => new URL(asset, self.registration.scope).href));
+    const stale = (await cache.keys()).filter((req) => req.url.startsWith(ASSETS) && !keep.has(req.url.split("?")[0]));
+    await Promise.all(stale.map((req) => cache.delete(req)));
     return;
   }
   // After a redirect (…/guide/x → …/guide/x/), keep it under the address it ended at:

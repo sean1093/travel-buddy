@@ -39,6 +39,8 @@ function worker(network: Fetch, { slow = false } = {}) {
     match: async (u: string) => stored.get(abs(u))?.clone(),
     put: async (u: string, r: Response) => void stored.set(abs(u), r),
     add: async (u: string) => void stored.set(abs(u), await get(u)),
+    keys: async () => [...stored.keys()].map((url) => ({ url })),
+    delete: async (req: { url: string }) => stored.delete(req.url),
     addAll: async (urls: string[]) => {
       const responses = await Promise.all(urls.map(get));
       urls.forEach((u, i) => stored.set(abs(u), responses[i]!));
@@ -123,6 +125,18 @@ describe("page loads (sw.js navigation)", () => {
     await done;
     expect(await sw.stored.get(`${SCOPE}index.html`)!.text()).toBe(shellHtml("index-new.js"));
     expect(sw.stored.has(`${SCOPE}assets/index-new.js`)).toBe(true);
+  });
+
+  it("drops the files of builds two deploys old, and keeps those of the build being replaced", async () => {
+    const sw = worker(async (url) => page(url.endsWith(".js") ? "script" : shellHtml("index-new.js")));
+    await sw.seed("./index.html", shellHtml("index-old.js"));
+    await sw.seed("./assets/index-old.js", "old script");
+    await sw.seed("./assets/index-older.js", "older script");
+    await sw.open("").done;
+    expect([...sw.stored.keys()].filter((u) => u.includes("/assets/")).map((u) => u.slice(SCOPE.length)).sort()).toEqual([
+      "assets/index-new.js",
+      "assets/index-old.js",
+    ]);
   });
 
   it("keeps the old app when the new one's script can't be cached, so offline never opens blank", async () => {

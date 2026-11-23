@@ -89,6 +89,7 @@ describe("setup", () => {
   });
 
   it("marks, explains and says a birth year it can't keep, instead of 已儲存", async () => {
+    saveProfile({ birthYear: 1950 });
     await render();
     const year = app().querySelector<HTMLInputElement>('input[inputmode="numeric"]')!;
     const type = (value: string) => {
@@ -97,7 +98,8 @@ describe("setup", () => {
       year.dispatchEvent(new Event("change", { bubbles: true }));
     };
     type("195");
-    expect(stored().birthYear).toBeNull();
+    // The year kept stays until a good one replaces it: the message says the field isn't saved.
+    expect(stored().birthYear).toBe(1950);
     expect(year.getAttribute("aria-invalid")).toBe("true");
     const error = document.getElementById(year.getAttribute("aria-describedby")!)!;
     expect(error.textContent).toBe("請填四位數的西元年，例：1956。這一欄還沒存。");

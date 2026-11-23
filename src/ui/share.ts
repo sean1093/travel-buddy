@@ -22,7 +22,6 @@ export function renderShare(root: HTMLElement): void {
     return;
   }
   const url = shareUrl(profile);
-  const qrUrl = shareUrl(profile, { forLine: false });
   // Empty until there is something to say, so it takes no space before then.
   const status = h("p", { class: "mt-2 text-center text-lg font-bold text-ok empty:mt-0", "aria-live": "polite" });
   const canShare = typeof navigator.share === "function";
@@ -97,8 +96,8 @@ export function renderShare(root: HTMLElement): void {
       section(
         "或 2. 用相機掃 QR code",
         h("p", { class: "mb-3 text-lg text-muted" }, "旅客用手機相機對準這個 QR code，點開出現的連結就好。"),
-        h("div", { class: "mx-auto max-w-sm rounded-2xl bg-white p-2 ring-1 ring-hair" }, qrSvg(qrUrl)),
-        qrUrl.length > DENSE_QR &&
+        h("div", { class: "mx-auto max-w-sm rounded-2xl bg-white p-2 ring-1 ring-hair" }, qrSvg(url)),
+        url.length > DENSE_QR &&
           h("p", { class: "mt-2 text-lg text-muted" }, "資料比較多，QR code 比較密；掃不到的話請改用連結。"),
       ),
       section(

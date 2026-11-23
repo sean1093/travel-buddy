@@ -14,13 +14,14 @@ From an expert panel review (UX for older travellers, Japanese content, accessib
 ### Under stress
 - **Weak signal:** a page load waits at most 4 seconds for the network, then opens the copy on the phone, so 我需要幫忙 (I need help) no longer hangs on a connection that neither answers nor fails. A server error no longer replaces the app when the phone has it. A new version is still picked up when the network answers in time, and is only kept for offline use once its script and stylesheet are cached too.
 - **Offline from the first visit:** the site icon, the manifest and the home-screen icons are now cached with the app on the first visit.
+- **Storage stays small:** each update now removes the app files of older versions from the phone (the version just replaced is kept).
 - **醫療卡 (Medical card) shortcut** opens the medical page at the medical card, not at the symptom list above it; the 打開醫療卡 (Open medical card) links in scenes do the same, and 打開過敏卡 (Open allergy card) at the restaurant opens at the allergy card.
 - **One word for one action:** 放大 (Enlarge) on the help page and the back-to-hotel card is now 給對方看 (Show them), as everywhere else, and the lift note's button is 給站務員看 (Show the station staff). On the help page it has its own row.
 
 ### Screen readers and keyboards
 - **Japanese in a Japanese voice:** play buttons no longer put the Japanese in a Chinese label, which screen readers read with a Chinese voice. The Japanese is now marked as Japanese.
 - **The answer is read out:** after the other person taps an answer in 給對方點選 (Let them tap), a screen reader says it.
-- **Setup:** each 刪除 (Delete) button says which card it deletes, focus stays nearby after a delete, and 已儲存 (Saved) is said once a field is finished instead of on every key. A birth year that can't be kept (e.g. 195) is marked, explained under the field and said, instead of being dropped silently.
+- **Setup:** each 刪除 (Delete) button says which card it deletes, focus stays nearby after a delete, and 已儲存 (Saved) is said once a field is finished instead of on every key. A birth year that can't be kept (e.g. 195) is marked, explained under the field and said, and the year saved before stays, instead of being dropped silently.
 - **Nothing hidden:** a focused field, or a heading the page scrolls to, is kept clear of the page header and the bottom buttons, at every text size and sideways.
 
 ### Content

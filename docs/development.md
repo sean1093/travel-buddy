@@ -110,7 +110,7 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 | `home.test.ts` `summary.test.ts` | Home page greeting, settings page summaries |
 | `seo.test.ts` | Title and description lengths, one canonical URL that every preview tag, the structured data, the root page and the sitemap point at, the preview image's size |
 | `seo-pages.test.ts` | Each static guide page: its own title, description, canonical URL and card, `Article` data, every step and note as text, links, no script, and escaping |
-| `sw.test.ts` | The service worker parses. Run with a fake cache and network: the first visit keeps the app, its script and its icons (the manifest's too); a page load uses the cached app after 4 s without an answer or on an error page, waits for a page it has no copy of, and keeps a new app only once its script is cached; error pages are never kept; offline fallbacks |
+| `sw.test.ts` | The service worker parses. Run with a fake cache and network: the first visit keeps the app, its script and its icons (the manifest's too); a page load uses the cached app after 4 s without an answer or on an error page, waits for a page it has no copy of, and keeps a new app only once its script is cached, then drops the files of builds before the one it replaces; error pages are never kept; offline fallbacks |
 | `site.test.ts` | The root redirect page goes to `./japan/` and keeps the `#` |
 | `ui-overlay.test.ts` | Full-screen layers: stacking, inert page, Escape and back button, focus trap and return; 給對方看 (Show them) and 給對方點選 (Let them tap) |
 | `ui-japanese.test.ts` | Ruby and romaji rendering, play buttons and their speaking state |

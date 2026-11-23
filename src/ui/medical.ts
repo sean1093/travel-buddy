@@ -133,7 +133,7 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
   const filled =
     Boolean(profile.passportName) ||
     profile.birthYear !== null ||
-    profile.contacts.length > 0 ||
+    Boolean(profile.contacts[0]?.name || profile.contacts[0]?.phone) ||
     sectionSummaries(profile).some((s) => (s.id === "health" || s.id === "allergy") && s.done);
   if (start && (target === "allergy" ? allergy : filled)) {
     const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith(start));

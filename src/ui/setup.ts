@@ -82,7 +82,9 @@ function field(label: string, value: string, set: (value: string) => void, optio
     else input.removeAttribute("aria-invalid");
     error.textContent = problem ?? "";
   }
-  return h("label", { class: "block text-lg font-bold" }, label, input, options.hint && h("span", { class: `${HINT} font-normal` }, options.hint), options.problem && error);
+  const labelled = h("label", { class: "block text-lg font-bold" }, label, input, options.hint && h("span", { class: `${HINT} font-normal` }, options.hint));
+  // Outside the label, so it is read once, as the description, not also as part of the name.
+  return options.problem ? h("div", null, labelled, error) : labelled;
 }
 
 /**
@@ -388,6 +390,8 @@ export function renderSetup(root: HTMLElement): void {
           "出生年（西元）",
           year,
           (v) => {
+            // A year being typed or mistyped ("195") doesn't replace the one kept; clearing does.
+            if (v.trim() !== "" && birthYear(v) === null) return;
             profile.birthYear = birthYear(v);
             save();
           },
