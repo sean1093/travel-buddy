@@ -137,7 +137,7 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
     health.conditions.length || health.conditionsOther.trim(),
     health.meds.length,
     health.drugAllergies.length || health.foodAllergies.length || health.allergyOther.trim(),
-    profile.contacts[0]?.name.trim() || profile.contacts[0]?.phone.trim(),
+    profile.contacts[0]?.name.trim() || profile.contacts[0]?.phone.trim() || profile.contacts[0]?.relation.trim(),
     ins.company.trim() || ins.policy.trim() || ins.phone.trim(),
   ].some(Boolean);
   if (start && (target === "allergy" ? allergy : filled)) {

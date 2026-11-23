@@ -21,7 +21,7 @@ From an expert panel review (UX for older travellers, Japanese content, accessib
 ### Screen readers and keyboards
 - **Japanese in a Japanese voice:** play buttons no longer put the Japanese in a Chinese label, which screen readers read with a Chinese voice. The Japanese is now marked as Japanese.
 - **The answer is read out:** after the other person taps an answer in 給對方點選 (Let them tap), a screen reader says it.
-- **Setup:** each 刪除 (Delete) button says which card it deletes, focus stays nearby after a delete, and 已儲存 (Saved) is said once a field is finished instead of on every key. A birth year that can't be kept (e.g. 195) is marked, explained under the field and said, and the year saved before stays, instead of being dropped silently.
+- **Setup:** each 刪除 (Delete) button says which card it deletes, focus stays nearby after a delete, and 已儲存 (Saved) is said once a field is finished instead of on every key. A birth year that can't be kept (e.g. 195) is marked, explained under the field and said, and the year saved before stays; 完成 (Done) and 分享 (Share) wait until it is fixed.
 - **Nothing hidden:** a focused field, or a heading the page scrolls to, is kept clear of the page header and the bottom buttons, at every text size and sideways.
 
 ### Content
