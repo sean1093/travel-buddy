@@ -1,7 +1,6 @@
 import { SYMPTOMS, SYMPTOMS_INTRO } from "../content/medical";
 import { sceneById } from "../content/scenes";
 import { allergyCard, type CardBlock, medicalCard } from "../profile/cards";
-import { sectionSummaries } from "../profile/summary";
 import { isEmpty, loadProfile } from "../profile/profile";
 import { BUTTON, h, icon } from "./dom";
 import { cardBlock } from "./help";
@@ -128,13 +127,19 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
   ]);
   const start = Object.hasOwn(TARGETS, target) ? TARGETS[target] : undefined;
   // Only to a card with something on it: otherwise the symptom cards at the top help more.
-  // What the medical card shows beyond its fixed lines: the name, birth year and family contact for
-  // the ambulance crew, then the health and allergy sections. The allergy card: food allergies and diets.
-  const filled =
-    Boolean(profile.passportName) ||
-    profile.birthYear !== null ||
-    Boolean(profile.contacts[0]?.name || profile.contacts[0]?.phone) ||
-    sectionSummaries(profile).some((s) => (s.id === "health" || s.id === "allergy") && s.done);
+  // What the medical card (profile/cards.ts) shows beyond its fixed lines. The allergy card: `allergy`.
+  const health = profile.health;
+  const ins = profile.insurance;
+  const filled = [
+    profile.passportName,
+    profile.birthYear,
+    health.bloodType,
+    health.conditions.length || health.conditionsOther,
+    health.meds.length,
+    health.drugAllergies.length || health.foodAllergies.length || health.allergyOther,
+    profile.contacts[0]?.name || profile.contacts[0]?.phone,
+    ins.company || ins.policy || ins.phone,
+  ].some(Boolean);
   if (start && (target === "allergy" ? allergy : filled)) {
     const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith(start));
     if (!heading) return;

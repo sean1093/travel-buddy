@@ -126,7 +126,8 @@ async function keep(copy, response, request, shell, key) {
     const previous = named((await (await cache.match("./index.html"))?.text()) ?? "");
     await cache.put("./index.html", copy);
     // Asset names are hashed per build: without this, every deploy would add its files to the phone
-    // for good. The build being replaced keeps its files, since a page may have just opened it.
+    // for good. The build being replaced keeps its files until the next page load, since a page may
+    // have just opened it (the cached copy served while this download ran).
     const keep = new Set([...assets, ...previous].map((asset) => new URL(asset, self.registration.scope).href));
     const stale = (await cache.keys()).filter((req) => req.url.startsWith(ASSETS) && !keep.has(req.url.split("?")[0]));
     await Promise.all(stale.map((req) => cache.delete(req)));

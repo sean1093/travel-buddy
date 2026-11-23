@@ -104,7 +104,8 @@ describe("setup", () => {
     const error = document.getElementById(year.getAttribute("aria-describedby")!)!;
     expect(error.textContent).toBe("請填四位數的西元年，例：1956。這一欄還沒存。");
     expect(await spoken()).toBe("請填四位數的西元年，例：1956。這一欄還沒存。");
-    type("1956");
+    // Full-width digits, as a Chinese keyboard may type them, are a year too.
+    type("１９５６");
     expect(stored().birthYear).toBe(1956);
     expect(year.hasAttribute("aria-invalid")).toBe(false);
     expect(error.textContent).toBe("");
@@ -153,6 +154,18 @@ describe("import", () => {
     expect(app().querySelector("h1")?.textContent).toBe("設定完成");
     const { HOME_SCREEN_TIP } = await import("../src/ui/import");
     expect(app().textContent).toContain(HOME_SCREEN_TIP);
+  });
+
+  it("doesn't suggest the home screen on an iPhone, where the icon wouldn't see the saved data", async () => {
+    const ua = vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)");
+    try {
+      await render(encodeProfile(sampleProfile()));
+      const { HOME_SCREEN_TIP } = await import("../src/ui/import");
+      expect(app().querySelector("h1")?.textContent).toBe("設定完成");
+      expect(app().textContent).not.toContain(HOME_SCREEN_TIP);
+    } finally {
+      ua.mockRestore();
+    }
   });
 
   it("clears the payload and LINE's query from the address bar", async () => {

@@ -32,7 +32,7 @@ For travellers, and for the family and friends who help set things up.
 2. Send the link on LINE, or have them scan the QR code with their phone camera.
 3. When they open the link, the info is saved on their phone. After that they just open the website. They don't need the link again.
    - Tapped in LINE, the link opens in the phone's own browser (Safari or Chrome), not inside LINE, so the info is where they will open the site again.
-   - Then add the site to the home screen, as the 設定完成 (Setup complete) screen suggests: it opens from an icon, like an app.
+   - On Android, then add the site to the home screen, as the 設定完成 (Setup complete) screen suggests: it opens from an icon, like an app. On iPhone, keep opening it in Safari: an app added to the home screen keeps its own storage, apart from Safari's, and would not see the info.
 
 **Please note:**
 - The link contains addresses, phone numbers and health info. **Send it only to the traveller.** Don't post it in group chats or on social media.

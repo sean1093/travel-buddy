@@ -343,8 +343,8 @@ describe("medical", () => {
     expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
   });
 
-  it("stays at the symptom cards when the medical card would be empty, e.g. only a hotel and a blank contact", async () => {
-    saveProfile({ hotels: sampleProfile().hotels, contacts: [{ name: "", relation: "", phone: "" }] });
+  it("stays at the symptom cards when the medical card would be empty: a hotel, a blank contact, a diet (not on the card)", async () => {
+    saveProfile({ hotels: sampleProfile().hotels, contacts: [{ name: "", relation: "", phone: "" }], health: { ...sampleProfile().health, conditions: [], conditionsOther: "", meds: [], bloodType: "", drugAllergies: [], foodAllergies: [], allergyOther: "" } });
     (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
     await new Promise((resolve) => requestAnimationFrame(resolve));
     expect(document.activeElement).toBe(document.body);

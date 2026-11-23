@@ -34,7 +34,7 @@ function done(root: HTMLElement, profile: Profile): void {
   saveProfile(profile);
   const name = profile.callName ? `${profile.callName}，` : "";
   screen(root, "checkcircle", "設定完成", `${name}之後直接打開這個網站就好，不用再點連結。沒有網路也能用。`, [
-    h("p", { class: "text-lg leading-relaxed text-muted" }, HOME_SCREEN_TIP),
+    ...(homeScreenSharesStorage() ? [h("p", { class: "text-lg leading-relaxed text-muted" }, HOME_SCREEN_TIP)] : []),
     // Asked on a deliberate tap, not as the screen opens: Firefox shows a prompt for it.
     h("a", { href: "#/", class: BUTTON.primary, onclick: keepStorage }, "開始使用"),
   ]);
@@ -42,6 +42,14 @@ function done(root: HTMLElement, profile: Profile): void {
 
 /** Shown when setup arrives: an icon is easier to find again than a link in a chat. */
 export const HOME_SCREEN_TIP = "建議把這個網站加到手機主畫面，下次點圖示就能打開。";
+
+/**
+ * Not on iPhone or iPad: there, an app added to the home screen keeps its own
+ * storage, apart from Safari's, so it would open without what was just saved
+ * (docs/spec.md). iPadOS reports a Mac with touch.
+ */
+const homeScreenSharesStorage = () =>
+  !/iPhone|iPad|iPod/.test(navigator.userAgent) && !(/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
 function screen(root: HTMLElement, glyph: IconName, title: string, body: string, actions: HTMLElement[]): void {
   setTitle(title);

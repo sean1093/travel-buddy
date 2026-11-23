@@ -39,10 +39,11 @@ interface FieldOptions {
 
 let fields = 0;
 
-/** A four-digit year the profile keeps, or null. */
+/** A four-digit year the profile keeps, or null. NFKC: a Chinese keyboard may type full-width １９５６. */
 function birthYear(value: string): number | null {
-  const n = Number(value.trim());
-  return value.trim() !== "" && Number.isInteger(n) && n >= 1900 && n <= 2100 ? n : null;
+  const text = value.normalize("NFKC").trim();
+  const n = Number(text);
+  return /^\d{4}$/.test(text) && n >= 1900 && n <= 2100 ? n : null;
 }
 
 /**

@@ -136,7 +136,10 @@ export default {
       zh: "我東西掉了，想報遺失。",
       // 落とし物の届け出 also reads as handing in something found; 遺失届 is the report of a loss.
       jp: "{落|お}とし{物|もの} を しました。{遺失届|いしつとどけ} を {出|だ}したい です。",
-      tip: "到派出所（交番）或車站窗口。先想好：什麼時候、在哪裡、東西長什麼樣子。報案後請對方給你受理番號（受理番号），保險理賠會用到。",
+      // 受理番号: the police give it when they accept the report, and use it when the item is found and
+      // for any enquiry. Tokyo Metropolitan Police, as quoted in search results (@checked 2026-11-23):
+      // https://www.keishicho.metro.tokyo.lg.jp/sodan/otoshimono/lost_found.html
+      tip: "到派出所（交番）或車站窗口。先想好：什麼時候、在哪裡、東西長什麼樣子。報案後記下受理番號（受理番号）：東西找到時、問進度時都會用到。",
     },
     {
       id: "emergency-found-call-hotel",
