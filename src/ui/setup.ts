@@ -15,7 +15,8 @@ import {
   saveProfile,
 } from "../profile/profile";
 import { type SetupSectionId, sectionSummaries } from "../profile/summary";
-import { BUTTON, type Child, fill, h, icon, type IconName, pictogram } from "./dom";
+import { keepStorage } from "../lib/store";
+import { announce, BUTTON, type Child, fill, h, icon, type IconName, pictogram } from "./dom";
 import { dock, page } from "./layout";
 
 const INPUT =
@@ -32,27 +33,59 @@ interface FieldOptions {
   inputmode?: string;
   max?: number;
   autocomplete?: string;
+  /** What's wrong with a finished value that can't be saved, or null when it's fine. */
+  problem?: (value: string) => string | null;
 }
 
-/** A labelled input that writes through `set` on every keystroke. */
+let fields = 0;
+
+/** A four-digit year the profile keeps, or null. NFKC: a Chinese keyboard may type full-width １９５６. */
+function birthYear(value: string): number | null {
+  const text = value.normalize("NFKC").trim();
+  const n = Number(text);
+  return /^\d{4}$/.test(text) && n >= 1900 && n <= 2100 ? n : null;
+}
+
+/**
+ * A labelled input that writes through `set` on every keystroke. With
+ * `problem`, a finished value that can't be kept is marked, explained under the
+ * field and said, instead of the 已儲存 (Saved) the form says otherwise.
+ */
 function field(label: string, value: string, set: (value: string) => void, options: FieldOptions = {}): HTMLElement {
-  return h(
-    "label",
-    { class: "block text-lg font-bold" },
-    label,
-    h("input", {
-      class: INPUT,
-      value,
-      type: options.type ?? "text",
-      lang: options.lang,
-      inputmode: options.inputmode,
-      placeholder: options.placeholder,
-      maxlength: options.max ?? LIMITS.short,
-      autocomplete: options.autocomplete ?? "off",
-      oninput: (event: Event) => set((event.target as HTMLInputElement).value),
-    }),
-    options.hint && h("span", { class: `${HINT} font-normal` }, options.hint),
-  );
+  const errorId = `field-error-${++fields}`;
+  const error = h("span", { id: errorId, class: "mt-1 block text-base font-bold text-shu empty:hidden" });
+  const input = h("input", {
+    class: INPUT,
+    value,
+    type: options.type ?? "text",
+    lang: options.lang,
+    inputmode: options.inputmode,
+    placeholder: options.placeholder,
+    maxlength: options.max ?? LIMITS.short,
+    autocomplete: options.autocomplete ?? "off",
+    "aria-describedby": options.problem ? errorId : undefined,
+    oninput: () => {
+      set(input.value);
+      // Fixed while typing: clear the mark at once; a new problem waits for the field to be finished.
+      if (options.problem && !options.problem(input.value)) mark(null);
+    },
+    onchange: (event: Event) => {
+      const problem = options.problem?.(input.value) ?? null;
+      mark(problem);
+      if (!problem) return;
+      // Not 已儲存: the form says that for every other finished field (renderSetup).
+      event.stopPropagation();
+      announce(problem);
+    },
+  });
+  function mark(problem: string | null): void {
+    if (problem) input.setAttribute("aria-invalid", "true");
+    else input.removeAttribute("aria-invalid");
+    error.textContent = problem ?? "";
+  }
+  const labelled = h("label", { class: "block text-lg font-bold" }, label, input, options.hint && h("span", { class: `${HINT} font-normal` }, options.hint));
+  // Outside the label, so it is read once, as the description, not also as part of the name.
+  return options.problem ? h("div", null, labelled, error) : labelled;
 }
 
 /**
@@ -113,10 +146,18 @@ function listEditor<T>(options: {
               {
                 type: "button",
                 class: "inline-flex min-h-12 items-center gap-1 rounded-lg px-3 text-base font-bold text-shu active:bg-shu-soft",
+                // Every card has one: say which.
+                "aria-label": `刪除${options.noun} ${i + 1}`,
                 onclick: () => {
                   options.items.splice(i, 1);
                   options.onChange();
                   draw();
+                  // The pressed button is gone: keep focus nearby, on the card before (or the one that
+                  // moved up), never on another 刪除, where a held Enter would delete again.
+                  const cards = box.querySelectorAll<HTMLElement>(":scope > div");
+                  const near = cards[Math.max(0, i - 1)]?.querySelector<HTMLElement>("input:not([type=radio]), textarea");
+                  (near ?? box.querySelector<HTMLElement>(":scope > button"))?.focus();
+                  announce(`已刪除${options.noun} ${i + 1}`);
                 },
               },
               icon("trash", "h-5 w-5"),
@@ -136,6 +177,7 @@ function listEditor<T>(options: {
                 options.items.push(options.make());
                 options.onChange();
                 draw(true);
+                announce(`已新增${options.noun} ${options.items.length}`);
               },
             },
             icon("plus"),
@@ -275,7 +317,8 @@ export function renderSetup(root: HTMLElement): void {
   const year = profile.birthYear === null ? "" : String(profile.birthYear);
 
   const progress = h("span", { class: "min-w-0 text-lg font-bold" });
-  const saved = h("span", { class: "shrink-0 text-base font-bold text-ok", "aria-live": "polite" });
+  // Shown on every save; said only when a field is finished (change), not on every key.
+  const saved = h("span", { class: "shrink-0 text-base font-bold text-ok", "aria-hidden": "true" });
   const headers = new Map<SetupSectionId, { text: HTMLElement; mark: HTMLElement }>();
   let savedTimer = 0;
 
@@ -298,6 +341,20 @@ export function renderSetup(root: HTMLElement): void {
     saved.replaceChildren(icon("check", "mr-1 inline h-4 w-4 align-[-2px]"), "已儲存");
     window.clearTimeout(savedTimer);
     savedTimer = window.setTimeout(() => (saved.textContent = ""), 1500);
+  }
+
+  /**
+   * 完成 and 分享: not while a field holds a value it couldn't keep (marked as the
+   * field lost focus to this tap), or the message would leave with the page.
+   */
+  function leave(event: Event): void {
+    const invalid = root.querySelector<HTMLElement>('[aria-invalid="true"]');
+    if (invalid) {
+      event.preventDefault();
+      invalid.focus();
+      return;
+    }
+    keepStorage();
   }
 
   function group(id: SetupSectionId, ...children: Child[]): HTMLElement {
@@ -350,11 +407,18 @@ export function renderSetup(root: HTMLElement): void {
           "出生年（西元）",
           year,
           (v) => {
-            const n = Number(v);
-            profile.birthYear = Number.isInteger(n) && n >= 1900 && n <= 2100 ? n : null;
+            // A year being typed or mistyped ("195") doesn't replace the one kept; clearing does.
+            if (v.trim() !== "" && birthYear(v) === null) return;
+            profile.birthYear = birthYear(v);
             save();
           },
-          { inputmode: "numeric", placeholder: "例：1956", hint: "醫院一定會問年齡。", max: 4 },
+          {
+            inputmode: "numeric",
+            placeholder: "例：1956",
+            hint: "醫院一定會問年齡。",
+            max: 4,
+            problem: (v) => (v.trim() === "" || birthYear(v) !== null ? null : "請填 1900 到 2100 之間的四位數西元年，例：1956。這一欄還沒存。"),
+          },
         ),
       ),
     ),
@@ -477,10 +541,12 @@ export function renderSetup(root: HTMLElement): void {
         "div",
         { class: "grid grid-cols-2 gap-2" },
         // 完成 is what everyone does; 分享 is for family filling it in for someone else, so it stays soft.
-        h("a", { href: "#/share", class: `${BUTTON.soft} min-h-14` }, icon("share"), "分享"),
-        h("a", { href: "#/", class: `${BUTTON.primary} min-h-14` }, icon("check"), "完成"),
+        // Asked here, on a deliberate tap, not while typing: Firefox shows a prompt for it.
+        h("a", { href: "#/share", class: `${BUTTON.soft} min-h-14`, onclick: leave }, icon("share"), "分享"),
+        h("a", { href: "#/", class: `${BUTTON.primary} min-h-14`, onclick: leave }, icon("check"), "完成"),
       ),
     ),
   ]);
+  root.querySelector("main")?.addEventListener("change", () => announce("已儲存"));
   refresh(parseProfile(profile));
 }

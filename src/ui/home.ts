@@ -84,7 +84,7 @@ export function renderHome(root: HTMLElement): void {
           { class: "text-left" },
           h("span", { class: "block whitespace-nowrap text-[min(2rem,9vw)] font-bold leading-tight" }, "我需要幫忙"),
           // One line even at the largest text size: it shrinks with the screen before it wraps.
-          h("span", { class: "block whitespace-nowrap text-[min(1.125rem,6vw)] opacity-90" }, "迷路・找家人・急病"),
+          h("span", { class: "block whitespace-nowrap text-[min(1.125rem,5.5vw)] opacity-90" }, "迷路・找家人・急病"),
         ),
       ),
       empty &&
@@ -111,7 +111,7 @@ export function renderHome(root: HTMLElement): void {
         "div",
         { class: "mt-3 grid grid-cols-2 divide-x divide-dashed divide-hair overflow-hidden rounded-2xl bg-card" },
         h("a", { href: "#/hotel", class: SHORTCUT }, pictogram("taxi", "ai", "xs"), "回飯店"),
-        h("a", { href: "#/medical", class: SHORTCUT }, pictogram("medcard", "shu", "xs"), "醫療卡"),
+        h("a", { href: "#/medical/card", class: SHORTCUT }, pictogram("medcard", "shu", "xs"), "醫療卡"),
       ),
       places.length > 0 && todayRow(places),
       h(

@@ -18,7 +18,7 @@ export default {
       group: "diet",
       zh: "我有過敏，請看這張卡。",
       jp: "アレルギー が あります。この カード を {見|み}て ください。",
-      link: { href: "#/medical", label: "打開過敏卡" },
+      link: { href: "#/medical/allergy", label: "打開過敏卡" },
     },
     { id: "restaurant-one", group: "enter", zh: "一位。", jp: "{一人|ひとり} です。" },
     { id: "restaurant-two", group: "enter", zh: "兩位。", jp: "{二人|ふたり} です。" },

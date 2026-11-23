@@ -1,7 +1,7 @@
 import { deflateSync, strToU8 } from "fflate";
 import { describe, expect, it } from "vitest";
 import { emptyProfile } from "../src/profile/profile";
-import { decodeProfile, encodeProfile } from "../src/share/codec";
+import { decodeProfile, encodeProfile, shareUrl } from "../src/share/codec";
 import { sampleProfile } from "./fixtures";
 
 describe("share codec", () => {
@@ -12,6 +12,13 @@ describe("share codec", () => {
 
   it("round-trips an empty profile", () => {
     expect(decodeProfile(encodeProfile(emptyProfile()))).toEqual(emptyProfile());
+  });
+
+  it("builds a link LINE opens in the phone's own browser, with the profile in the fragment", () => {
+    const base = "https://sean1093.github.io/travel-buddy/japan/";
+    const url = shareUrl(sampleProfile(), base);
+    expect(url).toBe(`${base}?openExternalBrowser=1#/s/${encodeProfile(sampleProfile())}`);
+    expect(decodeProfile(new URL(url).hash.slice("#/s/".length))).toEqual(sampleProfile());
   });
 
   it("keeps an ordinary trip short enough for a QR code", () => {

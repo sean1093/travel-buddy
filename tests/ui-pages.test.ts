@@ -312,6 +312,50 @@ describe("medical", () => {
     expect(app().textContent).toContain("過敏卡（給餐廳看）");
     expect(app().textContent).toContain("LIN MEI-HUA");
   });
+
+  it("opens at the medical card from the 醫療卡 shortcut", async () => {
+    saveProfile(sampleProfile());
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    // On the next frame, so a phrase page the link was in has closed and the page isn't inert.
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.tagName).toBe("H2");
+    expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
+  });
+
+  it("opens at the allergy card from 打開過敏卡", async () => {
+    saveProfile(sampleProfile());
+    (await import("../src/ui/medical")).renderMedical(app(), ["allergy"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.textContent).toBe("過敏卡（給餐廳看）");
+  });
+
+  it("opens at the medical card when all it holds is a drug allergy", async () => {
+    saveProfile({ health: { ...sampleProfile().health, conditions: [], conditionsOther: "", meds: [], bloodType: "", foodAllergies: [], allergyOther: "", diets: [] }, insurance: { company: "", policy: "", phone: "" } });
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
+  });
+
+  it("opens at the medical card when it holds only the name and family phone, for the ambulance crew", async () => {
+    saveProfile({ passportName: "LIN MEI-HUA", contacts: sampleProfile().contacts });
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
+  });
+
+  it("stays at the symptom cards when the medical card would be empty: a hotel, a blank contact, a diet (not on the card)", async () => {
+    saveProfile({ hotels: sampleProfile().hotels, contacts: [{ name: "", relation: "", phone: "" }], health: { ...sampleProfile().health, conditions: [], conditionsOther: "", meds: [], bloodType: "", drugAllergies: [], foodAllergies: [], allergyOther: "" } });
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it("stays at the setup prompt when the shortcut finds nothing filled in", async () => {
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement).toBe(document.body);
+    expect(app().querySelector('main a[href="#/setup"]')).not.toBeNull();
+  });
 });
 
 describe("help", () => {
@@ -368,7 +412,7 @@ describe("help", () => {
   it("enlarges the whole card for the other person", async () => {
     saveProfile(sampleProfile());
     await render();
-    [...app().querySelectorAll("button")].find((b) => b.textContent === "放大")!.click();
+    [...app().querySelectorAll("button")].find((b) => b.textContent === "給對方看")!.click();
     const dialog = dialogs().at(-1)!;
     expect(dialog.getAttribute("aria-label")).toBe("我需要幫忙");
     expect(dialog.textContent).toContain("名前：LIN MEI-HUA");
@@ -376,7 +420,7 @@ describe("help", () => {
 
   it("closes an enlarged card when leaving the page", async () => {
     await render();
-    [...app().querySelectorAll("button")].find((b) => b.textContent === "放大")!.click();
+    [...app().querySelectorAll("button")].find((b) => b.textContent === "給對方看")!.click();
     expect(dialogs()).toHaveLength(1);
     location.hash = "#/";
     await tick();

@@ -101,10 +101,11 @@ export function section(title: string | null, ...children: Child[]): HTMLElement
  */
 export function dock(label: string, ...children: Child[]): HTMLElement[] {
   return [
-    h("div", { class: "h-24", "aria-hidden": "true" }),
+    // As tall as the tallest dock (at 特大) plus the home indicator's inset, so it never covers the last line.
+    h("div", { style: "height: calc(7rem + env(safe-area-inset-bottom))", "aria-hidden": "true" }),
     h(
       "nav",
-      { class: "pb-safe fixed inset-x-0 bottom-0 z-20 border-t-2 border-hair bg-paper/95 backdrop-blur", "aria-label": label },
+      { class: "pb-safe fixed inset-x-0 bottom-0 z-20 border-t-2 border-hair bg-paper/95 backdrop-blur", "aria-label": label, "data-dock": "" },
       h("div", { class: "mx-auto max-w-xl px-4 pt-2" }, children),
     ),
   ];

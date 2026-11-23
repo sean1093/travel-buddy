@@ -58,6 +58,7 @@ export const GUIDES: Guide[] = [
       },
     ],
     notes: [
+      "買東西後 90 天內要出境，並在機場辦完確認，超過就不能退稅。",
       "同一張收據上的東西少一件沒帶，整張收據都不能退稅。",
       "還沒辦完就托運行李，就失去退稅資格，航空公司也不會幫你把行李拿回來。",
       "還沒給海關確認就用宅配寄走的東西，不能退稅。",
@@ -71,16 +72,22 @@ export const GUIDES: Guide[] = [
       // Steps and notes: the official zh-TW leaflet 「外國人旅客免稅（退稅）手續指南」 by the Japan Tourism
       // Agency, National Tax Agency and Japan Customs (shared by the owner, 2026-10-11), and the JTA page:
       // refund model from purchases on 2026-11-01, passport at a kiosk within 90 days.
+      // Re-checked after launch (see `verified`). The official sites were unreachable from the checking
+      // environment, so this used their text as quoted in search results (content guide §9): JTA traveller
+      // page and FAQ (page01_000001_00023), Customs, NTA refund-model Q&A and the Narita and Haneda pages.
+      // All steps and notes still hold, including: online procedure at the same 7 airports up to
+      // security; one missing item voids the whole receipt; goods sent by EMS etc. are not refunded;
+      // consumables used up are declared to a customs officer, not at the kiosk; connect from a
+      // domestic flight and do it at the last airport of departure; no transition period.
       "https://www.mlit.go.jp/kankocho/tax-free/page01_000001_00021.html",
-      // Japan Customs: co-issuer of the leaflet; confirms goods at departure.
-      "https://www.customs.go.jp/",
+      // JTA traveller FAQ for the refund model.
+      "https://www.mlit.go.jp/kankocho/tax-free/page01_000001_00023.html",
+      // Japan Customs: confirms goods at departure (green / red result).
+      "https://www.customs.go.jp/kaigairyoko/taxrefund/jpn.htm",
       // Chubu Centrair: once baggage is checked in, the procedure is no longer possible.
       "https://www.centrair.jp/taxrefund/",
     ],
-    verified: "2026-10-11",
-    // Written before the new system starts on 2026-11-01: confirm it once it is running
-    // (kiosks, what the airports actually ask for), and correct the guide.
-    recheckBy: "2026-11-15",
+    verified: "2026-11-23",
   },
   {
     id: "shinkansen-luggage",

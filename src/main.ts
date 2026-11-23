@@ -1,7 +1,7 @@
 import "./style.css";
 import { onVoicesChanged } from "./lib/speech";
 import { applySettings } from "./state";
-import { focusHeading } from "./ui/dom";
+import { focusHeading, liveRegion } from "./ui/dom";
 import { setTitle } from "./ui/layout";
 import { renderGuide, renderTools } from "./ui/guide";
 import { renderHelp } from "./ui/help";
@@ -52,11 +52,15 @@ function route(): void {
   // A safety net: every page sets its own title, but one that forgets gets home's, never the previous page's.
   setTitle();
   render(root, args);
-  if (routed) focusHeading(root);
+  // On the next frame, once a layer the link was in has closed and the page is no longer inert.
+  // A page that put focus somewhere itself (e.g. #/medical/card on the card) keeps it.
+  if (routed) requestAnimationFrame(() => root.contains(document.activeElement) || focusHeading(root));
   routed = true;
 }
 
 applySettings();
+// Ready before the first announcement (see liveRegion).
+liveRegion();
 // The system theme can change while the app is open (e.g. at sunset).
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", applySettings);
 // The voice list arrives late on some browsers; the settings page shows it.

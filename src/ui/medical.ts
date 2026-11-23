@@ -18,7 +18,7 @@ const MEDICAL_PHRASES = [
   "emergency-english-certificate",
 ];
 
-/** The card, then 播放／放大 for it. */
+/** The card, then 播放／給對方看 for it. */
 function cardWithActions(blocks: CardBlock[], label: string): HTMLElement {
   return h(
     "div",
@@ -99,8 +99,16 @@ function symptomPicker(): HTMLElement {
   );
 }
 
-/** `#/medical`: medical card, allergy card, symptom pointing card. */
-export function renderMedical(root: HTMLElement): void {
+/** Where `#/medical/<target>` opens the page: at the card's heading. */
+const TARGETS: Record<string, string> = { card: "醫療卡", allergy: "過敏卡" };
+
+/**
+ * `#/medical`, or `#/medical/card` (home's 醫療卡 shortcut, 打開醫療卡 links) and
+ * `#/medical/allergy` (打開過敏卡): the same page, opened at that card, because
+ * whoever taps it is about to hand the phone over. Without that card (nothing
+ * filled in), it stays at the top: the symptom cards, and the setup prompt.
+ */
+export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): void {
   const profile = loadProfile();
   const allergy = allergyCard(profile);
   const emergency = sceneById("emergency");
@@ -117,4 +125,31 @@ export function renderMedical(root: HTMLElement): void {
     section("醫療卡（給醫生、救護人員看）", cardWithActions(medicalCard(profile), "醫療卡")),
     section("常用句", rowGroup(phrases.map((p) => phraseRow(p, { jp: p.jp, zh: p.zh }, "醫療・過敏")))),
   ]);
+  const start = Object.hasOwn(TARGETS, target) ? TARGETS[target] : undefined;
+  // Only to a card with something on it: otherwise the symptom cards at the top help more.
+  // What the medical card (profile/cards.ts) shows beyond its fixed lines. The allergy card: `allergy`.
+  const health = profile.health;
+  const ins = profile.insurance;
+  const filled = [
+    profile.passportName.trim(),
+    profile.birthYear,
+    health.bloodType,
+    health.conditions.length || health.conditionsOther.trim(),
+    health.meds.length,
+    health.drugAllergies.length || health.foodAllergies.length || health.allergyOther.trim(),
+    profile.contacts[0]?.name.trim() || profile.contacts[0]?.phone.trim() || profile.contacts[0]?.relation.trim(),
+    ins.company.trim() || ins.policy.trim() || ins.phone.trim(),
+  ].some(Boolean);
+  if (start && (target === "allergy" ? allergy : filled)) {
+    const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith(start));
+    if (!heading) return;
+    heading.tabIndex = -1;
+    // On the next frame: a link from a phrase page arrives while that layer is still closing
+    // and the page is inert, where focus can't land.
+    requestAnimationFrame(() => {
+      heading.focus({ preventScroll: true });
+      // scroll-padding (style.css) keeps it clear of the sticky header.
+      heading.scrollIntoView({ block: "start" });
+    });
+  }
 }

@@ -304,9 +304,9 @@ Each country edition uses its own prefix (see [development.md](development.md#lo
 ## 6. Share links
 
 ```
-https://sean1093.github.io/travel-buddy/japan/#/s/1.<payload>
-                                                  │ └─ base64url( deflate-raw( UTF-8( JSON( wire ) ) ) )
-                                                  └─── format version
+https://sean1093.github.io/travel-buddy/japan/?openExternalBrowser=1#/s/1.<payload>
+                                                                        │ └─ base64url( deflate-raw( UTF-8( JSON( wire ) ) ) )
+                                                                        └─── format version
 ```
 
 - **Wire format**: the Profile as JSON with short key names; empty fields are omitted entirely. The mapping is in `src/share/codec.ts` (e.g. elevator notes are `e`), with round-trip tests.
@@ -351,6 +351,6 @@ https://sean1093.github.io/travel-buddy/japan/#/s/1.<payload>
 | Positioning | Not an all-in-one toolbox; translation, maps, ride-hailing and alerts are left to dedicated apps and introduced under "Recommended free tools" instead |
 | In-station elevator maps | Not doing (data is scattered, goes stale, is hard to read, and Google Maps already has wheelchair routes); doing elevator phrases and elevator notes instead |
 | 「請寫在這裡」 ("Please write here") handwriting pad | Not doing; ask the other person to write on paper |
-| iOS home-screen app doesn't share storage with Safari | Not addressed for now |
+| iOS home-screen app doesn't share storage with Safari | The home-screen tip after an import is shown on Android only; iPhone users keep using Safari |
 | Birth year | Included in the medical card and share link |
 | Usage tracking | Not added; data stays only on the user's phone |

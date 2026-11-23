@@ -73,21 +73,23 @@ export function renderHelp(root: HTMLElement): void {
       "main",
       { class: "space-y-4 px-4 pb-16 pt-4" },
       h("p", { class: "text-lg font-bold text-shu" }, "把下面的畫面拿給路人、車站人員或警察看"),
+      // 給對方看, the same word for the same action everywhere, on its own row: four characters
+      // don't fit a third of the width at 特大. It stays pale: 110 and 119 are this page's solid buttons.
+      h(
+        "button",
+        {
+          type: "button",
+          class: "inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-lg bg-ai-soft px-2 text-lg font-bold text-ai active:scale-95",
+          onclick: () => showToOther(blocks, "我需要幫忙"),
+        },
+        icon("expand"),
+        "給對方看",
+      ),
       h(
         "div",
-        { class: "grid grid-cols-3 gap-2" },
+        { class: "grid grid-cols-2 gap-2" },
         playButton(lines, "normal", "md", "whitespace-nowrap"),
         playButton(lines, "slow", "md", "whitespace-nowrap"),
-        h(
-          "button",
-          {
-            type: "button",
-            class: "inline-flex min-h-14 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-ai-soft px-2 text-lg font-bold text-ai active:scale-95",
-            onclick: () => showToOther(blocks, "我需要幫忙"),
-          },
-          icon("expand"),
-          "放大",
-        ),
       ),
       blocks.map((block) => cardBlock(block)),
       blocks.length <= 2 &&

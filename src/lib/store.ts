@@ -62,6 +62,27 @@ function parseJson(raw: string | null): unknown {
   }
 }
 
+let keepAsked = false;
+
+/**
+ * Asks the browser once per page to keep this site's storage instead of
+ * clearing it under pressure or after a while unused. The answer doesn't
+ * matter: the app works either way, it just may forget sooner.
+ */
+export function keepStorage(): void {
+  if (keepAsked) return;
+  keepAsked = true;
+  try {
+    const storage = navigator.storage;
+    // Already kept: asking again could only show a prompt.
+    void Promise.resolve(storage?.persisted?.())
+      .then((kept) => kept || storage?.persist?.())
+      .catch(() => undefined);
+  } catch {
+    // An old or locked-down browser: nothing to ask.
+  }
+}
+
 // Storage throws in some private-browsing modes and when full: the app then
 // still works, it just does not remember.
 function read(key: string): string | null {

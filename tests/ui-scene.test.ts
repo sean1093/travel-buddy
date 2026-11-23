@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RESCUE } from "../src/content/rescue";
 import { SCENES, sceneById } from "../src/content/scenes";
 import { plain, romaji, slotsOf } from "../src/lib/jp";
+import { accessibleName, visibleText } from "./a11y";
 import { sampleProfile } from "./fixtures";
 
 type SceneModule = typeof import("../src/ui/scene");
@@ -37,8 +38,8 @@ const dialogs = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"
 const topDialog = () => dialogs().at(-1)!;
 const buttons = (root: ParentNode) => [...root.querySelectorAll<HTMLButtonElement>("button")];
 const button = (root: ParentNode, text: string) => {
-  const found = buttons(root).find((b) => b.textContent?.trim() === text);
-  if (!found) throw new Error(`no button "${text}" in: ${buttons(root).map((b) => b.textContent?.trim()).join(" / ")}`);
+  const found = buttons(root).find((b) => visibleText(b) === text);
+  if (!found) throw new Error(`no button "${text}" in: ${buttons(root).map(visibleText).join(" / ")}`);
   return found;
 };
 /** Phrase rows show the Chinese first, then a hint of the Japanese. */
@@ -127,10 +128,10 @@ describe("phrase overlay", () => {
     scene.renderScene(app(), ["transport"]);
     row(wantToGo).click();
     const dialog = topDialog();
-    const labels = buttons(dialog).map((b) => b.textContent?.trim());
+    const labels = buttons(dialog).map(visibleText);
     expect(labels).toEqual(expect.arrayContaining(["播放", "慢速", "給對方點選答案", "給對方看"]));
-    expect(button(dialog, "播放").getAttribute("aria-label")).toBe("播放「ここに行きたいです。」");
-    expect(button(dialog, "慢速").getAttribute("aria-label")).toBe("慢速播放「ここに行きたいです。」");
+    expect(accessibleName(button(dialog, "播放"))).toBe("播放「ここに行きたいです。」");
+    expect(accessibleName(button(dialog, "慢速"))).toBe("慢速播放「ここに行きたいです。」");
   });
 
   it("has no let-them-tap button for a phrase without answers", () => {
@@ -140,7 +141,7 @@ describe("phrase overlay", () => {
     )!;
     scene.renderScene(app(), [found.s.id]);
     row(found.p.zh).click();
-    const labels = buttons(topDialog()).map((b) => b.textContent?.trim());
+    const labels = buttons(topDialog()).map(visibleText);
     expect(labels).toEqual(expect.arrayContaining(["播放", "慢速", "給對方看"]));
     expect(labels).not.toContain("給對方點選答案");
   });
@@ -188,14 +189,17 @@ describe("heard view", () => {
     const cards = [...app().querySelectorAll("main article")];
     cards.forEach((card, i) => {
       const text = plain(heard[i]!.jp);
-      const speaker = card.querySelector<HTMLButtonElement>("button[aria-label]")!;
-      expect(speaker.getAttribute("aria-label")).toBe(`播放「${text}」`);
+      const speaker = card.querySelector<HTMLButtonElement>("button")!;
+      expect(accessibleName(speaker)).toBe(`播放「${text}」`);
       speaker.click();
-      expect(speaker.getAttribute("aria-label")).toBe(`慢速播放「${text}」`);
+      expect(accessibleName(speaker)).toBe(`慢速播放「${text}」`);
       speaker.click();
-      expect(speaker.getAttribute("aria-label")).toBe(`播放「${text}」`);
+      expect(accessibleName(speaker)).toBe(`播放「${text}」`);
       speaker.click();
-      expect(speaker.getAttribute("aria-label")).toBe(`慢速播放「${text}」`);
+      expect(accessibleName(speaker)).toBe(`慢速播放「${text}」`);
+      // The Japanese in the name is marked, so a screen reader reads it in Japanese.
+      expect(speaker.getAttribute("aria-label")).toBeNull();
+      expect(speaker.querySelector('.sr-only [lang="ja"]')?.textContent).toBe(text);
     });
   });
 
@@ -241,7 +245,7 @@ describe("place picker", () => {
     expect(app().textContent).not.toContain("淺草・電梯筆記");
     // The picked station reaches the Japanese too.
     row("我想去新宿。").click();
-    expect(button(topDialog(), "播放").getAttribute("aria-label")).toBe("播放「新宿駅に行きたいです。」");
+    expect(accessibleName(button(topDialog(), "播放"))).toBe("播放「新宿駅に行きたいです。」");
   });
 
   // Regression: picking redraws the whole picker; without refocusing, the focus fell to

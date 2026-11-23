@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { plain, romaji } from "../src/lib/jp";
+import { accessibleName, spoken, visibleText } from "./a11y";
 
 type Overlay = typeof import("../src/ui/overlay");
 let ov: Overlay;
@@ -32,8 +33,8 @@ const dialogs = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"
 const topDialog = () => dialogs().at(-1)!;
 const buttons = (root: ParentNode = document) => [...root.querySelectorAll<HTMLButtonElement>("button")];
 const button = (root: ParentNode, text: string) => {
-  const found = buttons(root).find((b) => b.textContent?.trim() === text);
-  if (!found) throw new Error(`no button "${text}" in: ${buttons(root).map((b) => b.textContent?.trim()).join(" / ")}`);
+  const found = buttons(root).find((b) => visibleText(b) === text);
+  if (!found) throw new Error(`no button "${text}" in: ${buttons(root).map(visibleText).join(" / ")}`);
   return found;
 };
 const press = (key: string, shiftKey = false) => {
@@ -239,7 +240,7 @@ describe("showToOther", () => {
       { jp, zh: "車站在哪裡？" },
       { jp: "ありがとう", zh: "謝謝" },
     ]);
-    const labels = buttons(topDialog()).map((b) => b.getAttribute("aria-label"));
+    const labels = buttons(topDialog()).map(accessibleName);
     expect(labels).toContain(`播放「${plain(jp)}ありがとう」`);
     expect(labels).toContain(`慢速播放「${plain(jp)}ありがとう」`);
   });
@@ -283,6 +284,23 @@ describe("askOther", () => {
     // The answer buttons are gone; 知道了 has the focus.
     expect(buttons(dialog).some((b) => b.textContent === "わかりません")).toBe(false);
     expect(document.activeElement).toBe(button(dialog, "知道了"));
+  });
+
+  it("tells a screen reader the answer, which focus on 知道了 alone would skip", async () => {
+    ov.askOther(question, replies);
+    button(topDialog(), "1番線").click();
+    expect(await spoken()).toBe("對方回答：1 號月台");
+    // Inside the dialog: VoiceOver ignores a live region outside an aria-modal layer.
+    expect(topDialog().querySelector('[aria-live="polite"]')?.textContent).toBe("對方回答：1 號月台");
+  });
+
+  it("has its live region from the moment it opens, before anything is said", () => {
+    ov.askOther(question, replies);
+    const region = topDialog().querySelector("[data-live-region]");
+    expect(region?.getAttribute("aria-live")).toBe("polite");
+    button(topDialog(), "1番線").click();
+    // The same region, not one made with the text: screen readers often miss those.
+    expect(topDialog().querySelector("[data-live-region]")).toBe(region);
   });
 
   it("goes back to the question with 再問一次", () => {

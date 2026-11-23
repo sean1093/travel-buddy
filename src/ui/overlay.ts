@@ -1,7 +1,7 @@
 import type { Jp, Reply } from "../content/types";
 import { plain } from "../lib/jp";
 import type { Line } from "../profile/cards";
-import { BUTTON, h, icon } from "./dom";
+import { announce, BUTTON, h, icon, liveRegion } from "./dom";
 import { hush, play, playAll, playButton } from "./japanese";
 import { lineNode } from "./lines";
 
@@ -104,6 +104,7 @@ export function openOverlay(label: string, build: (close: () => void) => HTMLEle
 
   const returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   overlay.append(build(close));
+  liveRegion(overlay);
   if (stack.length === 0) window.addEventListener("popstate", onPop);
   stack.push(entry);
   history.pushState({ [STATE_KEY]: token }, "");
@@ -297,6 +298,8 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
         ),
       );
       done.focus({ preventScroll: true });
+      // Focus lands on 知道了, which a screen reader reads instead of the answer: say the answer too.
+      announce(`對方回答：${reply.zh}`);
     }
 
     asking();

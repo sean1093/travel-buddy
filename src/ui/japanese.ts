@@ -95,6 +95,15 @@ const PLAY_TONES = {
   plain: "",
 };
 
+/**
+ * The Japanese a play button says, for screen readers only: 「…」 with the
+ * Japanese marked lang="ja". An aria-label can't carry its own language, so a
+ * Japanese label on this zh-Hant page would be read in a Chinese voice.
+ */
+export function spokenName(text: string): HTMLSpanElement {
+  return h("span", { class: "sr-only" }, "「", h("span", { lang: "ja" }, text), "」");
+}
+
 /** Play button (normal or slow). Plays every line of `lines` in turn. */
 export function playButton(
   lines: Jp | Jp[],
@@ -111,10 +120,10 @@ export function playButton(
       type: "button",
       // Normal and slow look the same: the icon and the label tell them apart.
       class: `inline-flex items-center justify-center font-bold text-ai transition active:scale-95 ${PLAY_TONES[tone]} ${PLAY_SIZES[size]} ${extra}`,
-      "aria-label": `${slow ? "慢速播放" : "播放"}「${all.map(plain).join("")}」`,
     },
     icon(slow ? "slow" : "speaker", "h-6 w-6"),
-    slow ? "慢速" : "播放",
+    slow ? ["慢速", h("span", { class: "sr-only" }, "播放")] : "播放",
+    spokenName(all.map(plain).join("")),
   );
   button.addEventListener("click", (event) => {
     event.stopPropagation();

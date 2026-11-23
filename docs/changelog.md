@@ -2,6 +2,37 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-11-23
+
+From an expert panel review (UX for older travellers, Japanese content, accessibility, offline engineering, product), debated and narrowed to the changes below.
+
+### Sharing and keeping the data
+- **LINE opens the share link in the phone's browser:** links now carry LINE's `?openExternalBrowser=1`. Before, a link tapped in LINE imported into LINE's own browser, and the app looked empty the next time it was opened from Safari, Chrome or the home screen. The import screen removes the query from the address bar together with the data.
+- **The browser is asked to keep the data:** on 開始使用 (Start) after an import, and on 完成 (Done) or 分享 (Share) in 設定資料 (Set up info), the app asks the browser not to clear its storage. Only on a tap: Firefox asks the user about it.
+- **Home-screen tip:** 設定完成 (Setup complete) now suggests adding the site to the home screen, on Android only: on iPhone and iPad a home-screen app keeps its own storage apart from Safari's and would open empty.
+
+### Under stress
+- **Weak signal:** a page load waits at most 4 seconds for the network, then opens the copy on the phone, so 我需要幫忙 (I need help) no longer hangs on a connection that neither answers nor fails. A server error no longer replaces the app when the phone has it. A new version is still picked up when the network answers in time, and is only kept for offline use once its script and stylesheet are cached too.
+- **Offline from the first visit:** the site icon, the manifest and the home-screen icons are now cached with the app on the first visit.
+- **Storage stays small:** app files of older versions are now removed from the phone as updates arrive.
+- **醫療卡 (Medical card) shortcut** opens the medical page at the medical card, not at the symptom list above it; the 打開醫療卡 (Open medical card) links in scenes do the same, and 打開過敏卡 (Open allergy card) at the restaurant opens at the allergy card.
+- **One word for one action:** 放大 (Enlarge) on the help page and the back-to-hotel card is now 給對方看 (Show them), as everywhere else, and the lift note's button is 給站務員看 (Show the station staff). On the help page it has its own row.
+
+### Screen readers and keyboards
+- **Japanese in a Japanese voice:** play buttons no longer put the Japanese in a Chinese label, which screen readers read with a Chinese voice. The Japanese is now marked as Japanese.
+- **The answer is read out:** after the other person taps an answer in 給對方點選 (Let them tap), a screen reader says it.
+- **Setup:** each 刪除 (Delete) button says which card it deletes, focus stays nearby after a delete, and 已儲存 (Saved) is said once a field is finished instead of on every key. A birth year that can't be kept (e.g. 195) is marked, explained under the field and said, and the year saved before stays; 完成 (Done) and 分享 (Share) wait until it is fixed.
+- **Nothing hidden:** a focused field, or a heading the page scrolls to, is kept clear of the page header and the bottom buttons, at every text size and sideways.
+
+### Build
+- **CI runners pinned to Ubuntu 24.04:** GitHub's `ubuntu-latest` moved to 26.04, where Playwright 1.56 can't install Chromium, so every e2e run (and every deploy) failed before its first test.
+
+### Content
+- **出境退稅新制 (New tax refund system)** re-checked after the system started on 2026-11-01: everything still holds; a note now says the procedure must be done within 90 days of buying.
+- **Lost items:** the phrase now clearly reports a loss (遺失届), and the tip says to note the reference number (受理番号), used when the item is found and for any enquiry.
+- **Lift:** 「エレベーターまで案内していただけますか」 (Could you take me to the lift?) asks the station staff themselves, instead of asking them to get a station clerk.
+- **New 對方說 (They say) cards:** convenience store: 要湯匙嗎？ (Do you want a spoon?) and the payment screen facing the customer; drugstore: no pharmacist on duty, and medicine that makes you drowsy.
+
 ## 2026-11-04
 
 ### Travel cheat sheets in search

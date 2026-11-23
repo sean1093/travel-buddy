@@ -1,4 +1,5 @@
 import { isEmpty, loadProfile, type Profile, saveProfile } from "../profile/profile";
+import { keepStorage } from "../lib/store";
 import { decodeProfile } from "../share/codec";
 import { BUTTON, fill, focusHeading, h, icon, type IconName } from "./dom";
 import { setTitle } from "./layout";
@@ -10,7 +11,8 @@ import { setTitle } from "./layout";
  */
 export function renderImport(root: HTMLElement, [payload = ""]: string[]): void {
   const incoming = decodeProfile(payload);
-  history.replaceState(null, "", "#/imported");
+  // The path alone: a query the link carried (?openExternalBrowser=1 for LINE) goes too.
+  history.replaceState(null, "", `${location.pathname}#/imported`);
   if (!incoming) {
     screen(root, "alert", "這個連結好像不完整", "請重新傳一次連結，或重新掃一次 QR code。", [
       h("a", { href: "#/", class: BUTTON.primary }, "回首頁"),
@@ -32,9 +34,25 @@ function done(root: HTMLElement, profile: Profile): void {
   saveProfile(profile);
   const name = profile.callName ? `${profile.callName}，` : "";
   screen(root, "checkcircle", "設定完成", `${name}之後直接打開這個網站就好，不用再點連結。沒有網路也能用。`, [
-    h("a", { href: "#/", class: BUTTON.primary }, "開始使用"),
+    ...(homeScreenSharesStorage() ? [h("p", { class: "text-lg leading-relaxed text-muted" }, HOME_SCREEN_TIP)] : []),
+    // Asked on a deliberate tap, not as the screen opens: Firefox shows a prompt for it.
+    h("a", { href: "#/", class: BUTTON.primary, onclick: keepStorage }, "開始使用"),
   ]);
 }
+
+/** Shown when setup arrives: an icon is easier to find again than a link in a chat. */
+export const HOME_SCREEN_TIP = "建議把這個網站加到手機主畫面，下次點圖示就能打開。";
+
+/**
+ * Android's own browser only. On iPhone and iPad an app added to the home
+ * screen keeps its own storage, apart from Safari's, so it would open without
+ * what was just saved (docs/spec.md); a computer has no home screen; and an
+ * app's built-in browser (LINE, Facebook, Instagram: "; wv)") can't add one.
+ */
+const homeScreenSharesStorage = () => {
+  const agent = navigator.userAgent;
+  return /Android/.test(agent) && !/; wv\)| Line\/|FBAN|FB_IAB|Instagram/.test(agent);
+};
 
 function screen(root: HTMLElement, glyph: IconName, title: string, body: string, actions: HTMLElement[]): void {
   setTitle(title);

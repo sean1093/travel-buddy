@@ -33,24 +33,32 @@ export function fill(parent: Element, ...children: Child[]): void {
   append(parent, children);
 }
 
-/** The one live region; created on the first announcement and never removed. */
-let liveRegion: HTMLElement | null = null;
-
 /**
- * Says `text` to a screen reader without showing it. One polite region for
- * the whole app, so two announcements never race.
+ * The polite live region directly inside `host`, made if it has none. Screen
+ * readers often miss a region that appears together with its text, so the
+ * page (main.ts) and each full-screen layer (openOverlay) make theirs when they
+ * open, before anything is said.
  */
+export function liveRegion(host: Element = document.body): HTMLElement {
+  const found = [...host.children].find((el): el is HTMLElement => el instanceof HTMLElement && el.hasAttribute("data-live-region"));
+  if (found) return found;
+  const region = h("div", { class: "sr-only", "aria-live": "polite", "aria-atomic": "true", "data-live-region": "" });
+  host.append(region);
+  return region;
+}
+
+/** Where announcements go: the top full-screen layer, since screen readers (VoiceOver) ignore everything outside an aria-modal dialog. */
+const announceHost = () => [...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].at(-1) ?? document.body;
+
+/** Says `text` to a screen reader without showing it. */
 export function announce(text: string): void {
-  if (!liveRegion) {
-    liveRegion = h("div", { class: "sr-only", "aria-live": "polite", "aria-atomic": "true" });
-    document.body.append(liveRegion);
-  }
-  const region = liveRegion;
+  const region = liveRegion(announceHost());
   // The same text twice in a row is not a change, and would stay unread:
   // clear it, then set it once the empty value has been seen.
   region.textContent = "";
   requestAnimationFrame(() => {
-    region.textContent = text;
+    // The layer it was said in closed meanwhile: say it where the reader is now.
+    (region.isConnected ? region : liveRegion(announceHost())).textContent = text;
   });
 }
 
@@ -130,7 +138,7 @@ export type IconName = keyof typeof ICONS;
 
 export function icon(name: IconName, cls = "h-6 w-6"): SVGSVGElement {
   const template = document.createElement("template");
-  template.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="${cls}">${ICONS[name]}</svg>`;
+  template.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 ${cls}">${ICONS[name]}</svg>`;
   return template.content.firstElementChild as SVGSVGElement;
 }
 

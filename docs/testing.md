@@ -46,11 +46,11 @@ Rules of thumb:
 | Japanese text, ruby, romaji, play buttons | `jp.test.ts`, `romaji.test.ts` | `ui-japanese.test.ts` | — |
 | Speech | `speech.test.ts` | `ui-japanese.test.ts` | — (device check) |
 | Medical, allergy and symptom cards | `cards.test.ts`, `content.test.ts` | `ui-pages.test.ts` | medical journey |
-| Setup, share and import | `profile.test.ts`, `codec.test.ts` | — | share journey |
+| Setup, share and import | `profile.test.ts`, `codec.test.ts` | `ui-setup.test.ts` | share journey, layout matrix (focus not hidden on setup) |
 | Settings: text size, theme, voice | `state.test.ts`, `summary.test.ts` | — | settings journey |
 | Storage | `store.test.ts` | — | settings and share journeys |
 | Routing, unknown routes | — | — | routing journey |
-| Offline | — | — | offline journey |
+| Offline | `sw.test.ts` (weak signal, safe shell updates) | — | offline journey |
 | Colours | `contrast.test.ts` | — | layout matrix (dark) |
 | Search and link previews, static guide pages | `seo.test.ts`, `seo-pages.test.ts`, `sw.test.ts` | `ui-pages.test.ts` (tab titles) | `seo.spec.ts` |
 
@@ -60,16 +60,18 @@ Rules of thumb:
 
 - phone 390×844
 - narrow 320×640
-- 特大 (extra-large) text
+- 特大 (extra-large) text, at 390×844 and at 360×780 (the most common Android width)
 - dark theme
-- landscape 844×390
+- landscape 844×390, also at 特大
 
 It also opens the full-screen layers at each variant: the phrase page, 給對方點選 (Let them tap), 給對方看 (Show them) and 萬用句 (All-purpose phrases).
 
-For each case it checks three things:
+For each case it checks:
 - The page must not scroll sideways.
 - Every visible button and link must have an accessible name.
-- Tappable targets must be at least 44px tall. This covers the page header, the content and any open layer.
+- Tappable targets must be at least 44px tall, and their content must fit inside them. This covers the page header, the content and any open layer.
+
+At each variant it also walks 設定資料 (Set up info) with the Tab key and checks that the focused field's first line is never under the page header or the bottom buttons (WCAG 2.4.11), and that home's 醫療卡 (Medical card) shortcut lands on the medical card, focused and in view.
 
 ## Offline in e2e
 
@@ -106,8 +108,8 @@ npx playwright install chromium
 | Install and offline | The manifest and icons are valid for Add to Home Screen. With the network off, a scene and the help card still open. | The real install prompt and home-screen icon |
 | Sideways | On 給對方看 (Show them), the play buttons sit in the top bar and the Japanese is large and starts in view | — |
 | Print | Wallet cards are 85.6×54 mm (folded cards span two slots, 112 mm) and their cut lines line up. The sample trip fits one A4 sheet, without the page title or any controls; a longer trip continues on a second sheet. On a 320 px phone the preview keeps true-size cards with nothing clipped, and only the card area scrolls sideways. | The printer's own scaling |
-| Share link | The link uses only URL-safe characters, is under 2,000 characters, and imports every field in a fresh browser | How a messenger app previews or rewrites the link |
-| Screen reader | One h1, every control named, the dialog labelled with focus on 關閉 (Close). All Japanese is marked `lang="ja"`, and the furigana is not read aloud. | What VoiceOver or TalkBack actually say |
+| Share link | The link uses only URL-safe characters and LINE's `?openExternalBrowser=1`, is under 2,000 characters, imports every field in a fresh browser, and leaves neither the data nor the query in the address bar | How a messenger app previews or rewrites the link, and that LINE really opens the phone's browser |
+| Screen reader | One h1, every control named, the dialog labelled with focus on 關閉 (Close). All Japanese is marked `lang="ja"`, none is hidden in a label (`aria-label`, `title`, `alt`) where it can't be, and the furigana is not read aloud. | What VoiceOver or TalkBack actually say |
 
 ## Manual device check
 
@@ -115,7 +117,7 @@ What's left needs a real phone. Do this before a release that touches speech, pr
 
 1. Play a phrase, then slow. It sounds like a natural Japanese voice, with no English accent.
 2. Add to the home screen. The icon and name look right, and the app opens full screen from the icon.
-3. Send a share link through LINE and Messages, then tap it there. The import screen appears.
+3. Send a share link through LINE and Messages, then tap it there. The import screen appears; from LINE, in the phone's own browser (Safari or Chrome), not inside LINE.
 4. Use VoiceOver or TalkBack on the home page and a phrase page. Each control is announced with its label, and Japanese is read once, in a Japanese voice.
 5. On Safari, repeat the sideways and print checks once by eye: Safari isn't covered by CI.
 

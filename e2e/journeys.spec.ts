@@ -18,15 +18,15 @@ test("help card: passport name, enlarge, close with 關閉 and with back", async
   await expect(page.getByRole("main")).toContainText("LIN MEI-HUA");
 
   const dialog = page.getByRole("dialog", { name: "我需要幫忙" });
-  await page.getByRole("button", { name: "放大" }).click();
+  await page.getByRole("button", { name: "給對方看", exact: true }).click();
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("LIN MEI-HUA");
   await dialog.getByRole("button", { name: "關閉" }).click();
   await expect(dialog).toHaveCount(0);
   await expect(page).toHaveURL(/#\/help$/);
-  await expect(page.getByRole("button", { name: "放大" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "給對方看", exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "放大" }).click();
+  await page.getByRole("button", { name: "給對方看", exact: true }).click();
   await expect(dialog).toBeVisible();
   await page.goBack();
   await expect(dialog).toHaveCount(0);
@@ -71,6 +71,17 @@ test("konbini heard tab: a reply opens 我的回答 in Japanese", async ({ page,
   await expect(answer).toBeVisible();
   await expect(answer.locator('[lang="ja"]').first()).toHaveText("いいえ、大丈夫です。");
   await expect(answer).toContainText("不用");
+});
+
+test("medical: 打開醫療卡 on a drugstore phrase lands on the medical card, focused", async ({ page, seed }) => {
+  await seed({ profile: SAMPLE_PROFILE });
+  await page.goto("#/scene/drugstore");
+  await page.getByRole("button", { name: /我有過敏，這個藥我可以吃嗎/ }).first().click();
+  await page.getByRole("dialog").getByRole("link", { name: "打開醫療卡" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  // The link closes the phrase page on the way: focus lands once the page is no longer inert.
+  await expect(page.getByRole("heading", { name: "醫療卡（給醫生、救護人員看）" })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "醫療卡（給醫生、救護人員看）" })).toBeInViewport();
 });
 
 test("medical: two symptoms, the show button stays on screen", async ({ page, seed }) => {

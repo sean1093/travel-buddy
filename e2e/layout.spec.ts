@@ -25,8 +25,11 @@ const VARIANTS: Variant[] = [
   { name: "phone", viewport: { width: 390, height: 844 } },
   { name: "narrow", viewport: { width: 320, height: 640 } },
   { name: "xlarge", viewport: { width: 390, height: 844 }, settings: { textSize: "xlarge" } },
+  // The most common Android width, at 特大: where half-width buttons are tightest.
+  { name: "xlarge-360", viewport: { width: 360, height: 780 }, settings: { textSize: "xlarge" } },
   { name: "dark", viewport: { width: 390, height: 844 }, settings: { theme: "dark" } },
   { name: "landscape", viewport: { width: 844, height: 390 } },
+  { name: "landscape-xlarge", viewport: { width: 844, height: 390 }, settings: { textSize: "xlarge" } },
 ];
 
 /** WCAG 2.5.5 / Apple HIG minimum; docs/design.md asks for more, this is the floor. */
@@ -53,7 +56,7 @@ const OVERLAYS: { name: string; route: string; open: (page: Page) => Promise<voi
   {
     name: "給對方看 (show them)",
     route: "#/help",
-    open: (page) => page.getByRole("button", { name: "放大" }).click(),
+    open: (page) => page.getByRole("button", { name: "給對方看", exact: true }).click(),
   },
   {
     name: "萬用句 (all-purpose phrases)",
@@ -83,18 +86,23 @@ async function checkScreen(page: Page): Promise<void> {
       .map((el) => ({ el, height: el.getBoundingClientRect().height }))
       .filter(({ height }) => height < min)
       .map(({ el, height }) => `${describe(el)} ${height.toFixed(1)}px`);
+    // Text that doesn't fit its button spills over its neighbours without scrolling the page.
+    const spilled = [...document.querySelectorAll(targets)]
+      .filter((el) => visible(el) && el.scrollWidth > el.clientWidth + 1)
+      .map((el) => `${describe(el)} ${el.scrollWidth}>${el.clientWidth}`);
     // Wider than the viewport: what makes the page scroll sideways.
     const wide = [...document.querySelectorAll("body *")]
       .filter((el) => visible(el) && el.getBoundingClientRect().right > doc.clientWidth + 0.5)
       .slice(0, 5)
       .map((el) => `${describe(el)} right=${el.getBoundingClientRect().right.toFixed(1)}`);
-    return { scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth, small, wide };
+    return { scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth, small, wide, spilled };
   }, MIN_TARGET);
 
   expect
     .soft(report.scrollWidth, `horizontal overflow; widest: ${report.wide.join(", ")}`)
     .toBeLessThanOrEqual(report.clientWidth);
   expect.soft(report.small, `tap targets under ${MIN_TARGET}px tall`).toEqual([]);
+  expect.soft(report.spilled, "buttons and links whose content doesn't fit").toEqual([]);
 
   // Accessible names as the browser computes them: an unnamed button or link shows as a bare role.
   const tree = await page.locator("body").ariaSnapshot();
@@ -117,6 +125,46 @@ for (const variant of VARIANTS) {
         await checkScreen(page);
       });
     }
+
+    test("#/setup: a focused field is never hidden behind the header or the dock", async ({ page, seed }) => {
+      await seed({ profile: SAMPLE_PROFILE, ...variant.settings });
+      await page.goto("#/setup");
+      await expect(page.locator("h1").first()).toBeVisible();
+      // Open every section, then walk the form the way a keyboard or switch user does.
+      await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
+      await page.locator("main input").first().focus();
+      const hidden: string[] = [];
+      for (let i = 0; i < 60; i++) {
+        const r = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement;
+          if (!el.closest("main") || el.matches("details, summary")) return null;
+          const box = el.getBoundingClientRect();
+          const top = document.querySelector("header")!.getBoundingClientRect().bottom;
+          const bottom = document.querySelector("[data-dock]")!.getBoundingClientRect().top;
+          // Its first line, where the caret and the text being typed are, must show: browsers scroll a
+          // text area only that far, and that is what WCAG 2.4.11 asks (not hidden entirely). The top
+          // edge too, unless the box is taller than the clear space (the 電梯筆記 text area sideways at 特大).
+          const firstLine = Math.min(box.height, 48);
+          const from = box.height <= bottom - top ? box.top : box.top + 12;
+          return { what: `${el.tagName} ${el.getAttribute("aria-label") ?? ""} ${box.top.toFixed(0)}–${box.bottom.toFixed(0)}, clear ${top.toFixed(0)}–${bottom.toFixed(0)}`, covered: from < top - 0.5 || box.top + firstLine > bottom + 0.5 };
+        });
+        if (r?.covered) hidden.push(r.what);
+        await page.keyboard.press("Tab");
+      }
+      expect(hidden).toEqual([]);
+    });
+
+    test("the 醫療卡 shortcut opens at the medical card, in view", async ({ page, seed }) => {
+      await seed({ profile: SAMPLE_PROFILE, ...variant.settings });
+      await page.goto("#/");
+      await page.getByRole("link", { name: "醫療卡" }).click();
+      const heading = page.getByRole("heading", { name: "醫療卡（給醫生、救護人員看）" });
+      await expect(heading).toBeFocused();
+      const box = (await heading.boundingBox())!;
+      const headerBottom = await page.locator("header").evaluate((el) => el.getBoundingClientRect().bottom);
+      expect(box.y).toBeGreaterThanOrEqual(headerBottom - 0.5);
+      expect(box.y + box.height).toBeLessThanOrEqual(variant.viewport.height);
+    });
 
     for (const overlay of OVERLAYS) {
       test(`overlay: ${overlay.name}`, async ({ page, seed }) => {
