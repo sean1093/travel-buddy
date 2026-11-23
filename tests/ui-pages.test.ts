@@ -329,6 +329,13 @@ describe("medical", () => {
     expect(document.activeElement?.textContent).toBe("過敏卡（給餐廳看）");
   });
 
+  it("opens at the medical card when all it holds is a drug allergy", async () => {
+    saveProfile({ health: { ...sampleProfile().health, conditions: [], conditionsOther: "", meds: [], bloodType: "", foodAllergies: [], allergyOther: "", diets: [] }, insurance: { company: "", policy: "", phone: "" } });
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
+  });
+
   it("stays at the symptom cards when the medical card would be empty, e.g. only a hotel filled in", async () => {
     saveProfile({ hotels: sampleProfile().hotels });
     (await import("../src/ui/medical")).renderMedical(app(), ["card"]);

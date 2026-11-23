@@ -15,9 +15,15 @@ describe("share codec", () => {
   });
 
   it("builds a link LINE opens in the phone's own browser, with the profile in the fragment", () => {
-    const url = shareUrl(sampleProfile(), "https://sean1093.github.io/travel-buddy/japan/");
-    expect(url).toBe(`https://sean1093.github.io/travel-buddy/japan/?openExternalBrowser=1#/s/${encodeProfile(sampleProfile())}`);
+    const base = "https://sean1093.github.io/travel-buddy/japan/";
+    const url = shareUrl(sampleProfile(), { base });
+    expect(url).toBe(`${base}?openExternalBrowser=1#/s/${encodeProfile(sampleProfile())}`);
     expect(decodeProfile(new URL(url).hash.slice("#/s/".length))).toEqual(sampleProfile());
+  });
+
+  it("leaves LINE's query out of the QR code's link: the camera opens the browser anyway", () => {
+    const base = "https://sean1093.github.io/travel-buddy/japan/";
+    expect(shareUrl(sampleProfile(), { base, forLine: false })).toBe(`${base}#/s/${encodeProfile(sampleProfile())}`);
   });
 
   it("keeps an ordinary trip short enough for a QR code", () => {

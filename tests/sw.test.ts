@@ -144,7 +144,15 @@ describe("page loads (sw.js navigation)", () => {
     expect(await sw.stored.get(`${SCOPE}index.html`)!.text()).toBe("cached app");
   });
 
-  it("passes the site's real answers through, a 404 for a page it has a copy of included", async () => {
+  it("opens the cached app instead of a 404 or 429 for the app's own page, which always exists", async () => {
+    for (const status of [404, 429]) {
+      const sw = worker(async () => page("error", status));
+      await sw.seed("./index.html", "cached app");
+      expect(await (await sw.open("").answer).text()).toBe("cached app");
+    }
+  });
+
+  it("passes a guide page's 404 through: the page was removed", async () => {
     const sw = worker(async () => page("gone", 404));
     await sw.seed("guide/old/", "old guide");
     expect((await sw.open("guide/old/").answer).status).toBe(404);

@@ -128,8 +128,10 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
   ]);
   const start = Object.hasOwn(TARGETS, target) ? TARGETS[target] : undefined;
   // Only to a card with something on it: otherwise the symptom cards at the top help more.
-  const health = sectionSummaries(profile).find((s) => s.id === "health")!.done;
-  if (start && (target === "allergy" ? allergy : health || allergy)) {
+  // The medical card shows health (conditions, medicines, blood type) and allergy data (drug and food
+  // allergies, insurance); the allergy card, food allergies and diets.
+  const filled = sectionSummaries(profile).some((s) => (s.id === "health" || s.id === "allergy") && s.done);
+  if (start && (target === "allergy" ? allergy : filled)) {
     const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith(start));
     if (!heading) return;
     heading.tabIndex = -1;

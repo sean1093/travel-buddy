@@ -93,9 +93,10 @@ async function navigation(event) {
     if (!cached) return (await network).response;
     const timer = new Promise((resolve) => setTimeout(resolve, NETWORK_TIMEOUT, null));
     const answer = (await Promise.race([network, timer]))?.response;
-    // A server error is no better than no answer: use the copy. Anything else is the site's real
-    // answer and passes, a redirect (the site moved) or a 404 (a guide page removed) included.
-    return answer && answer.status < 500 ? answer : cached;
+    // An error is no better than no answer: use the copy. The app's page always exists, so any
+    // error for it is passing (a redeploy, rate limiting); a guide page's 404 means it was removed.
+    // A redirect (status 0 when not followed: the site moved) always passes.
+    return answer && answer.status < (shell ? 400 : 500) ? answer : cached;
   } catch {
     if (cached) return cached;
     // A guide page never opened online: the same guide is in the app, which works offline.
