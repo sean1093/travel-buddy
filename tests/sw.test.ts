@@ -132,8 +132,11 @@ describe("page loads (sw.js navigation)", () => {
     await sw.seed("./index.html", shellHtml("index-old.js"));
     await sw.seed("./assets/index-old.js", "old script");
     await sw.seed("./assets/index-older.js", "older script");
+    // Named only by a stylesheet: not something the shell lists, so it is left alone.
+    await sw.seed("./assets/font-a.woff2", "font");
     await sw.open("").done;
     expect([...sw.stored.keys()].filter((u) => u.includes("/assets/")).map((u) => u.slice(SCOPE.length)).sort()).toEqual([
+      "assets/font-a.woff2",
       "assets/index-new.js",
       "assets/index-old.js",
     ]);

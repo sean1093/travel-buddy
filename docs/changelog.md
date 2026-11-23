@@ -9,7 +9,7 @@ From an expert panel review (UX for older travellers, Japanese content, accessib
 ### Sharing and keeping the data
 - **LINE opens the share link in the phone's browser:** links now carry LINE's `?openExternalBrowser=1`. Before, a link tapped in LINE imported into LINE's own browser, and the app looked empty the next time it was opened from Safari, Chrome or the home screen. The import screen removes the query from the address bar together with the data.
 - **The browser is asked to keep the data:** on 開始使用 (Start) after an import, and on 完成 (Done) or 分享 (Share) in 設定資料 (Set up info), the app asks the browser not to clear its storage. Only on a tap: Firefox asks the user about it.
-- **Home-screen tip:** 設定完成 (Setup complete) now suggests adding the site to the home screen, except on iPhone and iPad, where a home-screen app keeps its own storage apart from Safari's and would open empty.
+- **Home-screen tip:** 設定完成 (Setup complete) now suggests adding the site to the home screen, on Android only: on iPhone and iPad a home-screen app keeps its own storage apart from Safari's and would open empty.
 
 ### Under stress
 - **Weak signal:** a page load waits at most 4 seconds for the network, then opens the copy on the phone, so 我需要幫忙 (I need help) no longer hangs on a connection that neither answers nor fails. A server error no longer replaces the app when the phone has it. A new version is still picked up when the network answers in time, and is only kept for offline use once its script and stylesheet are cached too.
@@ -27,7 +27,7 @@ From an expert panel review (UX for older travellers, Japanese content, accessib
 ### Content
 - **出境退稅新制 (New tax refund system)** re-checked after the system started on 2026-11-01: everything still holds; a note now says the procedure must be done within 90 days of buying.
 - **Lost items:** the phrase now clearly reports a loss (遺失届), and the tip says to note the reference number (受理番号), used when the item is found and for any enquiry.
-- **Lift:** 「エレベーターまで案内していただけますか」 asks the station staff themselves, instead of asking them to get a station clerk.
+- **Lift:** 「エレベーターまで案内していただけますか」 (Could you take me to the lift?) asks the station staff themselves, instead of asking them to get a station clerk.
 - **New 對方說 (They say) cards:** convenience store: 要湯匙嗎？ (Do you want a spoon?) and the payment screen facing the customer; drugstore: no pharmacist on duty, and medicine that makes you drowsy.
 
 ## 2026-11-04

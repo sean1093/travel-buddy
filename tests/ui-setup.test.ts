@@ -32,7 +32,10 @@ beforeEach(async () => {
   Object.defineProperty(navigator, "storage", { value: { persist, persisted }, configurable: true });
 });
 
-afterEach(resetPage);
+afterEach(() => {
+  resetPage();
+  vi.restoreAllMocks();
+});
 
 const app = () => document.getElementById("app")!;
 const saveProfile = (data: unknown) => localStorage.setItem("travelbuddy.japan.profile", JSON.stringify({ v: 1, data }));
@@ -139,7 +142,8 @@ describe("setup", () => {
 describe("import", () => {
   const render = async (payload: string) => (await import("../src/ui/import")).renderImport(app(), [payload]);
 
-  it("saves the profile, suggests the home screen, and asks to keep the data on 開始使用", async () => {
+  it("saves the profile, suggests the home screen on Android, and asks to keep the data on 開始使用", async () => {
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (Linux; Android 14; Pixel 7) Chrome/130.0 Mobile");
     history.replaceState(null, "", `${location.pathname}?openExternalBrowser=1#/s/${encodeProfile(sampleProfile())}`);
     await render(encodeProfile(sampleProfile()));
     expect(stored()).toEqual(JSON.parse(JSON.stringify(sampleProfile())));
@@ -156,16 +160,15 @@ describe("import", () => {
     expect(app().textContent).toContain(HOME_SCREEN_TIP);
   });
 
-  it("doesn't suggest the home screen on an iPhone, where the icon wouldn't see the saved data", async () => {
-    const ua = vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)");
-    try {
-      await render(encodeProfile(sampleProfile()));
-      const { HOME_SCREEN_TIP } = await import("../src/ui/import");
-      expect(app().querySelector("h1")?.textContent).toBe("設定完成");
-      expect(app().textContent).not.toContain(HOME_SCREEN_TIP);
-    } finally {
-      ua.mockRestore();
-    }
+  it.each([
+    ["an iPhone, where the icon wouldn't see the saved data", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)"],
+    ["a computer, which has no home screen", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0"],
+  ])("doesn't suggest the home screen on %s", async (_, agent) => {
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue(agent);
+    await render(encodeProfile(sampleProfile()));
+    const { HOME_SCREEN_TIP } = await import("../src/ui/import");
+    expect(app().querySelector("h1")?.textContent).toBe("設定完成");
+    expect(app().textContent).not.toContain(HOME_SCREEN_TIP);
   });
 
   it("clears the payload and LINE's query from the address bar", async () => {
