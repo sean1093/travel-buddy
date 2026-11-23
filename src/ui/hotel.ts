@@ -41,7 +41,7 @@ export function renderHotel(root: HTMLElement, [index]: string[]): void {
           onclick: () => showToOther([card], "回飯店"),
         },
         icon("expand"),
-        "放大",
+        "給對方看",
       ),
     ),
     phone && h("div", { class: "mt-4" }, callButton("打電話給飯店", phone.display, phone.tel, true)),

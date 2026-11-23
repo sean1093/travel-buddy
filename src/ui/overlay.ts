@@ -1,7 +1,7 @@
 import type { Jp, Reply } from "../content/types";
 import { plain } from "../lib/jp";
 import type { Line } from "../profile/cards";
-import { BUTTON, h, icon } from "./dom";
+import { announce, BUTTON, h, icon } from "./dom";
 import { hush, play, playAll, playButton } from "./japanese";
 import { lineNode } from "./lines";
 
@@ -297,6 +297,8 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
         ),
       );
       done.focus({ preventScroll: true });
+      // Focus lands on 知道了, which a screen reader reads instead of the answer: say the answer too.
+      announce(`對方回答：${reply.zh}`);
     }
 
     asking();

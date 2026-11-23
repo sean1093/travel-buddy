@@ -41,7 +41,7 @@ let liveRegion: HTMLElement | null = null;
  * the whole app, so two announcements never race.
  */
 export function announce(text: string): void {
-  if (!liveRegion) {
+  if (!liveRegion?.isConnected) {
     liveRegion = h("div", { class: "sr-only", "aria-live": "polite", "aria-atomic": "true" });
     document.body.append(liveRegion);
   }

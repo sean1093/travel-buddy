@@ -52,7 +52,8 @@ function route(): void {
   // A safety net: every page sets its own title, but one that forgets gets home's, never the previous page's.
   setTitle();
   render(root, args);
-  if (routed) focusHeading(root);
+  // A page that put focus somewhere itself (e.g. #/medical/card on the card) keeps it.
+  if (routed && !root.contains(document.activeElement)) focusHeading(root);
   routed = true;
 }
 

@@ -8,7 +8,7 @@ import { type Ready, ready } from "../profile/fill";
 import { loadProfile, type Place, placesForToday } from "../profile/profile";
 import { fill, h, icon, pictogram } from "./dom";
 import { SLOW_RATE } from "../state";
-import { jpText, PLAY_SIZES, play, playButton } from "./japanese";
+import { jpText, PLAY_SIZES, play, playButton, spokenName } from "./japanese";
 import { dock, heading, page } from "./layout";
 import { askOther, openOverlay, overlayBar, showToOther } from "./overlay";
 
@@ -146,15 +146,15 @@ function replayButton(jp: Jp): HTMLButtonElement {
     {
       type: "button",
       class: "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ai-soft text-ai transition active:scale-95",
-      "aria-label": `播放「${text}」`,
     },
     icon("speaker", "h-6 w-6"),
+    h("span", { class: "sr-only" }, "播放"),
+    spokenName(text),
   );
   button.addEventListener("click", () => {
     void play(jp, button, slowNext ? SLOW_RATE : undefined);
     slowNext = !slowNext;
-    button.setAttribute("aria-label", `${slowNext ? "慢速播放" : "播放"}「${text}」`);
-    button.replaceChildren(icon(slowNext ? "slow" : "speaker", "h-6 w-6"));
+    button.replaceChildren(icon(slowNext ? "slow" : "speaker", "h-6 w-6"), h("span", { class: "sr-only" }, slowNext ? "慢速播放" : "播放"), spokenName(text));
   });
   return button;
 }

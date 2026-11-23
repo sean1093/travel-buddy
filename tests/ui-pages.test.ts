@@ -312,6 +312,19 @@ describe("medical", () => {
     expect(app().textContent).toContain("過敏卡（給餐廳看）");
     expect(app().textContent).toContain("LIN MEI-HUA");
   });
+
+  it("opens at the medical card from the 醫療卡 shortcut", async () => {
+    saveProfile(sampleProfile());
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    expect(document.activeElement?.tagName).toBe("H2");
+    expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
+  });
+
+  it("stays at the setup prompt when the shortcut finds nothing filled in", async () => {
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    expect(document.activeElement).toBe(document.body);
+    expect(app().querySelector('main a[href="#/setup"]')).not.toBeNull();
+  });
 });
 
 describe("help", () => {
@@ -368,7 +381,7 @@ describe("help", () => {
   it("enlarges the whole card for the other person", async () => {
     saveProfile(sampleProfile());
     await render();
-    [...app().querySelectorAll("button")].find((b) => b.textContent === "放大")!.click();
+    [...app().querySelectorAll("button")].find((b) => b.textContent === "給對方看")!.click();
     const dialog = dialogs().at(-1)!;
     expect(dialog.getAttribute("aria-label")).toBe("我需要幫忙");
     expect(dialog.textContent).toContain("名前：LIN MEI-HUA");
@@ -376,7 +389,7 @@ describe("help", () => {
 
   it("closes an enlarged card when leaving the page", async () => {
     await render();
-    [...app().querySelectorAll("button")].find((b) => b.textContent === "放大")!.click();
+    [...app().querySelectorAll("button")].find((b) => b.textContent === "給對方看")!.click();
     expect(dialogs()).toHaveLength(1);
     location.hash = "#/";
     await tick();

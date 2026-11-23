@@ -64,6 +64,16 @@ html {
   -webkit-tap-highlight-color: transparent;
   /* Large by default: every size is in rem, so the root scales the whole UI. */
   font-size: 125%;
+  /*
+   * Keep whatever gets focus or is scrolled to clear of the sticky page header
+   * (about 4.3–5rem, measured at every text size) and, below, of the fixed dock
+   * (about 4.9–6.4rem), so a field being filled in is never hidden (WCAG 2.4.11).
+   */
+  scroll-padding-top: calc(5.5rem + env(safe-area-inset-top));
+}
+
+html:has([data-dock]) {
+  scroll-padding-bottom: calc(7rem + env(safe-area-inset-bottom));
 }
 
 :root[data-text-size="xlarge"] {

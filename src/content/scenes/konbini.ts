@@ -67,6 +67,12 @@ export default {
       replies: [YES, NO],
     },
     {
+      id: "konbini-heard-spoon",
+      jp: "スプーン は お{付|つ}け します か。",
+      zh: "要湯匙嗎？",
+      replies: [YES, NO],
+    },
+    {
       id: "konbini-heard-eat-in",
       jp: "こちら で お{召|め}し{上|あ}がり です か。",
       zh: "要在店裡吃（內用）嗎？",
@@ -101,6 +107,16 @@ export default {
         { jp: "{現金|げんきん} で。", zh: "現金" },
         { jp: "カード で。", zh: "信用卡" },
         { jp: "{IC|アイシー}カード で。", zh: "交通卡" },
+      ],
+    },
+    {
+      // Most chains now turn a screen to the customer to pick how to pay.
+      id: "konbini-heard-pay-screen",
+      jp: "お{支払|しはら}い {方法|ほうほう} を {画面|がめん} で お{選|えら}び ください。",
+      zh: "請在面前的螢幕上選付款方式。",
+      replies: [
+        { jp: "わかりました。", zh: "知道了" },
+        { jp: "{使|つか}い{方|かた} が わかりません。", zh: "我不會操作" },
       ],
     },
     {

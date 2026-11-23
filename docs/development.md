@@ -54,7 +54,7 @@ src/
     home.ts help.ts hotel.ts scene.ts medical.ts guide.ts
     settings.ts setup.ts share.ts import.ts print.ts voice-help.ts
 public/
-  sw.js                  offline cache (network first for pages, cache first for assets)
+  sw.js                  offline cache (network first for pages, up to 4 s; cache first for assets)
   manifest.webmanifest   PWA settings
   favicon.svg icon-*.png apple-touch-icon.png
   og-image.png           link-preview image, 1200×630 (scripts/og-image.cjs renders it)
@@ -110,12 +110,13 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 | `home.test.ts` `summary.test.ts` | Home page greeting, settings page summaries |
 | `seo.test.ts` | Title and description lengths, one canonical URL that every preview tag, the structured data, the root page and the sitemap point at, the preview image's size |
 | `seo-pages.test.ts` | Each static guide page: its own title, description, canonical URL and card, `Article` data, every step and note as text, links, no script, and escaping |
-| `sw.test.ts` | The service worker parses, and only the app's own page becomes the offline shell |
+| `sw.test.ts` | The service worker parses. Run with a fake cache and network: the first visit keeps the app, its script and its icons; a page load uses the cached app after 4 s without an answer, waits for a page it has no copy of, and keeps a new app only once its script is cached; error pages are never kept; offline fallbacks |
 | `site.test.ts` | The root redirect page goes to `./japan/` and keeps the `#` |
 | `ui-overlay.test.ts` | Full-screen layers: stacking, inert page, Escape and back button, focus trap and return; 給對方看 (Show them) and 給對方點選 (Let them tap) |
 | `ui-japanese.test.ts` | Ruby and romaji rendering, play buttons and their speaking state |
 | `ui-scene.test.ts` | Scene pages: tabs, phrase page actions, heard cards, destination picker, 萬用句 (All-purpose phrases) |
-| `ui-pages.test.ts` | Home, page header, medical symptom picker, help page and call buttons |
+| `ui-pages.test.ts` | Home, page header, medical symptom picker and card shortcut, help page and call buttons |
+| `ui-setup.test.ts` | 設定資料 (Set up info): named delete buttons and focus after a delete, 已儲存 (Saved) said on change, persistent storage; the share-link import |
 
 The `ui-*` files run in happy-dom (`// @vitest-environment happy-dom`); the rest run in Node.
 

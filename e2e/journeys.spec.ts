@@ -18,15 +18,15 @@ test("help card: passport name, enlarge, close with 關閉 and with back", async
   await expect(page.getByRole("main")).toContainText("LIN MEI-HUA");
 
   const dialog = page.getByRole("dialog", { name: "我需要幫忙" });
-  await page.getByRole("button", { name: "放大" }).click();
+  await page.getByRole("button", { name: "給對方看", exact: true }).click();
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("LIN MEI-HUA");
   await dialog.getByRole("button", { name: "關閉" }).click();
   await expect(dialog).toHaveCount(0);
   await expect(page).toHaveURL(/#\/help$/);
-  await expect(page.getByRole("button", { name: "放大" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "給對方看", exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "放大" }).click();
+  await page.getByRole("button", { name: "給對方看", exact: true }).click();
   await expect(dialog).toBeVisible();
   await page.goBack();
   await expect(dialog).toHaveCount(0);

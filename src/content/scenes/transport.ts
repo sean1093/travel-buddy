@@ -211,8 +211,9 @@ export default {
     {
       id: "transport-elevator-escort",
       group: "elevator",
-      zh: "可以請站務員帶我去搭電梯嗎？",
-      jp: "{駅員|えきいん} さん に エレベーター まで {案内|あんない} して いただけます か。",
+      zh: "可以帶我到電梯嗎？",
+      // Shown to the station staff themselves, so it asks them, not "a station clerk".
+      jp: "エレベーター まで {案内|あんない} して いただけます か。",
       answers: "yesNo",
     },
     {

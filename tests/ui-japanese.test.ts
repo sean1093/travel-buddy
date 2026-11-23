@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { romaji } from "../src/lib/jp";
+import { accessibleName, KANA, visibleText } from "./a11y";
 
 type Japanese = typeof import("../src/ui/japanese");
 let jp: Japanese;
@@ -86,9 +87,25 @@ describe("jpText", () => {
 
 describe("playButton", () => {
   it("names what it plays", () => {
-    expect(jp.playButton("{駅|えき} です。").getAttribute("aria-label")).toBe("播放「駅です。」");
-    expect(jp.playButton("{駅|えき} です。", "slow").getAttribute("aria-label")).toBe("慢速播放「駅です。」");
-    expect(jp.playButton(["はい", "いいえ"]).getAttribute("aria-label")).toBe("播放「はいいいえ」");
+    expect(accessibleName(jp.playButton("{駅|えき} です。"))).toBe("播放「駅です。」");
+    expect(accessibleName(jp.playButton("{駅|えき} です。", "slow"))).toBe("慢速播放「駅です。」");
+    expect(accessibleName(jp.playButton(["はい", "いいえ"]))).toBe("播放「はいいいえ」");
+  });
+
+  it("shows only 播放 or 慢速, and marks the Japanese in its name, so a screen reader reads it in a Japanese voice", () => {
+    for (const [button, label] of [
+      [jp.playButton("{駅|えき} です。"), "播放"],
+      [jp.playButton("{駅|えき} です。", "slow"), "慢速"],
+    ] as const) {
+      expect(visibleText(button)).toBe(label);
+      // An aria-label can't carry lang="ja": the Chinese page language would read the kana.
+      expect(button.getAttribute("aria-label")).toBeNull();
+      expect(button.querySelector('[lang="ja"]')?.textContent).toBe("駅です。");
+      for (const node of button.querySelectorAll(":not([lang=ja])")) {
+        const own = [...node.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE).map((n) => n.textContent).join("");
+        expect(own).not.toMatch(KANA);
+      }
+    }
   });
 
   it("is marked as speaking while it plays, and speaks the plain text", () => {

@@ -15,7 +15,8 @@ import {
   saveProfile,
 } from "../profile/profile";
 import { type SetupSectionId, sectionSummaries } from "../profile/summary";
-import { BUTTON, type Child, fill, h, icon, type IconName, pictogram } from "./dom";
+import { keepStorage } from "../lib/store";
+import { announce, BUTTON, type Child, fill, h, icon, type IconName, pictogram } from "./dom";
 import { dock, page } from "./layout";
 
 const INPUT =
@@ -113,10 +114,16 @@ function listEditor<T>(options: {
               {
                 type: "button",
                 class: "inline-flex min-h-12 items-center gap-1 rounded-lg px-3 text-base font-bold text-shu active:bg-shu-soft",
+                // Every card has one: say which.
+                "aria-label": `刪除${options.noun} ${i + 1}`,
                 onclick: () => {
                   options.items.splice(i, 1);
                   options.onChange();
                   draw();
+                  // The pressed button is gone: keep focus nearby, not on the page itself.
+                  const deletes = box.querySelectorAll<HTMLElement>(":scope > div button[aria-label^='刪除']");
+                  (deletes[Math.max(0, i - 1)] ?? box.querySelector<HTMLElement>(":scope > button"))?.focus();
+                  announce(`已刪除${options.noun} ${i + 1}`);
                 },
               },
               icon("trash", "h-5 w-5"),
@@ -275,7 +282,8 @@ export function renderSetup(root: HTMLElement): void {
   const year = profile.birthYear === null ? "" : String(profile.birthYear);
 
   const progress = h("span", { class: "min-w-0 text-lg font-bold" });
-  const saved = h("span", { class: "shrink-0 text-base font-bold text-ok", "aria-live": "polite" });
+  // Shown on every save; said only when a field is finished (change), not on every key.
+  const saved = h("span", { class: "shrink-0 text-base font-bold text-ok", "aria-hidden": "true" });
   const headers = new Map<SetupSectionId, { text: HTMLElement; mark: HTMLElement }>();
   let savedTimer = 0;
 
@@ -294,6 +302,7 @@ export function renderSetup(root: HTMLElement): void {
   function save(): void {
     const parsed = parseProfile(profile);
     saveProfile(parsed);
+    keepStorage();
     refresh(parsed);
     saved.replaceChildren(icon("check", "mr-1 inline h-4 w-4 align-[-2px]"), "已儲存");
     window.clearTimeout(savedTimer);
@@ -482,5 +491,6 @@ export function renderSetup(root: HTMLElement): void {
       ),
     ),
   ]);
+  root.querySelector("main")?.addEventListener("change", () => announce("已儲存"));
   refresh(parseProfile(profile));
 }

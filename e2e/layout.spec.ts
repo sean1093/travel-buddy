@@ -53,7 +53,7 @@ const OVERLAYS: { name: string; route: string; open: (page: Page) => Promise<voi
   {
     name: "給對方看 (show them)",
     route: "#/help",
-    open: (page) => page.getByRole("button", { name: "放大" }).click(),
+    open: (page) => page.getByRole("button", { name: "給對方看", exact: true }).click(),
   },
   {
     name: "萬用句 (all-purpose phrases)",
@@ -117,6 +117,44 @@ for (const variant of VARIANTS) {
         await checkScreen(page);
       });
     }
+
+    test("#/setup: a focused field is never hidden behind the header or the dock", async ({ page, seed }) => {
+      await seed({ profile: SAMPLE_PROFILE, ...variant.settings });
+      await page.goto("#/setup");
+      await expect(page.locator("h1").first()).toBeVisible();
+      // Open every section, then walk the form the way a keyboard or switch user does.
+      await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
+      await page.locator("main input").first().focus();
+      const hidden: string[] = [];
+      for (let i = 0; i < 60; i++) {
+        const r = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement;
+          if (!el.closest("main") || el.matches("details, summary")) return null;
+          const box = el.getBoundingClientRect();
+          const top = document.querySelector("header")!.getBoundingClientRect().bottom;
+          const bottom = document.querySelector("[data-dock]")!.getBoundingClientRect().top;
+          // The first line, where the caret and the text being typed are: a box taller than the
+          // space (the 電梯筆記 text area when sideways) can't show whole, and needn't (WCAG 2.4.11).
+          const firstLine = Math.min(box.height, 48);
+          return { what: `${el.tagName} ${el.getAttribute("aria-label") ?? ""} ${box.top.toFixed(0)}–${box.bottom.toFixed(0)}, clear ${top.toFixed(0)}–${bottom.toFixed(0)}`, covered: box.top < top - 0.5 || box.top + firstLine > bottom + 0.5 };
+        });
+        if (r?.covered) hidden.push(r.what);
+        await page.keyboard.press("Tab");
+      }
+      expect(hidden).toEqual([]);
+    });
+
+    test("the 醫療卡 shortcut opens at the medical card, in view", async ({ page, seed }) => {
+      await seed({ profile: SAMPLE_PROFILE, ...variant.settings });
+      await page.goto("#/");
+      await page.getByRole("link", { name: "醫療卡" }).click();
+      const heading = page.getByRole("heading", { name: "醫療卡（給醫生、救護人員看）" });
+      await expect(heading).toBeFocused();
+      const box = (await heading.boundingBox())!;
+      const headerBottom = await page.locator("header").evaluate((el) => el.getBoundingClientRect().bottom);
+      expect(box.y).toBeGreaterThanOrEqual(headerBottom - 0.5);
+      expect(box.y + box.height).toBeLessThanOrEqual(variant.viewport.height);
+    });
 
     for (const overlay of OVERLAYS) {
       test(`overlay: ${overlay.name}`, async ({ page, seed }) => {

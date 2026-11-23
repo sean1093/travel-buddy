@@ -18,7 +18,7 @@ const MEDICAL_PHRASES = [
   "emergency-english-certificate",
 ];
 
-/** The card, then 播放／放大 for it. */
+/** The card, then 播放／給對方看 for it. */
 function cardWithActions(blocks: CardBlock[], label: string): HTMLElement {
   return h(
     "div",
@@ -100,7 +100,13 @@ function symptomPicker(): HTMLElement {
 }
 
 /** `#/medical`: medical card, allergy card, symptom pointing card. */
-export function renderMedical(root: HTMLElement): void {
+/**
+ * `#/medical`, or `#/medical/card` from home's 醫療卡 shortcut: the same page,
+ * opened at the medical card, because whoever taps it is about to hand the
+ * phone to a doctor. With nothing filled in, it stays at the top, where the
+ * setup prompt is.
+ */
+export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): void {
   const profile = loadProfile();
   const allergy = allergyCard(profile);
   const emergency = sceneById("emergency");
@@ -117,4 +123,13 @@ export function renderMedical(root: HTMLElement): void {
     section("醫療卡（給醫生、救護人員看）", cardWithActions(medicalCard(profile), "醫療卡")),
     section("常用句", rowGroup(phrases.map((p) => phraseRow(p, { jp: p.jp, zh: p.zh }, "醫療・過敏")))),
   ]);
+  if (target === "card" && !isEmpty(profile)) {
+    const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith("醫療卡"));
+    if (heading) {
+      heading.tabIndex = -1;
+      heading.focus({ preventScroll: true });
+      // scroll-padding (style.css) keeps it clear of the sticky header.
+      heading.scrollIntoView({ block: "start" });
+    }
+  }
 }

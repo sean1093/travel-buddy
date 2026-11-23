@@ -33,14 +33,14 @@ export default {
       id: "drugstore-allergy-ok",
       zh: "我有過敏，這個藥我可以吃嗎？",
       jp: "アレルギー が あります。この {薬|くすり} は {大丈夫|だいじょうぶ} です か。",
-      link: { href: "#/medical", label: "打開醫療卡" },
+      link: { href: "#/medical/card", label: "打開醫療卡" },
       answers: "yesNo",
     },
     {
       id: "drugstore-other-meds",
       zh: "我平常有在吃其他的藥。",
       jp: "{普段|ふだん} {他|ほか} の {薬|くすり} を {飲|の}んで います。",
-      link: { href: "#/medical", label: "打開醫療卡" },
+      link: { href: "#/medical/card", label: "打開醫療卡" },
     },
     {
       id: "drugstore-how-often",
@@ -88,6 +88,25 @@ export default {
       jp: "{他|ほか} に {飲|の}んで いる {薬|くすり} は あります か。",
       zh: "有在吃其他的藥嗎？",
       replies: [{ jp: "ありません。", zh: "沒有" }, SEE_CARD],
+    },
+    {
+      // Class 1 drugs (e.g. Loxonin S) can only be sold while a pharmacist is in.
+      id: "drugstore-heard-no-pharmacist",
+      jp: "ただいま {薬剤師|やくざいし} が {不在|ふざい} の ため、こちら の {薬|くすり} は {販売|はんばい} できません。",
+      zh: "藥劑師現在不在，這個藥不能賣。",
+      replies: [
+        { jp: "{何時|なんじ} に {戻|もど}られます か。", zh: "藥劑師幾點回來？" },
+        { jp: "{他|ほか} の {薬|くすり} は あります か。", zh: "有別的藥嗎？" },
+      ],
+    },
+    {
+      id: "drugstore-heard-drowsy",
+      jp: "{眠|ねむ}く なる {成分|せいぶん} が {入|はい}って います。",
+      zh: "這個藥吃了會想睡。",
+      replies: [
+        { jp: "わかりました。", zh: "知道了" },
+        { jp: "{眠|ねむ}く ならない {薬|くすり} は あります か。", zh: "有不會想睡的嗎？" },
+      ],
     },
     {
       id: "drugstore-heard-after-meals",

@@ -66,8 +66,8 @@ test("1. play, then slow: Japanese, normal then slow rate, the second stops the 
   await fakeSpeech(page);
   await openPhrase(page, "transport", /這班車有停/);
   const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: /^播放「/ }).click();
-  await dialog.getByRole("button", { name: /^慢速播放「/ }).click();
+  await dialog.getByRole("button", { name: /^播放\s*「/ }).click();
+  await dialog.getByRole("button", { name: /^慢速\s*播放\s*「/ }).click();
   const { log, cancels } = await speechLog(page);
   expect(log).toHaveLength(2);
   for (const u of log) {
@@ -78,7 +78,7 @@ test("1. play, then slow: Japanese, normal then slow rate, the second stops the 
   expect(log.map((u) => u.rate)).toEqual([0.9, 0.6]);
   expect(cancels, "the slow play cancels the one still speaking").toBe(1);
   await expect(dialog.locator(".speaking")).toHaveCount(1);
-  await expect(dialog.getByRole("button", { name: /^慢速播放「/ })).toHaveClass(/speaking/);
+  await expect(dialog.getByRole("button", { name: /^慢速\s*播放\s*「/ })).toHaveClass(/speaking/);
 });
 
 test("2. a voice picked in settings is used after a reload", async ({ page, seed }) => {
@@ -92,7 +92,7 @@ test("2. a voice picked in settings is used after a reload", async ({ page, seed
   await page.reload();
   await expect(page.getByRole("combobox", { name: "選擇聲音" })).toHaveValue("com.apple.voice.compact.ja-JP.Kyoko");
   await openPhrase(page, "transport", /這班車有停/);
-  await page.getByRole("dialog").getByRole("button", { name: /^播放「/ }).click();
+  await page.getByRole("dialog").getByRole("button", { name: /^播放\s*「/ }).click();
   const { log } = await speechLog(page);
   expect(log.at(-1)?.voice).toBe("com.apple.voice.compact.ja-JP.Kyoko");
 });
@@ -131,7 +131,7 @@ test("3. installable, then works offline: a scene and the help card", async ({ p
   await expect(page.getByRole("heading", { level: 1, name: "便利商店" })).toBeVisible();
   await page.goto("#/help");
   await expect(page.getByText("LIN MEI-HUA").first()).toBeVisible();
-  await page.getByRole("button", { name: "放大" }).click();
+  await page.getByRole("button", { name: "給對方看", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await context.setOffline(false);
 });
@@ -140,7 +140,7 @@ test.describe("4. sideways", () => {
   test.use({ viewport: { width: 844, height: 390 } });
 
   for (const [name, open] of [
-    ["help card", (page: Page) => page.goto("#/help").then(() => page.getByRole("button", { name: "放大" }).click())],
+    ["help card", (page: Page) => page.goto("#/help").then(() => page.getByRole("button", { name: "給對方看", exact: true }).click())],
     [
       "short phrase",
       (page: Page) =>
@@ -152,7 +152,7 @@ test.describe("4. sideways", () => {
       await open(page);
       const dialog = page.getByRole("dialog").last();
       const bar = await dialog.getByRole("button", { name: "關閉" }).boundingBox();
-      for (const label of [/^播放「/, /^慢速播放「/]) {
+      for (const label of [/^播放\s*「/, /^慢速\s*播放\s*「/]) {
         const box = (await dialog.getByRole("button", { name: label }).boundingBox())!;
         expect(box.y, "play buttons sit in the top bar").toBeLessThan(bar!.y + bar!.height);
         expect(box.y + box.height).toBeLessThanOrEqual(bar!.y + bar!.height + 1);
@@ -255,7 +255,8 @@ test("6. a share link survives being sent: URL-safe, short enough, and imports e
   await page.getByText("顯示連結文字").click();
   const link = await page.getByRole("textbox", { name: "分享連結" }).inputValue();
   // Messengers cut links at spaces and often at punctuation they don't expect.
-  expect(link).toMatch(/^https?:\/\/[A-Za-z0-9.:/_~-]+#\/s\/[A-Za-z0-9_~.-]+$/);
+  // The only query is LINE's ask to open the phone's browser (src/share/codec.ts).
+  expect(link).toMatch(/^https?:\/\/[A-Za-z0-9.:/_~-]+\?openExternalBrowser=1#\/s\/[A-Za-z0-9_~.-]+$/);
   expect(link.length, "fits a messenger link (LINE, SMS split)").toBeLessThan(2000);
 
   const context = await browser.newContext({ locale: "zh-TW" });
@@ -265,6 +266,9 @@ test("6. a share link survives being sent: URL-safe, short enough, and imports e
     const other = await context.newPage();
     await other.goto(link);
     await expect(other.getByRole("heading", { name: "設定完成" })).toBeVisible();
+    // Neither the data nor LINE's query stays in the address bar, a bookmark or a home-screen icon.
+    expect(new URL(other.url()).search).toBe("");
+    expect(new URL(other.url()).hash).toBe("#/imported");
     const saved = await other.evaluate(() => JSON.parse(localStorage.getItem("travelbuddy.japan.profile")!).data);
     const pick = (p: Record<string, unknown>) => JSON.parse(JSON.stringify(p));
     expect(pick(saved)).toEqual(pick({ ...saved, ...SAMPLE_PROFILE }));
@@ -287,6 +291,14 @@ test("7. screen reader: named controls, labelled dialog, headings, Japanese mark
         const el = n.parentElement!;
         if (!kana.test(n.textContent ?? "") || covered(el)) continue;
         if (!el.closest('[lang="ja"]')) notJa.push(n.textContent!.trim().slice(0, 30));
+      }
+      // An attribute can't carry lang="ja": Japanese in a label is read with the page's Chinese voice.
+      for (const el of document.querySelectorAll("[aria-label], [title], [alt]")) {
+        if (covered(el)) continue;
+        for (const attr of ["aria-label", "title", "alt"]) {
+          const value = el.getAttribute(attr) ?? "";
+          if (kana.test(value)) notJa.push(`${attr}: ${value.slice(0, 30)}`);
+        }
       }
       const svgs = [...document.querySelectorAll("svg")].filter((s) => !s.closest("[aria-hidden=true]") && !s.getAttribute("aria-label"));
       return { notJa, unlabelledSvgs: svgs.length, h1: document.querySelectorAll("h1").length };

@@ -1,6 +1,6 @@
 /**
  * Offline cache for 隨身旅伴 TravelBuddy. The whole app is static, so the rules are simple:
- * a page load prefers the network and falls back to the cached shell, and
+ * a page load prefers the network, for a few seconds, and falls back to the cached shell, and
  * every other same-origin GET is served from the cache first. Bump CACHE to
  * ship a new build; the old cache is dropped on activate.
  *
@@ -13,6 +13,8 @@ const OWN_CACHE = /^travel-buddy-/;
 const SHELL = ["./", "./index.html"];
 /** Hashed assets referenced by index.html; see `precache`. */
 const ASSET_HREF = /(?:src|href)="(\.\/assets\/[^"]+)"/g;
+/** The icons and manifest index.html names: fetched by the first load, before this worker was there to keep them. */
+const ICON_HREF = /href="(\.\/[\w.-]+\.(?:svg|png|webmanifest))"/g;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(precache().then(() => self.skipWaiting()));
@@ -24,7 +26,7 @@ async function precache() {
   // Caching the script and stylesheet the shell names makes the very first
   // visit enough to go offline, without a build step that knows their hashes.
   const html = await (await cache.match("./index.html"))?.text();
-  const assets = [...(html ?? "").matchAll(ASSET_HREF)].map((match) => match[1]);
+  const assets = [ASSET_HREF, ICON_HREF].flatMap((pattern) => [...(html ?? "").matchAll(pattern)].map((match) => match[1]));
   await Promise.allSettled(assets.map((url) => cache.add(url)));
 }
 
@@ -42,45 +44,78 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) return;
-  event.respondWith(request.mode === "navigate" ? navigation(request) : asset(request));
+  event.respondWith(request.mode === "navigate" ? navigation(event) : asset(request));
 });
 
 /** Where the static guide pages live: <scope>guide/<id>/. */
 const GUIDE_PATH = new URL("./guide/", self.registration.scope).pathname;
 /** The app's own page; any other page in scope (a static guide page) is not the shell. */
 const SHELL_PATHS = new Set([new URL("./", self.registration.scope).pathname, new URL("./index.html", self.registration.scope).pathname]);
+/**
+ * How long a page load waits for the network before it uses the copy it has.
+ * A weak signal (roaming, a platform underground, hotel Wi-Fi) often neither
+ * answers nor fails: without a limit, 我需要幫忙 (I need help) would wait for it.
+ */
+const NETWORK_TIMEOUT = 4000;
 
 /**
- * Pages: the network wins when it answers, so a new build is picked up at once.
- * Only the app's own page is stored as the offline shell; another page (a static
- * guide page) is kept under its own address, so it never replaces the app.
+ * Pages: the network wins when it answers in time, so a new build is picked up
+ * at once; when it doesn't, the cached copy is used and the network's answer,
+ * whenever it comes, refreshes the cache for next time. A page never cached
+ * waits for the network as long as it takes. Only the app's own page is stored
+ * as the offline shell; another page (a static guide page) is kept under its
+ * own address, so it never replaces the app.
  */
-async function navigation(request) {
+async function navigation(event) {
+  const { request } = event;
   const url = new URL(request.url);
   const shell = SHELL_PATHS.has(url.pathname);
   // A page is the same page with or without ?fbclid=… from a share.
   const key = url.origin + url.pathname;
+  // The copy to cache is taken at once, before the page can read the body.
+  const network = fetch(request).then((response) => ({
+    response,
+    // A 404 page or a captive portal's answer must never become the offline shell.
+    copy: response.ok && response.type === "basic" ? response.clone() : null,
+  }));
+  event.waitUntil(network.then(({ response, copy }) => copy && keep(copy, response, request, shell, key)).catch(() => {}));
+
+  const cached = shell ? await cachedShell() : await caches.match(key, { ignoreVary: true });
   try {
-    const response = await fetch(request);
-    // A 404 page or a captive portal's answer must never become the offline
-    // shell, and a cache that refuses the write must not cost a good response.
-    if (response.ok && response.type === "basic") {
-      const cache = await caches.open(CACHE);
-      // After a redirect (…/guide/x → …/guide/x/), keep it under the address it ended at:
-      // a redirected response can't answer a navigation to the address that redirected.
-      const final = new URL(response.url || request.url);
-      const target = shell ? "./index.html" : response.redirected ? final.origin + final.pathname : key;
-      await cache.put(target, response.clone()).catch(() => {});
-    }
-    return response;
+    if (!cached) return (await network).response;
+    const timer = new Promise((resolve) => setTimeout(resolve, NETWORK_TIMEOUT, null));
+    return (await Promise.race([network, timer]))?.response ?? cached;
   } catch {
-    if (shell) return (await caches.match("./index.html")) ?? (await caches.match("./")) ?? Response.error();
-    const cached = await caches.match(key, { ignoreVary: true });
     if (cached) return cached;
     // A guide page never opened online: the same guide is in the app, which works offline.
     const guide = url.pathname.startsWith(GUIDE_PATH) ? /^([a-z0-9-]+)\/?$/.exec(url.pathname.slice(GUIDE_PATH.length))?.[1] : undefined;
     return guide ? Response.redirect(new URL(`./#/guide/${guide}`, self.registration.scope).href, 302) : Response.error();
   }
+}
+
+async function cachedShell() {
+  return (await caches.match("./index.html")) ?? (await caches.match("./"));
+}
+
+/** Stores a page the network returned. A cache that refuses the write must not cost anything else. */
+async function keep(copy, response, request, shell, key) {
+  const cache = await caches.open(CACHE);
+  if (shell) {
+    // A new shell names new hashed files: store them first, and the shell only once they are
+    // all in. Otherwise an offline start could load a shell whose script was never cached,
+    // which shows a blank page.
+    const html = await copy.clone().text();
+    const assets = [...html.matchAll(ASSET_HREF)].map((match) => match[1]);
+    const missing = [];
+    for (const asset of assets) if (!(await cache.match(asset, { ignoreVary: true }))) missing.push(asset);
+    await cache.addAll(missing);
+    await cache.put("./index.html", copy);
+    return;
+  }
+  // After a redirect (…/guide/x → …/guide/x/), keep it under the address it ended at:
+  // a redirected response can't answer a navigation to the address that redirected.
+  const final = new URL(response.url || request.url);
+  await cache.put(response.redirected ? final.origin + final.pathname : key, copy).catch(() => {});
 }
 
 /**

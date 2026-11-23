@@ -2,6 +2,33 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-11-23
+
+From an expert panel review (UX for older travellers, Japanese content, accessibility, offline engineering, product), debated and narrowed to the changes below.
+
+### Sharing and keeping the data
+- **LINE opens the share link in the phone's browser:** links now carry LINE's `?openExternalBrowser=1`. Before, a link tapped in LINE imported into LINE's own browser, and the app looked empty the next time it was opened from Safari, Chrome or the home screen. The import screen removes the query from the address bar together with the data.
+- **The browser is asked to keep the data:** after an import or a change in 設定資料 (Set up info), the app asks the browser not to clear its storage.
+- **Home-screen tip:** 設定完成 (Setup complete) now suggests adding the site to the home screen.
+
+### Under stress
+- **Weak signal:** a page load waits at most 4 seconds for the network, then opens the copy on the phone, so 我需要幫忙 (I need help) no longer hangs on a connection that neither answers nor fails. A new version is still picked up when the network answers in time, and is only kept for offline use once its script and stylesheet are cached too.
+- **Offline from the first visit:** the site icon and manifest are now cached with the app, so a first visit is enough and nothing fails to load offline.
+- **醫療卡 (Medical card) shortcut** opens the medical page at the medical card, not at the symptom list above it; the 打開醫療卡 (Open medical card) links in scenes do the same.
+- **One word for one action:** 放大 (Enlarge) on the help page and the back-to-hotel card is now 給對方看 (Show them), as everywhere else. On the help page it has its own row.
+
+### Screen readers and keyboards
+- **Japanese in a Japanese voice:** play buttons no longer put the Japanese in a Chinese label, which screen readers read with a Chinese voice. The Japanese is now marked as Japanese.
+- **The answer is read out:** after the other person taps an answer in 給對方點選 (Let them tap), a screen reader says it.
+- **Setup:** each 刪除 (Delete) button says which card it deletes, focus stays nearby after a delete, and 已儲存 (Saved) is said once a field is finished instead of on every key.
+- **Nothing hidden:** a focused field, or a heading the page scrolls to, is kept clear of the page header and the bottom buttons, at every text size and sideways.
+
+### Content
+- **出境退稅新制 (New tax refund system)** re-checked after the system started on 2026-11-01: everything still holds; a note now says the procedure must be done within 90 days of buying.
+- **Lost items:** the phrase now clearly reports a loss (遺失届), and the tip says to ask for the reference number (受理番号) for insurance claims.
+- **Lift:** 「エレベーターまで案内していただけますか」 asks the station staff themselves, instead of asking them to get a station clerk.
+- **New 對方說 (They say) cards:** convenience store: 要湯匙嗎？ (Do you want a spoon?) and the payment screen facing the customer; drugstore: no pharmacist on duty, and medicine that makes you drowsy.
+
 ## 2026-11-04
 
 ### Travel cheat sheets in search

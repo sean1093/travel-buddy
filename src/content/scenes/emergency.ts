@@ -23,7 +23,7 @@ export default {
       group: "body",
       zh: "這是我的醫療資料，請看這張卡。",
       jp: "{私|わたし} の {医療|いりょう} {情報|じょうほう} です。この カード を {見|み}て ください。",
-      link: { href: "#/medical", label: "打開醫療卡" },
+      link: { href: "#/medical/card", label: "打開醫療卡" },
     },
     { id: "emergency-to-hospital", group: "body", zh: "請帶我去醫院。", jp: "{病院|びょういん} に {連|つ}れて {行|い}って ください。" },
     {
@@ -133,9 +133,10 @@ export default {
     {
       id: "emergency-report-lost",
       group: "lost",
-      zh: "我要登記遺失物。",
-      jp: "{落|お}とし{物|もの} の {届|とど}け{出|で} を したい です。",
-      tip: "到派出所（交番）或車站窗口。先想好：什麼時候、在哪裡、東西長什麼樣子。",
+      zh: "我東西掉了，想報遺失。",
+      // 落とし物の届け出 also reads as handing in something found; 遺失届 is the report of a loss.
+      jp: "{落|お}とし{物|もの} を しました。{遺失届|いしつとどけ} を {出|だ}したい です。",
+      tip: "到派出所（交番）或車站窗口。先想好：什麼時候、在哪裡、東西長什麼樣子。報案後請對方給你受理番號（受理番号），保險理賠會用到。",
     },
     {
       id: "emergency-found-call-hotel",

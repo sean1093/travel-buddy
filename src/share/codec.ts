@@ -120,7 +120,15 @@ export function decodeProfile(payload: string): Profile | null {
   }
 }
 
+/**
+ * LINE opens links in its own browser, whose storage the phone's browser and a
+ * home-screen icon never see: an import there would look lost the next day.
+ * This query asks LINE to open the phone's browser instead; elsewhere it is
+ * ignored, and the import screen removes it from the address bar.
+ */
+export const OPEN_EXTERNAL = "?openExternalBrowser=1";
+
 /** The full link to this app with `profile` in the fragment. */
 export function shareUrl(profile: Profile, base = `${location.origin}${location.pathname}`): string {
-  return `${base}${SHARE_PREFIX}${encodeProfile(profile)}`;
+  return `${base}${OPEN_EXTERNAL}${SHARE_PREFIX}${encodeProfile(profile)}`;
 }

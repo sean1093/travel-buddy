@@ -18,7 +18,7 @@ const SHOTS = [
   { name: "04-home-empty", hash: "#/", empty: true },
   { name: "05-help", hash: "#/help" },
   { name: "06-help-dark", hash: "#/help", theme: "dark" },
-  { name: "07-help-enlarged-landscape", hash: "#/help", viewport: LANDSCAPE, act: (p) => p.getByRole("button", { name: "放大" }).click() },
+  { name: "07-help-enlarged-landscape", hash: "#/help", viewport: LANDSCAPE, act: (p) => p.getByRole("button", { name: "給對方看", exact: true }).click() },
   { name: "08-scene-transport", hash: "#/scene/transport" },
   { name: "09-phrase-detail", hash: "#/scene/transport", act: (p) => openRow(p, "這班車有停新宿嗎") },
   {
