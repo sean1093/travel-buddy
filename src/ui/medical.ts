@@ -99,11 +99,14 @@ function symptomPicker(): HTMLElement {
   );
 }
 
+/** Where `#/medical/<target>` opens the page: at the card's heading. */
+const TARGETS: Record<string, string> = { card: "醫療卡", allergy: "過敏卡" };
+
 /**
- * `#/medical`, or `#/medical/card` from home's 醫療卡 shortcut: the same page,
- * opened at the medical card, because whoever taps it is about to hand the
- * phone to a doctor. With nothing filled in, it stays at the top, where the
- * setup prompt is.
+ * `#/medical`, or `#/medical/card` (home's 醫療卡 shortcut, 打開醫療卡 links) and
+ * `#/medical/allergy` (打開過敏卡): the same page, opened at that card, because
+ * whoever taps it is about to hand the phone over. Without that card (nothing
+ * filled in), it stays at the top, where the setup prompt is.
  */
 export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): void {
   const profile = loadProfile();
@@ -122,8 +125,9 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
     section("醫療卡（給醫生、救護人員看）", cardWithActions(medicalCard(profile), "醫療卡")),
     section("常用句", rowGroup(phrases.map((p) => phraseRow(p, { jp: p.jp, zh: p.zh }, "醫療・過敏")))),
   ]);
-  if (target === "card" && !isEmpty(profile)) {
-    const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith("醫療卡"));
+  const start = Object.hasOwn(TARGETS, target) ? TARGETS[target] : undefined;
+  if (start && !isEmpty(profile)) {
+    const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith(start));
     if (!heading) return;
     heading.tabIndex = -1;
     // On the next frame: a link from a phrase page arrives while that layer is still closing

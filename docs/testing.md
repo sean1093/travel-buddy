@@ -66,10 +66,10 @@ Rules of thumb:
 
 It also opens the full-screen layers at each variant: the phrase page, 給對方點選 (Let them tap), 給對方看 (Show them) and 萬用句 (All-purpose phrases).
 
-For each case it checks three things:
+For each case it checks:
 - The page must not scroll sideways.
 - Every visible button and link must have an accessible name.
-- Tappable targets must be at least 44px tall. This covers the page header, the content and any open layer.
+- Tappable targets must be at least 44px tall, and their content must fit inside them. This covers the page header, the content and any open layer.
 
 At each variant it also walks 設定資料 (Set up info) with the Tab key and checks that the focused field's first line is never under the page header or the bottom buttons (WCAG 2.4.11), and that home's 醫療卡 (Medical card) shortcut lands on the medical card, focused and in view.
 

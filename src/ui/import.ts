@@ -32,11 +32,11 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
 
 function done(root: HTMLElement, profile: Profile): void {
   saveProfile(profile);
-  keepStorage();
   const name = profile.callName ? `${profile.callName}，` : "";
   screen(root, "checkcircle", "設定完成", `${name}之後直接打開這個網站就好，不用再點連結。沒有網路也能用。`, [
     h("p", { class: "text-lg leading-relaxed text-muted" }, HOME_SCREEN_TIP),
-    h("a", { href: "#/", class: BUTTON.primary }, "開始使用"),
+    // Asked on a deliberate tap, not as the screen opens: Firefox shows a prompt for it.
+    h("a", { href: "#/", class: BUTTON.primary, onclick: keepStorage }, "開始使用"),
   ]);
 }
 

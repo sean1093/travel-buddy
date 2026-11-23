@@ -294,6 +294,15 @@ describe("askOther", () => {
     expect(topDialog().querySelector('[aria-live="polite"]')?.textContent).toBe("對方回答：1 號月台");
   });
 
+  it("has its live region from the moment it opens, before anything is said", () => {
+    ov.askOther(question, replies);
+    const region = topDialog().querySelector("[data-live-region]");
+    expect(region?.getAttribute("aria-live")).toBe("polite");
+    button(topDialog(), "1番線").click();
+    // The same region, not one made with the text: screen readers often miss those.
+    expect(topDialog().querySelector("[data-live-region]")).toBe(region);
+  });
+
   it("goes back to the question with 再問一次", () => {
     ov.askOther(question, replies);
     button(topDialog(), "わかりません").click();

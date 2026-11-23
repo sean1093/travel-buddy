@@ -8,14 +8,14 @@ From an expert panel review (UX for older travellers, Japanese content, accessib
 
 ### Sharing and keeping the data
 - **LINE opens the share link in the phone's browser:** links now carry LINE's `?openExternalBrowser=1`. Before, a link tapped in LINE imported into LINE's own browser, and the app looked empty the next time it was opened from Safari, Chrome or the home screen. The import screen removes the query from the address bar together with the data.
-- **The browser is asked to keep the data:** after an import, or on 完成 (Done) or 分享 (Share) in 設定資料 (Set up info), the app asks the browser not to clear its storage.
+- **The browser is asked to keep the data:** on 開始使用 (Start) after an import, and on 完成 (Done) or 分享 (Share) in 設定資料 (Set up info), the app asks the browser not to clear its storage. Only on a tap: Firefox asks the user about it.
 - **Home-screen tip:** 設定完成 (Setup complete) now suggests adding the site to the home screen.
 
 ### Under stress
 - **Weak signal:** a page load waits at most 4 seconds for the network, then opens the copy on the phone, so 我需要幫忙 (I need help) no longer hangs on a connection that neither answers nor fails. An error page from the network (a hotel Wi-Fi login page, a server error) no longer replaces the app when the phone has it. A new version is still picked up when the network answers in time, and is only kept for offline use once its script and stylesheet are cached too.
 - **Offline from the first visit:** the site icon, the manifest and the home-screen icons are now cached with the app on the first visit.
-- **醫療卡 (Medical card) shortcut** opens the medical page at the medical card, not at the symptom list above it; the 打開醫療卡 (Open medical card) links in scenes do the same.
-- **One word for one action:** 放大 (Enlarge) on the help page and the back-to-hotel card is now 給對方看 (Show them), as everywhere else. On the help page it has its own row.
+- **醫療卡 (Medical card) shortcut** opens the medical page at the medical card, not at the symptom list above it; the 打開醫療卡 (Open medical card) links in scenes do the same, and 打開過敏卡 (Open allergy card) at the restaurant opens at the allergy card.
+- **One word for one action:** 放大 (Enlarge) on the help page and the back-to-hotel card is now 給對方看 (Show them), as everywhere else, and the lift note's button is 給站務員看 (Show the station staff). On the help page it has its own row.
 
 ### Screen readers and keyboards
 - **Japanese in a Japanese voice:** play buttons no longer put the Japanese in a Chinese label, which screen readers read with a Chinese voice. The Japanese is now marked as Japanese.

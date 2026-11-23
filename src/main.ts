@@ -1,7 +1,7 @@
 import "./style.css";
 import { onVoicesChanged } from "./lib/speech";
 import { applySettings } from "./state";
-import { focusHeading } from "./ui/dom";
+import { focusHeading, liveRegion } from "./ui/dom";
 import { setTitle } from "./ui/layout";
 import { renderGuide, renderTools } from "./ui/guide";
 import { renderHelp } from "./ui/help";
@@ -59,6 +59,8 @@ function route(): void {
 }
 
 applySettings();
+// Ready before the first announcement (see liveRegion).
+liveRegion();
 // The system theme can change while the app is open (e.g. at sunset).
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", applySettings);
 // The voice list arrives late on some browsers; the settings page shows it.

@@ -21,5 +21,5 @@ export const KANA = /[぀-ヿ]/;
 /** What the app's live region says once the next frame has run (announce() sets it on a frame). */
 export async function spoken(): Promise<string> {
   await new Promise((resolve) => requestAnimationFrame(resolve));
-  return document.querySelector('[aria-live="polite"][aria-atomic="true"]')?.textContent ?? "";
+  return [...document.querySelectorAll("[data-live-region]")].map((el) => el.textContent).join("");
 }

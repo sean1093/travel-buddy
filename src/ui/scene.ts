@@ -264,7 +264,7 @@ function elevatorNote(place: Place): HTMLElement {
           ),
       },
       icon("expand", "h-5 w-5"),
-      "放大給站務員看",
+      "給站務員看",
     ),
   );
 }

@@ -18,7 +18,9 @@ const persisted = vi.fn(() => Promise.resolve(false));
 /** persist() runs after persisted() answers. */
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-beforeEach(() => {
+beforeEach(async () => {
+  // Let an announcement from the previous test land first, so it isn't heard in this one.
+  await new Promise((resolve) => requestAnimationFrame(resolve));
   resetPage();
   const app = document.createElement("div");
   app.id = "app";
@@ -107,10 +109,16 @@ describe("setup", () => {
 describe("import", () => {
   const render = async (payload: string) => (await import("../src/ui/import")).renderImport(app(), [payload]);
 
-  it("saves the profile, asks to keep it, and suggests the home screen", async () => {
+  it("saves the profile, suggests the home screen, and asks to keep the data on 開始使用", async () => {
     history.replaceState(null, "", `${location.pathname}?openExternalBrowser=1#/s/${encodeProfile(sampleProfile())}`);
     await render(encodeProfile(sampleProfile()));
     expect(stored()).toEqual(JSON.parse(JSON.stringify(sampleProfile())));
+    await settle();
+    // Not as the screen opens: Firefox shows a prompt for it.
+    expect(persist).not.toHaveBeenCalled();
+    const start = [...app().querySelectorAll("a")].find((a) => a.textContent === "開始使用")!;
+    start.addEventListener("click", (e) => e.preventDefault());
+    start.click();
     await settle();
     expect(persist).toHaveBeenCalledTimes(1);
     expect(app().querySelector("h1")?.textContent).toBe("設定完成");

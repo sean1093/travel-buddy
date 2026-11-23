@@ -322,6 +322,13 @@ describe("medical", () => {
     expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
   });
 
+  it("opens at the allergy card from 打開過敏卡", async () => {
+    saveProfile(sampleProfile());
+    (await import("../src/ui/medical")).renderMedical(app(), ["allergy"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.textContent).toBe("過敏卡（給餐廳看）");
+  });
+
   it("stays at the setup prompt when the shortcut finds nothing filled in", async () => {
     (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
     await new Promise((resolve) => requestAnimationFrame(resolve));

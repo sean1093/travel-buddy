@@ -83,18 +83,23 @@ async function checkScreen(page: Page): Promise<void> {
       .map((el) => ({ el, height: el.getBoundingClientRect().height }))
       .filter(({ height }) => height < min)
       .map(({ el, height }) => `${describe(el)} ${height.toFixed(1)}px`);
+    // Text that doesn't fit its button spills over its neighbours without scrolling the page.
+    const spilled = [...document.querySelectorAll(targets)]
+      .filter((el) => visible(el) && el.scrollWidth > el.clientWidth + 1)
+      .map((el) => `${describe(el)} ${el.scrollWidth}>${el.clientWidth}`);
     // Wider than the viewport: what makes the page scroll sideways.
     const wide = [...document.querySelectorAll("body *")]
       .filter((el) => visible(el) && el.getBoundingClientRect().right > doc.clientWidth + 0.5)
       .slice(0, 5)
       .map((el) => `${describe(el)} right=${el.getBoundingClientRect().right.toFixed(1)}`);
-    return { scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth, small, wide };
+    return { scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth, small, wide, spilled };
   }, MIN_TARGET);
 
   expect
     .soft(report.scrollWidth, `horizontal overflow; widest: ${report.wide.join(", ")}`)
     .toBeLessThanOrEqual(report.clientWidth);
   expect.soft(report.small, `tap targets under ${MIN_TARGET}px tall`).toEqual([]);
+  expect.soft(report.spilled, "buttons and links whose content doesn't fit").toEqual([]);
 
   // Accessible names as the browser computes them: an unnamed button or link shows as a bare role.
   const tree = await page.locator("body").ariaSnapshot();
