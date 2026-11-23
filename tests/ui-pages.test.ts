@@ -336,6 +336,13 @@ describe("medical", () => {
     expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
   });
 
+  it("opens at the medical card when it holds only the name and family phone, for the ambulance crew", async () => {
+    saveProfile({ passportName: "LIN MEI-HUA", contacts: sampleProfile().contacts });
+    (await import("../src/ui/medical")).renderMedical(app(), ["card"]);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
+  });
+
   it("stays at the symptom cards when the medical card would be empty, e.g. only a hotel filled in", async () => {
     saveProfile({ hotels: sampleProfile().hotels });
     (await import("../src/ui/medical")).renderMedical(app(), ["card"]);

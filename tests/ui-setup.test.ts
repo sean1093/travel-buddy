@@ -88,6 +88,27 @@ describe("setup", () => {
     expect(await spoken()).toBe("已儲存");
   });
 
+  it("marks, explains and says a birth year it can't keep, instead of 已儲存", async () => {
+    await render();
+    const year = app().querySelector<HTMLInputElement>('input[inputmode="numeric"]')!;
+    const type = (value: string) => {
+      year.value = value;
+      year.dispatchEvent(new Event("input", { bubbles: true }));
+      year.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+    type("195");
+    expect(stored().birthYear).toBeNull();
+    expect(year.getAttribute("aria-invalid")).toBe("true");
+    const error = document.getElementById(year.getAttribute("aria-describedby")!)!;
+    expect(error.textContent).toBe("請填四位數的西元年，例：1956。這一欄還沒存。");
+    expect(await spoken()).toBe("請填四位數的西元年，例：1956。這一欄還沒存。");
+    type("1956");
+    expect(stored().birthYear).toBe(1956);
+    expect(year.hasAttribute("aria-invalid")).toBe(false);
+    expect(error.textContent).toBe("");
+    expect(await spoken()).toBe("已儲存");
+  });
+
   it("asks the browser to keep the data on 完成, not while typing (Firefox shows a prompt for it)", async () => {
     await render();
     const name = app().querySelector<HTMLInputElement>("input")!;

@@ -33,27 +33,56 @@ interface FieldOptions {
   inputmode?: string;
   max?: number;
   autocomplete?: string;
+  /** What's wrong with a finished value that can't be saved, or null when it's fine. */
+  problem?: (value: string) => string | null;
 }
 
-/** A labelled input that writes through `set` on every keystroke. */
+let fields = 0;
+
+/** A four-digit year the profile keeps, or null. */
+function birthYear(value: string): number | null {
+  const n = Number(value.trim());
+  return value.trim() !== "" && Number.isInteger(n) && n >= 1900 && n <= 2100 ? n : null;
+}
+
+/**
+ * A labelled input that writes through `set` on every keystroke. With
+ * `problem`, a finished value that can't be kept is marked, explained under the
+ * field and said, instead of the 已儲存 (Saved) the form says otherwise.
+ */
 function field(label: string, value: string, set: (value: string) => void, options: FieldOptions = {}): HTMLElement {
-  return h(
-    "label",
-    { class: "block text-lg font-bold" },
-    label,
-    h("input", {
-      class: INPUT,
-      value,
-      type: options.type ?? "text",
-      lang: options.lang,
-      inputmode: options.inputmode,
-      placeholder: options.placeholder,
-      maxlength: options.max ?? LIMITS.short,
-      autocomplete: options.autocomplete ?? "off",
-      oninput: (event: Event) => set((event.target as HTMLInputElement).value),
-    }),
-    options.hint && h("span", { class: `${HINT} font-normal` }, options.hint),
-  );
+  const errorId = `field-error-${++fields}`;
+  const error = h("span", { id: errorId, class: "mt-1 block text-base font-bold text-shu empty:hidden" });
+  const input = h("input", {
+    class: INPUT,
+    value,
+    type: options.type ?? "text",
+    lang: options.lang,
+    inputmode: options.inputmode,
+    placeholder: options.placeholder,
+    maxlength: options.max ?? LIMITS.short,
+    autocomplete: options.autocomplete ?? "off",
+    "aria-describedby": options.problem ? errorId : undefined,
+    oninput: () => {
+      set(input.value);
+      // Fixed while typing: clear the mark at once; a new problem waits for the field to be finished.
+      if (options.problem && !options.problem(input.value)) mark(null);
+    },
+    onchange: (event: Event) => {
+      const problem = options.problem?.(input.value) ?? null;
+      mark(problem);
+      if (!problem) return;
+      // Not 已儲存: the form says that for every other finished field (renderSetup).
+      event.stopPropagation();
+      announce(problem);
+    },
+  });
+  function mark(problem: string | null): void {
+    if (problem) input.setAttribute("aria-invalid", "true");
+    else input.removeAttribute("aria-invalid");
+    error.textContent = problem ?? "";
+  }
+  return h("label", { class: "block text-lg font-bold" }, label, input, options.hint && h("span", { class: `${HINT} font-normal` }, options.hint), options.problem && error);
 }
 
 /**
@@ -359,11 +388,16 @@ export function renderSetup(root: HTMLElement): void {
           "出生年（西元）",
           year,
           (v) => {
-            const n = Number(v);
-            profile.birthYear = Number.isInteger(n) && n >= 1900 && n <= 2100 ? n : null;
+            profile.birthYear = birthYear(v);
             save();
           },
-          { inputmode: "numeric", placeholder: "例：1956", hint: "醫院一定會問年齡。", max: 4 },
+          {
+            inputmode: "numeric",
+            placeholder: "例：1956",
+            hint: "醫院一定會問年齡。",
+            max: 4,
+            problem: (v) => (v.trim() === "" || birthYear(v) !== null ? null : "請填四位數的西元年，例：1956。這一欄還沒存。"),
+          },
         ),
       ),
     ),

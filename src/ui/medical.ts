@@ -128,9 +128,13 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
   ]);
   const start = Object.hasOwn(TARGETS, target) ? TARGETS[target] : undefined;
   // Only to a card with something on it: otherwise the symptom cards at the top help more.
-  // The medical card shows health (conditions, medicines, blood type) and allergy data (drug and food
-  // allergies, insurance); the allergy card, food allergies and diets.
-  const filled = sectionSummaries(profile).some((s) => (s.id === "health" || s.id === "allergy") && s.done);
+  // What the medical card shows beyond its fixed lines: the name, birth year and family contact for
+  // the ambulance crew, then the health and allergy sections. The allergy card: food allergies and diets.
+  const filled =
+    Boolean(profile.passportName) ||
+    profile.birthYear !== null ||
+    profile.contacts.length > 0 ||
+    sectionSummaries(profile).some((s) => (s.id === "health" || s.id === "allergy") && s.done);
   if (start && (target === "allergy" ? allergy : filled)) {
     const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith(start));
     if (!heading) return;
