@@ -129,8 +129,9 @@ async function keep(copy, response, request, shell, key) {
     // for good. The build being replaced keeps its files until the next page load, since a page may
     // have just opened it (the cached copy served while this download ran).
     const keep = new Set([...assets, ...previous].map((asset) => new URL(asset, self.registration.scope).href));
-    // Only scripts and stylesheets, the files a page names (ASSET_HREF). A font or image only a
-    // stylesheet names, or a lazy chunk, would not be in `keep`: leave those alone.
+    // Only scripts and stylesheets: fonts and images a stylesheet names are not in `keep`, so they
+    // are left alone. A lazy-loaded chunk would be dropped here too: the build has none, and adding
+    // one needs this and precache() to learn about it.
     const stale = (await cache.keys()).filter((req) => {
       const url = req.url.split("?")[0];
       return url.startsWith(ASSETS) && /\.(?:js|css)$/.test(url) && !keep.has(url);

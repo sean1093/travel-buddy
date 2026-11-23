@@ -401,7 +401,7 @@ export function renderSetup(root: HTMLElement): void {
             placeholder: "例：1956",
             hint: "醫院一定會問年齡。",
             max: 4,
-            problem: (v) => (v.trim() === "" || birthYear(v) !== null ? null : "請填四位數的西元年，例：1956。這一欄還沒存。"),
+            problem: (v) => (v.trim() === "" || birthYear(v) !== null ? null : "請填 1900 到 2100 之間的四位數西元年，例：1956。這一欄還沒存。"),
           },
         ),
       ),

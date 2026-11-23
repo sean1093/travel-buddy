@@ -84,7 +84,7 @@ export function renderHome(root: HTMLElement): void {
           { class: "text-left" },
           h("span", { class: "block whitespace-nowrap text-[min(2rem,9vw)] font-bold leading-tight" }, "我需要幫忙"),
           // One line even at the largest text size: it shrinks with the screen before it wraps.
-          h("span", { class: "block whitespace-nowrap text-[min(1.125rem,6vw)] opacity-90" }, "迷路・找家人・急病"),
+          h("span", { class: "block whitespace-nowrap text-[min(1.125rem,5.5vw)] opacity-90" }, "迷路・找家人・急病"),
         ),
       ),
       empty &&

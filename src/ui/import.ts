@@ -44,11 +44,15 @@ function done(root: HTMLElement, profile: Profile): void {
 export const HOME_SCREEN_TIP = "建議把這個網站加到手機主畫面，下次點圖示就能打開。";
 
 /**
- * Android only. On iPhone and iPad an app added to the home screen keeps its
- * own storage, apart from Safari's, so it would open without what was just
- * saved (docs/spec.md); a computer has no home screen.
+ * Android's own browser only. On iPhone and iPad an app added to the home
+ * screen keeps its own storage, apart from Safari's, so it would open without
+ * what was just saved (docs/spec.md); a computer has no home screen; and an
+ * app's built-in browser (LINE, Facebook, Instagram: "; wv)") can't add one.
  */
-const homeScreenSharesStorage = () => /Android/.test(navigator.userAgent);
+const homeScreenSharesStorage = () => {
+  const agent = navigator.userAgent;
+  return /Android/.test(agent) && !/; wv\)| Line\/|FBAN|FB_IAB|Instagram/.test(agent);
+};
 
 function screen(root: HTMLElement, glyph: IconName, title: string, body: string, actions: HTMLElement[]): void {
   setTitle(title);

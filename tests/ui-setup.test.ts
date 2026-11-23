@@ -105,8 +105,8 @@ describe("setup", () => {
     expect(stored().birthYear).toBe(1950);
     expect(year.getAttribute("aria-invalid")).toBe("true");
     const error = document.getElementById(year.getAttribute("aria-describedby")!)!;
-    expect(error.textContent).toBe("請填四位數的西元年，例：1956。這一欄還沒存。");
-    expect(await spoken()).toBe("請填四位數的西元年，例：1956。這一欄還沒存。");
+    expect(error.textContent).toBe("請填 1900 到 2100 之間的四位數西元年，例：1956。這一欄還沒存。");
+    expect(await spoken()).toBe("請填 1900 到 2100 之間的四位數西元年，例：1956。這一欄還沒存。");
     // Full-width digits, as a Chinese keyboard may type them, are a year too.
     type("１９５６");
     expect(stored().birthYear).toBe(1956);
@@ -163,6 +163,7 @@ describe("import", () => {
   it.each([
     ["an iPhone, where the icon wouldn't see the saved data", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)"],
     ["a computer, which has no home screen", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0"],
+    ["LINE's browser on Android, which can't add one", "Mozilla/5.0 (Linux; Android 14; Pixel 7; wv) AppleWebKit/537.36 Chrome/130.0 Mobile Safari/537.36 Line/14.19.1"],
   ])("doesn't suggest the home screen on %s", async (_, agent) => {
     vi.spyOn(navigator, "userAgent", "get").mockReturnValue(agent);
     await render(encodeProfile(sampleProfile()));

@@ -31,7 +31,8 @@ export function renderHotel(root: HTMLElement, [index]: string[]): void {
     h("div", { class: "mt-3" }, cardBlock(card)),
     h(
       "div",
-      { class: "mt-4 grid grid-cols-2 gap-2" },
+      // One per row: 給對方看 doesn't fit half the width on a 360 px phone at 特大.
+      { class: "mt-4 grid grid-cols-1 gap-2" },
       playButton(LINES.taxiToHotel, "normal", "md", "whitespace-nowrap"),
       h(
         "button",

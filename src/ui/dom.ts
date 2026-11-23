@@ -138,7 +138,7 @@ export type IconName = keyof typeof ICONS;
 
 export function icon(name: IconName, cls = "h-6 w-6"): SVGSVGElement {
   const template = document.createElement("template");
-  template.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="${cls}">${ICONS[name]}</svg>`;
+  template.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 ${cls}">${ICONS[name]}</svg>`;
   return template.content.firstElementChild as SVGSVGElement;
 }
 

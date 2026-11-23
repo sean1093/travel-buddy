@@ -134,11 +134,11 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
     profile.passportName,
     profile.birthYear,
     health.bloodType,
-    health.conditions.length || health.conditionsOther,
+    health.conditions.length || health.conditionsOther.trim(),
     health.meds.length,
-    health.drugAllergies.length || health.foodAllergies.length || health.allergyOther,
-    profile.contacts[0]?.name || profile.contacts[0]?.phone,
-    ins.company || ins.policy || ins.phone,
+    health.drugAllergies.length || health.foodAllergies.length || health.allergyOther.trim(),
+    profile.contacts[0]?.name.trim() || profile.contacts[0]?.phone.trim(),
+    ins.company.trim() || ins.policy.trim() || ins.phone.trim(),
   ].some(Boolean);
   if (start && (target === "allergy" ? allergy : filled)) {
     const heading = [...root.querySelectorAll<HTMLElement>("h2")].find((el) => el.textContent?.startsWith(start));

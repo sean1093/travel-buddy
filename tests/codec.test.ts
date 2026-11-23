@@ -21,7 +21,6 @@ describe("share codec", () => {
     expect(decodeProfile(new URL(url).hash.slice("#/s/".length))).toEqual(sampleProfile());
   });
 
-
   it("keeps an ordinary trip short enough for a QR code", () => {
     const payload = encodeProfile(sampleProfile());
     expect(payload).toMatch(/^1\.[A-Za-z0-9_-]+$/);
