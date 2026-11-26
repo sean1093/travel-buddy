@@ -52,6 +52,21 @@ describe("trip dates", () => {
     expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
   });
 
+  it("on a day one stay ends and the next begins, keeps the one being checked out of (the bags are there)", () => {
+    const profile = sampleProfile();
+    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
+    profile.hotels = [kyoto, shinjuku];
+    expect(shinjuku.to).toBe(kyoto.from);
+    expect(currentHotel(profile, shinjuku.to)?.name).toBe(shinjuku.name);
+  });
+
+  it("counts a stay with only a check-out date as running until then", () => {
+    const profile = sampleProfile();
+    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
+    profile.hotels = [{ ...shinjuku, from: "", to: "2026-11-10" }, { ...kyoto, from: "2026-11-12", to: "" }];
+    expect(currentHotel(profile, "2026-11-08")?.name).toBe(shinjuku.name);
+  });
+
   it("counts a stay with only a check-in date as running until the next one starts", () => {
     const profile = sampleProfile();
     const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];

@@ -136,6 +136,9 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
     section("醫療卡（給醫生、救護人員看）", cardWithActions(medicalCard(profile), "醫療卡")),
     section("常用句", rowGroup(phrases.map((p) => phraseRow(p, { jp: p.jp, zh: p.zh }, "醫療・過敏")))),
   ]);
+  // 打開過敏卡 with no allergy card: start on the notice that says so (a screen reader hears it first).
+  const missing = root.querySelector<HTMLElement>("a.allergy-missing");
+  if (missing) requestAnimationFrame(() => missing.focus());
   const start = Object.hasOwn(TARGETS, target) ? TARGETS[target] : undefined;
   // Only to a card with something on it: otherwise the symptom cards at the top help more.
   // What the medical card (profile/cards.ts) shows beyond its fixed lines. The allergy card: `allergy`.

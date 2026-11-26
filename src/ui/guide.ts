@@ -83,7 +83,12 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
     return;
   }
   const scene = sceneById(guide.scene);
-  const sources = guide.sources.filter((url, i, all) => all.findIndex((other) => new URL(other).hostname === new URL(url).hostname) === i);
+  // Every source, each a link; a site cited twice is told apart by number (www.mlit.go.jp 2).
+  const sources = guide.sources.map((url, i, all) => {
+    const host = new URL(url).hostname;
+    const same = all.filter((other) => new URL(other).hostname === host);
+    return { url, label: same.length > 1 ? `${host} ${same.indexOf(url) + 1}` : host };
+  });
   // The heading says 旅遊小抄; the tab and history name the guide itself.
   page(root, "旅遊小抄", [
     h("h2", { class: "mt-2 text-2xl font-bold leading-snug" }, guide.title),
@@ -128,12 +133,12 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
       null,
       h("p", { class: "text-base text-muted" }, `查證日期：${guide.verified}。規定可能會改，以現場人員的說明為準。`),
       h("p", { class: "mt-1 text-base text-muted" }, "資料來源："),
-      // One link per site, as on the guide's own page; each a full-height target.
+      // Each a full-height target.
       h(
         "ul",
         { class: "flex flex-wrap gap-x-4" },
-        sources.map((url) =>
-          h("li", null, h("a", { href: url, target: "_blank", rel: "noopener", class: "inline-flex min-h-11 items-center text-base text-ai underline" }, new URL(url).hostname)),
+        sources.map(({ url, label }) =>
+          h("li", null, h("a", { href: url, target: "_blank", rel: "noopener", class: "inline-flex min-h-11 items-center text-base text-ai underline" }, label)),
         ),
       ),
     ),

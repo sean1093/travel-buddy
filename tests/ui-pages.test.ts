@@ -328,6 +328,8 @@ describe("medical", () => {
     const prompt = app().querySelector<HTMLAnchorElement>("a.allergy-missing")!;
     expect(prompt.getAttribute("href")).toBe("#/setup");
     expect(prompt.textContent).toContain("還沒有過敏卡");
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement).toBe(prompt);
     // Not on the plain medical page.
     (await import("../src/ui/medical")).renderMedical(app(), []);
     expect(app().querySelector("a.allergy-missing")).toBeNull();
@@ -447,7 +449,7 @@ describe("help", () => {
 });
 
 describe("travel cheat sheet", () => {
-  it("links the scene with its Japanese, and each source site once", async () => {
+  it("links the scene with its Japanese, and every source, told apart when a site has several", async () => {
     const { guideById } = await import("../src/content/guides");
     const { renderGuide } = await import("../src/ui/guide");
     try {
@@ -455,9 +457,10 @@ describe("travel cheat sheet", () => {
       expect(links(app()).find((a) => a.getAttribute("href") === "#/scene/luggage")?.textContent).toContain("打開「行李」情境");
       renderGuide(app(), ["tax-refund"]);
       const sources = links(app()).filter((a) => a.getAttribute("href")?.startsWith("https://"));
-      const hosts = sources.map((a) => a.textContent);
-      expect(new Set(hosts).size).toBe(hosts.length);
-      expect(hosts).toEqual([...new Set(guideById("tax-refund")!.sources.map((url) => new URL(url).hostname))]);
+      expect(sources.map((a) => a.href)).toEqual(guideById("tax-refund")!.sources);
+      const labels = sources.map((a) => a.textContent);
+      expect(new Set(labels).size).toBe(labels.length);
+      expect(labels).toContain("www.mlit.go.jp 2");
     } finally {
       document.title = "";
     }

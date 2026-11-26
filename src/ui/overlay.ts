@@ -199,7 +199,8 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
     // languages, until the reader is at the end. Screen readers read on anyway, so it is hidden from them.
     const more = h(
       "p",
-      { class: "pointer-events-none border-t border-hair bg-card py-1 text-center text-lg font-bold text-ai", "aria-hidden": "true" },
+      // Hidden until measured: a card that fits never flashes it.
+      { class: "pointer-events-none border-t border-hair bg-card py-1 text-center text-lg font-bold text-ai", "aria-hidden": "true", hidden: true },
       h("span", { lang: "ja" }, "▼ 下に続きます"),
       "　下面還有",
     );

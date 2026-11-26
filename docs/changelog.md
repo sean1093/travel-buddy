@@ -7,7 +7,7 @@ Newest first. Every item goes through the "issue → development → PR → revi
 From user testing with five testers playing a 68-year-old first-time traveller, a son setting it up for his parents, an independent traveller, a screen-reader user, and the Japanese staff on the other side of the phone (issues #53–#64).
 
 ### Medical card
-- **未記入 (not filled in), never なし (none), for a question never answered:** a card with only a name filled in used to tell a doctor "no allergies".
+- **未記入 (not filled in), never なし (none), for an empty line:** setup has no way to say "none", and a card with only a name filled in used to tell a doctor "no allergies".
 - **Allergies first**, in the alert colour, on the first screen at any text size; age shown as a range, since only the birth year is known.
 - **給對方看 (Show them) says when there is more below** (下に続きます／下面還有), and its bar speaks Japanese (こちらをご覧ください, please look at this).
 - **On the card in Japanese:** relations (女兒 → 娘, daughter), passport names in capitals, and the setup form asks for doses in English.

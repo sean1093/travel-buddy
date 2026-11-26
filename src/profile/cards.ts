@@ -176,12 +176,9 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
     "国籍：台湾",
     h.bloodType && `血液型：${h.bloodType}型`,
   ].filter((line): line is string => Boolean(line));
-  // A question never answered is 未記入 (not filled in), never なし (none): a doctor reads なし as
-  // "no allergies". Once some allergy (or some condition or medicine) is entered, the rest of that
-  // question is taken as none. A diet, insurance or a blood type answers neither.
-  const allergiesAnswered = h.drugAllergies.length > 0 || h.foodAllergies.length > 0 || Boolean(h.allergyOther.trim());
-  const healthAnswered = h.conditions.length > 0 || Boolean(h.conditionsOther.trim()) || h.meds.length > 0;
-  const none = (section: "health" | "allergy") => ((section === "health" ? healthAnswered : allergiesAnswered) ? "なし" : "未記入");
+  // An empty line is 未記入 (not filled in), never なし (none): setup has no way to say "none", so an
+  // empty field only means nobody wrote anything, and a doctor reads なし as "no allergies".
+  const NOT_FILLED = "未記入";
   const conditions = presetLine(CONDITIONS, h.conditions, h.conditionsOther);
   const drugs = presetLine(DRUG_ALLERGIES, h.drugAllergies);
   const foods = presetLine(FOOD_ALLERGIES, h.foodAllergies, h.allergyOther);
@@ -190,7 +187,7 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
     {
       jp: "{薬|くすり} と {食|た}べ{物|もの} の アレルギー です。",
       zh: "藥物和食物過敏。",
-      extra: [`薬のアレルギー：${drugs || none("allergy")}`, foods && `食物アレルギー：${foods}`].filter(
+      extra: [`薬のアレルギー：${drugs || NOT_FILLED}`, foods && `食物アレルギー：${foods}`].filter(
         (line): line is string => Boolean(line),
       ),
       alert: true,
@@ -200,8 +197,8 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
       jp: "{持病|じびょう} と {服用中|ふくようちゅう} の {薬|くすり} です。",
       zh: "慢性病和常吃的藥。",
       extra: [
-        `持病：${conditions || none("health")}`,
-        h.meds.length > 0 ? "服用中の薬：" : `服用中の薬：${none("health")}`,
+        `持病：${conditions || NOT_FILLED}`,
+        h.meds.length > 0 ? "服用中の薬：" : `服用中の薬：${NOT_FILLED}`,
         ...h.meds.map((m) => `・${[m.ingredient, m.dose].filter(Boolean).join(" ")}`),
       ],
     },

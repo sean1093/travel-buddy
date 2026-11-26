@@ -303,3 +303,12 @@ describe("萬用句 dock", () => {
     expect(app().querySelector('nav[aria-label="萬用句"] button')).not.toBeNull();
   });
 });
+
+describe("lift note language", () => {
+  it("reads a note in Japanese only when it is Japanese, not Chinese with a katakana word", async () => {
+    const { looksJapanese } = await import("../src/ui/scene");
+    expect(looksJapanese("エレベーターはA3出口（改札外）。ホームへは3番線中央のエレベーター。")).toBe(true);
+    expect(looksJapanese("出口在南口旁邊，エレベーター在右邊")).toBe(false);
+    expect(looksJapanese("南口の電梯")).toBe(false);
+  });
+});

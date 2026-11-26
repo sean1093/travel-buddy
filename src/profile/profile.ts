@@ -224,11 +224,14 @@ export function today(now = new Date()): string {
  */
 export function currentHotel(profile: Profile, day = today()): Hotel | null {
   const hotels = profile.hotels;
-  // A stay with only a check-in date runs until a later one starts: of those that cover the day,
-  // the one that started last.
+  // A stay covers from check-in through check-out; with only one of the dates, it runs from (or to)
+  // that one. Of the stays covering the day, the one being checked out of wins (the bags may still
+  // be there that morning), then the one that started last: an open-ended stay ends when the next
+  // begins.
+  const covers = (h: Hotel) => (h.from || h.to) && (!h.from || h.from <= day) && (!h.to || day <= h.to);
   const covering = hotels
-    .filter((h) => h.from && h.from <= day && (!h.to || day <= h.to))
-    .sort((a, b) => b.from.localeCompare(a.from))[0];
+    .filter(covers)
+    .sort((a, b) => Number(b.to === day) - Number(a.to === day) || (b.from || "").localeCompare(a.from || ""))[0];
   const next = hotels.filter((h) => h.from && h.from > day).sort((a, b) => a.from.localeCompare(b.from))[0];
   const last = hotels
     .filter((h) => (h.to || h.from) && (h.to || h.from) < day)

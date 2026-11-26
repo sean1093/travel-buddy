@@ -144,14 +144,14 @@ describe("medical and allergy cards", () => {
     expect(medicalCard(profile, now)[1]?.extra).toContain("生年：2026年（0歳）");
   });
 
-  it("says なし for the rest of a section the traveller did fill in", () => {
+  it("says 未記入 for each empty line, even when the lines next to it are filled in", () => {
     const profile = emptyProfile();
     profile.health.foodAllergies = ["peanut"];
-    profile.health.conditions = [];
     profile.health.meds = [{ ingredient: "Amlodipine", dose: "" }];
     const blocks = medicalCard(profile, now);
-    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：なし", "食物アレルギー：落花生（ピーナッツ）"]);
-    expect(blocks[2]?.extra).toEqual(["持病：なし", "服用中の薬：", "・Amlodipine"]);
+    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：未記入", "食物アレルギー：落花生（ピーナッツ）"]);
+    expect(blocks[2]?.extra).toEqual(["持病：未記入", "服用中の薬：", "・Amlodipine"]);
+    for (const block of blocks) expect(block.extra.join("")).not.toContain("なし");
   });
 
   it("spells out vegetarian types the Japanese have no word for", () => {

@@ -1,6 +1,9 @@
 import type { Reply, ReplySet } from "./types";
 
-/** Every set ends with わかりません, so the other person is never forced to guess. */
+/**
+ * Every set ends with わかりません, so the other person is never forced to guess, except
+ * `borrow` (may I use the toilet?), where a clerk always knows the answer.
+ */
 export const DONT_KNOW: Reply = { jp: "わかりません", zh: "不知道" };
 
 /** For an answer the list doesn't have: every set but yes/no offers it (see repliesFor). */

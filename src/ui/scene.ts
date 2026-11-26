@@ -245,13 +245,21 @@ function rescueDock(): HTMLElement[] {
 
 /** Big buttons for the saved destinations; the picked one fills every 〇〇. */
 /** The picked station's 電梯筆記, ready to enlarge for station staff. */
+/**
+ * Japanese sentences need hiragana (は、を、へ、の…); Chinese with a katakana word
+ * (エレベーター在右邊) has none, or only a stylish の.
+ */
+export function looksJapanese(text: string): boolean {
+  return (text.match(/[\u3041-\u3096]/g) ?? []).filter((c) => c !== "の").length >= 2;
+}
+
 function elevatorNote(place: Place): HTMLElement {
   return h(
     "div",
     { class: "mt-3 rounded-2xl bg-card p-3" },
     h("p", { class: "flex items-center gap-2 text-lg font-bold" }, pictogram("elevator", "exit", "sm"), `${place.zh || place.name}・電梯筆記`),
     // Usually pasted from the station's site in Japanese: read it in a Japanese voice then.
-    h("p", { class: "mt-1 whitespace-pre-line break-words text-lg", lang: /[\u3040-\u30ff]/.test(place.note) ? "ja" : undefined }, place.note),
+    h("p", { class: "mt-1 whitespace-pre-line break-words text-lg", lang: looksJapanese(place.note) ? "ja" : undefined }, place.note),
     h(
       "button",
       {

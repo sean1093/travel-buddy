@@ -91,6 +91,8 @@ body {
     "Meiryo", system-ui, sans-serif;
   /* Break between phrases, not inside one, where the browser knows how (ください, not くださ／い). */
   word-break: auto-phrase;
+  /* Never ー, a small kana or closing punctuation at the start of a line (ホテルグレイスリ／ー新宿). */
+  line-break: strict;
 }
 
 /* Lines break only between the words of the markup, never inside one. */
@@ -188,16 +190,6 @@ body {
     flex: none;
     overflow: visible;
   }
-}
-
-/*
- * Japanese breaks between phrases, not inside words (ホテルグレイスリー新／宿,
- * 歌舞伎／町): auto-phrase where the browser has it. Strict rules everywhere:
- * never ー, a small kana or closing punctuation at the start of a line.
- */
-:lang(ja) {
-  line-break: strict;
-  word-break: auto-phrase;
 }
 
 [tabindex="-1"]:focus {
