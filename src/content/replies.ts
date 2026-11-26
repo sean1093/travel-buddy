@@ -1,9 +1,12 @@
 import type { Reply, ReplySet } from "./types";
 
 /** Every set ends with わかりません, so the other person is never forced to guess. */
-const DONT_KNOW: Reply = { jp: "わかりません", zh: "不知道" };
+export const DONT_KNOW: Reply = { jp: "わかりません", zh: "不知道" };
 
-/** 1番線 … 14番線, read as station announcements say them. */
+/** For an answer the list doesn't have: every set but yes/no offers it (see repliesFor). */
+export const WRITE_IT: Reply = { jp: "{紙|かみ} に {書|か}きます", zh: "對方會寫給你看（請準備紙筆）" };
+
+/** 1番線 … 16番線, read as station announcements say them. */
 const PLATFORM_KANA = [
   "いちばんせん",
   "にばんせん",
@@ -19,13 +22,16 @@ const PLATFORM_KANA = [
   "じゅうにばんせん",
   "じゅうさんばんせん",
   "じゅうよんばんせん",
+  "じゅうごばんせん",
+  "じゅうろくばんせん",
 ];
 
 /** Ready-made answers for "給對方點選", shared by many phrases. */
 export const REPLY_SETS: Record<ReplySet, Reply[]> = {
   yesNo: [{ jp: "はい", zh: "是／對" }, { jp: "いいえ", zh: "不是／不對" }, DONT_KNOW],
   platform: [
-    ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((n) => ({
+    // Big stations (JR Shinjuku) go up to 16; a higher number is what 紙に書きます is for.
+    ...PLATFORM_KANA.map((_, i) => i + 1).map((n) => ({
       jp: `{${n}番線|${PLATFORM_KANA[n - 1]}}`,
       zh: `${n} 號月台`,
     })),
@@ -65,12 +71,37 @@ export const REPLY_SETS: Record<ReplySet, Reply[]> = {
     { jp: "{南口|みなみぐち}", zh: "南口" },
     { jp: "{北口|きたぐち}", zh: "北口" },
     { jp: "{中央口|ちゅうおうぐち}", zh: "中央口" },
-    { jp: "{紙|かみ} に {書|か}きます", zh: "對方會寫給你看（請準備紙筆）" },
+    WRITE_IT,
+    DONT_KNOW,
+  ],
+  // May I use the toilet? — a clerk says yes or no, never "I don't know".
+  borrow: [
+    { jp: "どうぞ", zh: "可以，請用" },
+    { jp: "{申|もう}し{訳|わけ} ありません、お{貸|か}し できません", zh: "不好意思，不能借" },
+    { jp: "トイレ は ありません", zh: "這裡沒有廁所" },
+  ],
+  // Is this medicine OK with my allergy? — はい／いいえ would be ambiguous.
+  medicineOk: [
+    { jp: "{飲|の}んで も {大丈夫|だいじょうぶ} です", zh: "可以吃" },
+    { jp: "{飲|の}まないで ください", zh: "不要吃" },
+    { jp: "{薬剤師|やくざいし} に {確認|かくにん} します", zh: "對方會去問藥劑師" },
     DONT_KNOW,
   ],
 };
 
 
+/** Sets whose answers are all there is: nothing to write down. */
+const CLOSED: ReplySet[] = ["yesNo", "borrow", "medicineOk"];
+
+/**
+ * The answers to offer. A named set of places, times or numbers also offers
+ * 紙に書きます before its わかりません, so an answer it lacks can still be
+ * given. A phrase's own list is offered as written.
+ */
 export function repliesFor(answers: ReplySet | Reply[]): Reply[] {
-  return Array.isArray(answers) ? answers : REPLY_SETS[answers];
+  if (Array.isArray(answers)) return answers;
+  const list = REPLY_SETS[answers];
+  if (CLOSED.includes(answers) || list.some((r) => r.jp === WRITE_IT.jp)) return list;
+  const last = list.at(-1);
+  return last?.jp === DONT_KNOW.jp ? [...list.slice(0, -1), WRITE_IT, last] : [...list, WRITE_IT];
 }

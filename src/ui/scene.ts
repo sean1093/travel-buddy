@@ -6,7 +6,7 @@ import { plain, slotsOf } from "../lib/jp";
 import { LINES } from "../profile/cards";
 import { type Ready, ready } from "../profile/fill";
 import { loadProfile, type Place, placesForToday } from "../profile/profile";
-import { fill, h, icon, pictogram } from "./dom";
+import { fill, h, icon, pictogram, radioKeys } from "./dom";
 import { SLOW_RATE } from "../state";
 import { jpText, PLAY_SIZES, play, playButton, spokenName } from "./japanese";
 import { dock, heading, page } from "./layout";
@@ -250,7 +250,8 @@ function elevatorNote(place: Place): HTMLElement {
     "div",
     { class: "mt-3 rounded-2xl bg-card p-3" },
     h("p", { class: "flex items-center gap-2 text-lg font-bold" }, pictogram("elevator", "exit", "sm"), `${place.zh || place.name}・電梯筆記`),
-    h("p", { class: "mt-1 whitespace-pre-line break-words text-lg" }, place.note),
+    // Usually pasted from the station's site in Japanese: read it in a Japanese voice then.
+    h("p", { class: "mt-1 whitespace-pre-line break-words text-lg", lang: /[\u3040-\u30ff]/.test(place.note) ? "ja" : undefined }, place.note),
     h(
       "button",
       {
@@ -274,7 +275,7 @@ function placePicker(places: Place[], picked: Place | null, pick: (place: Place)
     "div",
     { class: "mt-3 rounded-2xl bg-ai-soft p-3" },
     h("p", { class: "text-lg font-bold" }, "要去哪裡？點一下換進句子"),
-    h(
+    radioKeys(h(
       "div",
       { class: "-mx-3 mt-2 flex gap-2 overflow-x-auto px-3 pb-1", role: "radiogroup", "aria-label": "目的地" },
       places.map((place) =>
@@ -295,7 +296,7 @@ function placePicker(places: Place[], picked: Place | null, pick: (place: Place)
           place.note && icon("elevator", "h-5 w-5"),
         ),
       ),
-    ),
+    )),
     picked?.note && elevatorNote(picked),
   );
 }
@@ -389,7 +390,8 @@ export function renderScene(root: HTMLElement, [id, view]: string[]): void {
           "先在「設定資料」填好要去的車站，句子裡的〇〇就會自動換成站名。",
         )
       : pickerSlot,
-    heard && h("p", { class: "mt-3 text-lg text-muted" }, "聽到對方這樣說 → 點你的回答，手機會念給對方聽。喇叭可以再聽一次，第二次是慢速。"),
+    // One line, so the first card's answers start on the first screen at 特大.
+    heard && h("p", { class: "mt-3 text-lg text-muted" }, "聽到這句 → 點你的回答，手機會念給對方聽。"),
     list,
     rescueDock(),
     ],

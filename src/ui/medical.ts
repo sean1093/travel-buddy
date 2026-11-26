@@ -36,6 +36,8 @@ function cardWithActions(blocks: CardBlock[], label: string): HTMLElement {
         },
         icon("expand"),
         "給對方看",
+        // Two of these on the page: say which card each one shows.
+        h("span", { class: "sr-only" }, `（${label}）`),
       ),
     ),
     blocks.map((block) => cardBlock(block, "text-2xl")),
@@ -119,6 +121,15 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
         "a",
         { href: "#/setup", class: "mt-2 block rounded-2xl bg-ai-soft p-4 text-lg" },
         "還沒有填健康資料。按這裡填慢性病、常吃的藥和過敏，醫療卡和過敏卡就會自動產生。症狀卡現在就能用。",
+      ),
+    // From 打開過敏卡 (a restaurant phrase) with no allergy card yet: say so, and how to make one.
+    target === "allergy" &&
+      !allergy &&
+      !isEmpty(profile) &&
+      h(
+        "a",
+        { href: "#/setup", class: "allergy-missing mt-2 block rounded-2xl bg-warn-soft p-4 text-lg" },
+        "還沒有過敏卡。按這裡在設定資料填過敏或飲食習慣（例如蛋奶素），就會產生給餐廳看的日文過敏卡。",
       ),
     section("哪裡不舒服？點選症狀", symptomPicker()),
     allergy && section("過敏卡（給餐廳看）", cardWithActions(allergy, "過敏卡")),

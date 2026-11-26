@@ -47,7 +47,7 @@ Rules of thumb:
 | Speech | `speech.test.ts` | `ui-japanese.test.ts` | — (device check) |
 | Medical, allergy and symptom cards | `cards.test.ts`, `content.test.ts` | `ui-pages.test.ts` | medical journey |
 | Setup, share and import | `profile.test.ts`, `codec.test.ts` | `ui-setup.test.ts` | share journey, layout matrix (focus not hidden on setup) |
-| Settings: text size, theme, voice | `state.test.ts`, `summary.test.ts` | — | settings journey |
+| Settings: text size, theme, voice | `state.test.ts`, `summary.test.ts` | `ui-settings.test.ts` | settings journey |
 | Storage | `store.test.ts` | — | settings and share journeys |
 | Routing, unknown routes | — | — | routing journey |
 | Offline | `sw.test.ts` (weak signal, safe shell updates) | — | offline journey |

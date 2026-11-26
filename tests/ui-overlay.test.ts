@@ -222,6 +222,27 @@ describe("armsLength", () => {
 describe("showToOther", () => {
   const jp = "{駅|えき} は どこ です か。";
 
+  it("marks a block a doctor must not miss in the alert colour", () => {
+    ov.showToOther([
+      { jp, extra: ["国籍：台湾"] },
+      { jp, extra: ["薬のアレルギー：ペニシリン"], alert: true },
+    ]);
+    const lines = [...topDialog().querySelectorAll("p")].filter((p) => /国籍|薬のアレルギー/.test(p.textContent ?? ""));
+    expect(lines.map((p) => p.classList.contains("text-shu"))).toEqual([false, true]);
+  });
+
+  it("has a 'more below' cue in both languages, hidden from screen readers, which read on anyway", () => {
+    ov.showToOther([{ jp }]);
+    const cue = [...topDialog().querySelectorAll("p")].find((p) => p.textContent?.includes("下に続きます"))!;
+    expect(cue.textContent).toContain("下面還有");
+    expect(cue.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("says the hotel's name when there is something more to say than the card's line", async () => {
+    ov.showToOther([{ jp: "この ホテル まで お{願|ねが}い します。", say: "{東京|とうきょう}ホテル まで お{願|ねが}い します。" }]);
+    expect(accessibleName(buttons(topDialog()).find((b) => visibleText(b) === "播放")!)).toBe("播放「東京ホテルまでお願いします。」");
+  });
+
   it("shows plain Japanese without ruby or romaji, and the Chinese", () => {
     ov.showToOther([{ jp, zh: "車站在哪裡？", extra: ["東京都新宿区1-1"] }]);
     const dialog = topDialog();
@@ -274,6 +295,13 @@ describe("askOther", () => {
     expect(hint.textContent).toBe("こちらをご覧ください");
     // Answers are Japanese buttons.
     for (const reply of replies) expect(button(dialog, plain(reply.jp)).getAttribute("lang")).toBe("ja");
+  });
+
+  it("thanks the person who answered, in Japanese, and asks for the phone back", () => {
+    ov.askOther(question, replies);
+    button(topDialog(), "1番線").click();
+    const thanks = [...topDialog().querySelectorAll('[lang="ja"]')].map((el) => el.textContent);
+    expect(thanks).toContain("ありがとうございました。スマホを持ち主にお返しください。");
   });
 
   it("shows the tapped answer in Chinese with the question", () => {

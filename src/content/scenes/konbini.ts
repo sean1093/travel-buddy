@@ -32,7 +32,7 @@ export default {
       id: "konbini-toilet",
       zh: "可以借廁所嗎？",
       jp: "トイレ を {借|か}りて も いい です か。",
-      answers: "yesNo",
+      answers: "borrow",
     },
     { id: "konbini-pay-ic", zh: "我用交通卡付。", jp: "{交通系|こうつうけい} {IC|アイシー}カード で {払|はら}います。" },
     { id: "konbini-pay-card", zh: "我刷信用卡。", jp: "クレジットカード で お{願|ねが}い します。" },

@@ -157,7 +157,8 @@ test.describe("4. sideways", () => {
         expect(box.y, "play buttons sit in the top bar").toBeLessThan(bar!.y + bar!.height);
         expect(box.y + box.height).toBeLessThanOrEqual(bar!.y + bar!.height + 1);
       }
-      const jp = dialog.locator('p[lang="ja"]').first();
+      // The text below the bar, not the bar's own Japanese hint (hidden sideways).
+      const jp = dialog.locator('.overflow-y-auto p[lang="ja"]').first();
       const jpBox = (await jp.boundingBox())!;
       const fontSize = await jp.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
       expect(fontSize, "readable at arm's length").toBeGreaterThanOrEqual(32);

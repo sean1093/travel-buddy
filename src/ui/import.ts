@@ -11,8 +11,9 @@ import { setTitle } from "./layout";
  */
 export function renderImport(root: HTMLElement, [payload = ""]: string[]): void {
   const incoming = decodeProfile(payload);
-  // The path alone: a query the link carried (?openExternalBrowser=1 for LINE) goes too.
-  history.replaceState(null, "", `${location.pathname}#/imported`);
+  // The path alone: a query the link carried (?openExternalBrowser=1 for LINE) goes too. Home until
+  // something is saved (done() says #/imported), so going back after 保留原本的 doesn't say 設定完成.
+  history.replaceState(null, "", `${location.pathname}#/`);
   if (!incoming) {
     screen(root, "alert", "這個連結好像不完整", "請重新傳一次連結，或重新掃一次 QR code。", [
       h("a", { href: "#/", class: BUTTON.primary }, "回首頁"),
@@ -24,14 +25,19 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
     done(root, incoming);
     return;
   }
-  screen(root, "swap", "要換成新的資料嗎？", "這支手機裡已經有一份資料。換成連結裡的新資料，舊的就會被取代。", [
+  // Whose is whose: one parent opening the other's link must not wipe their own card unawares.
+  screen(root, "swap", "要換成新的資料嗎？", `這支手機裡已經有「${who(current)}」的資料。換成連結裡「${who(incoming)}」的資料，原本的就會被取代。`, [
     h("button", { type: "button", class: BUTTON.primary, onclick: () => done(root, incoming) }, icon("check"), "換成新的"),
     h("a", { href: "#/", class: BUTTON.secondary }, "保留原本的"),
   ]);
 }
 
+/** How a profile is named to the person choosing: its call name, else the passport name. */
+const who = (profile: Profile) => profile.callName.trim() || profile.passportName.trim().toUpperCase() || "沒有稱呼";
+
 function done(root: HTMLElement, profile: Profile): void {
   saveProfile(profile);
+  history.replaceState(null, "", `${location.pathname}#/imported`);
   const name = profile.callName ? `${profile.callName}，` : "";
   screen(root, "checkcircle", "設定完成", `${name}之後直接打開這個網站就好，不用再點連結。沒有網路也能用。`, [
     ...(homeScreenSharesStorage() ? [h("p", { class: "text-lg leading-relaxed text-muted" }, HOME_SCREEN_TIP)] : []),

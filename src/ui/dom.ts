@@ -34,6 +34,29 @@ export function fill(parent: Element, ...children: Child[]): void {
 }
 
 /**
+ * A row of role="radio" buttons as one keyboard stop: only the checked one
+ * (or the first) is in the Tab order, and the arrow keys, Home and End pick
+ * another by clicking it, as native radio buttons do. Call after drawing.
+ */
+export function radioKeys(group: HTMLElement): HTMLElement {
+  const radios = [...group.querySelectorAll<HTMLElement>('[role="radio"]')];
+  const checked = Math.max(0, radios.findIndex((r) => r.getAttribute("aria-checked") === "true"));
+  radios.forEach((radio, i) => (radio.tabIndex = i === checked ? 0 : -1));
+  group.addEventListener("keydown", (event) => {
+    const at = radios.indexOf(event.target as HTMLElement);
+    if (at < 0) return;
+    const last = radios.length - 1;
+    const keys: Record<string, number> = { ArrowRight: at + 1, ArrowDown: at + 1, ArrowLeft: at - 1, ArrowUp: at - 1, Home: 0, End: last };
+    const to = keys[event.key];
+    if (to === undefined) return;
+    event.preventDefault();
+    // Wraps around, like native radio buttons.
+    radios[(to + radios.length) % radios.length]!.click();
+  });
+  return group;
+}
+
+/**
  * The polite live region directly inside `host`, made if it has none. Screen
  * readers often miss a region that appears together with its text, so the
  * page (main.ts) and each full-screen layer (openOverlay) make theirs when they
@@ -163,8 +186,9 @@ export function pictogram(name: IconName, tone: keyof typeof PICTOGRAM_TONES = "
   return mark;
 }
 
+// text-wrap: balance: a label that wraps splits evenly (再問／一次), never leaving one character alone.
 const BUTTON_BASE =
-  "flex w-full min-h-16 items-center justify-center gap-3 rounded-2xl px-5 py-3 text-xl font-bold transition active:scale-[0.98] disabled:opacity-40";
+  "flex w-full min-h-16 items-center justify-center gap-3 rounded-2xl px-5 py-3 text-xl font-bold [text-wrap:balance] transition active:scale-[0.98] disabled:opacity-40";
 
 /** Shared button looks; every one is at least 4rem tall. */
 export const BUTTON = {

@@ -46,6 +46,20 @@ describe("setup", () => {
   const deletes = () => [...app().querySelectorAll<HTMLButtonElement>("button[aria-label^='刪除']")];
   const hotelDeletes = () => deletes().filter((b) => b.getAttribute("aria-label")!.startsWith("刪除飯店"));
 
+  it("groups each card's fields under its name, so 藥 1's fields and 藥 2's sound different", async () => {
+    saveProfile(sampleProfile());
+    await render();
+    const groups = [...app().querySelectorAll('[role="group"][aria-label^="藥"]')].map((g) => g.getAttribute("aria-label"));
+    expect(groups).toEqual(sampleProfile().health.meds.map((_, i) => `藥 ${i + 1}`));
+  });
+
+  it("asks for a medicine's dose in English: it goes on the Japanese card as typed", async () => {
+    saveProfile(sampleProfile());
+    await render();
+    const dose = [...app().querySelectorAll("label")].find((l) => l.textContent?.startsWith("劑量與次數"))!;
+    expect(dose.querySelector("input")!.getAttribute("placeholder")).toBe("例：5mg, once a day");
+  });
+
   it("names each delete button after its card", async () => {
     saveProfile(sampleProfile());
     await render();
@@ -187,6 +201,17 @@ describe("import", () => {
     const { HOME_SCREEN_TIP } = await import("../src/ui/import");
     expect(app().querySelector("h1")?.textContent).toBe("設定完成");
     expect(app().textContent).not.toContain(HOME_SCREEN_TIP);
+  });
+
+  it("names whose data is on the phone and whose is in the link before replacing it", async () => {
+    saveProfile({ ...sampleProfile(), callName: "媽媽" });
+    await render(encodeProfile({ ...sampleProfile(), callName: "爸爸" }));
+    expect(app().textContent).toContain("這支手機裡已經有「媽媽」的資料。換成連結裡「爸爸」的資料");
+    // Nothing saved yet: going back from here must not land on 設定完成.
+    expect(location.hash).toBe("#/");
+    [...app().querySelectorAll("button")].find((b) => b.textContent === "換成新的")!.click();
+    expect(location.hash).toBe("#/imported");
+    expect(stored().callName).toBe("爸爸");
   });
 
   it("clears the payload and LINE's query from the address bar", async () => {

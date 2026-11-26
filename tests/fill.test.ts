@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { REPLY_SETS, repliesFor } from "../src/content/replies";
+import { REPLY_SETS, repliesFor, WRITE_IT } from "../src/content/replies";
 import { SCENES } from "../src/content/scenes";
 import type { Phrase, Reply, ReplySet } from "../src/content/types";
 import { plain } from "../src/lib/jp";
@@ -107,22 +107,31 @@ describe("repliesFor", () => {
     expect(repliesFor([])).toEqual([]);
   });
 
-  it("resolves every named set to a non-empty list ending with わかりません", () => {
+  it("resolves every named set to a non-empty list ending with わかりません, but the toilet's yes or no", () => {
     const names = Object.keys(REPLY_SETS) as ReplySet[];
-    expect(names.sort()).toEqual(["direction", "exit", "place", "platform", "time", "yesNo"]);
+    expect(names.sort()).toEqual(["borrow", "direction", "exit", "medicineOk", "place", "platform", "time", "yesNo"]);
     for (const name of names) {
       const replies = repliesFor(name);
       expect(replies.length, name).toBeGreaterThan(0);
-      expect(replies.at(-1)?.jp, name).toBe("わかりません");
+      // A clerk asked "may I use the toilet?" says yes or no; わかりません would be odd.
+      if (name !== "borrow") expect(replies.at(-1)?.jp, name).toBe("わかりません");
       for (const reply of replies) expect(() => plain(reply.jp)).not.toThrow();
     }
   });
 
-  it("lists platforms 1 to 14 with their readings", () => {
+  it("offers 紙に書きます in every open set, just before わかりません, and not for yes or no", () => {
+    for (const name of ["platform", "direction", "time", "place", "exit"] as const) {
+      expect(repliesFor(name).at(-2), name).toEqual(WRITE_IT);
+      expect(repliesFor(name).filter((r) => r.jp === WRITE_IT.jp), name).toHaveLength(1);
+    }
+    for (const name of ["yesNo", "borrow", "medicineOk"] as const) expect(repliesFor(name), name).not.toContainEqual(WRITE_IT);
+  });
+
+  it("lists platforms 1 to 16 with their readings (JR Shinjuku has 16)", () => {
     const platforms = repliesFor("platform");
-    expect(platforms).toHaveLength(15);
+    expect(platforms).toHaveLength(18);
     expect(platforms[0]).toEqual({ jp: "{1番線|いちばんせん}", zh: "1 號月台" });
-    expect(platforms[13]).toEqual({ jp: "{14番線|じゅうよんばんせん}", zh: "14 號月台" });
+    expect(platforms[15]).toEqual({ jp: "{16番線|じゅうろくばんせん}", zh: "16 號月台" });
   });
 
   it("resolves the named sets used by scene phrases", () => {

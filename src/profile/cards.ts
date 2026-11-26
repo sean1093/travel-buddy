@@ -181,8 +181,7 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
   const drugs = presetLine(DRUG_ALLERGIES, h.drugAllergies);
   const foods = presetLine(FOOD_ALLERGIES, h.foodAllergies, h.allergyOther);
   const blocks: CardBlock[] = [
-    { jp: "{私|わたし} の {医療|いりょう} {情報|じょうほう} です。", zh: "這是我的醫療資料。", extra: person },
-    // First after the person: what a doctor must not miss.
+    // First, before even the name: what a doctor must not miss, on the first screen at any text size.
     {
       jp: "{薬|くすり} と {食|た}べ{物|もの} の アレルギー です。",
       zh: "藥物和食物過敏。",
@@ -191,6 +190,7 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
       ),
       alert: true,
     },
+    { jp: "{私|わたし} の {医療|いりょう} {情報|じょうほう} です。", zh: "這是我的醫療資料。", extra: person },
     {
       jp: "{持病|じびょう} と {服用中|ふくようちゅう} の {薬|くすり} です。",
       zh: "慢性病和常吃的藥。",

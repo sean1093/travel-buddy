@@ -20,7 +20,7 @@ export interface Reply {
 }
 
 /** Ready-made answer sets, so common questions need not repeat them. */
-export type ReplySet = "yesNo" | "platform" | "direction" | "time" | "place" | "exit";
+export type ReplySet = "yesNo" | "platform" | "direction" | "time" | "place" | "exit" | "borrow" | "medicineOk";
 
 /** Something the traveller needs to say. */
 export interface Phrase {

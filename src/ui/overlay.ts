@@ -149,7 +149,7 @@ export function overlayBar(
 ): HTMLElement {
   return h(
     "div",
-    { class: "pt-safe flex items-center gap-3 border-b border-hair bg-card px-3 pb-2" },
+    { class: "pt-safe flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-hair bg-card px-3 pb-2" },
     h(
       "button",
       {
@@ -161,7 +161,8 @@ export function overlayBar(
       icon("close", "h-6 w-6"),
       "關閉",
     ),
-    h("p", { lang, class: `min-w-0 flex-1 text-right ${HINT_TONES[tone]} ${hintClass}` }, hint),
+    // At least 6em wide, or it goes under the close button: a column of single characters can't be read.
+    h("p", { lang, class: `min-w-[6em] flex-1 text-right ${HINT_TONES[tone]} ${hintClass}` }, hint),
   );
 }
 
@@ -254,6 +255,9 @@ const LOOK_PLEASE: Jp = "こちら を ご{覧|らん} ください";
 /** Asks the person in front of you to tap one of `replies`. */
 const TAP_PLEASE: Jp = "{下|した} の {答|こた}え を {指|ゆび} で {押|お}して ください。";
 
+/** Once they have answered: they are done, and the phone goes back. */
+const THANKS: Jp = "ありがとう ございました。スマホ を {持|も}ち{主|ぬし} に お{返|かえ}し ください。";
+
 /**
  * 給對方點選: the question in Japanese on top, Japanese answers to tap
  * below; once tapped, the traveller sees the answer in Chinese.
@@ -283,8 +287,9 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
           "div",
           { class: "min-h-0 flex-1 overflow-y-auto px-5 pb-safe pt-4" },
           // The one line for the traveller, before the phone changes hands.
-          h("p", { class: "mb-3 text-center text-base text-muted" }, "把手機交給對方，請對方點答案"),
-          h("p", { lang: "ja", class: "text-center font-bold leading-snug", style: armsLength(plain(question.jp)) }, plain(question.jp)),
+          h("p", { class: "landscape-hide mb-3 text-center text-base text-muted" }, "把手機交給對方，請對方點答案"),
+          // ask-question: smaller on a phone held sideways, so the answers start on the first screen.
+          h("p", { lang: "ja", class: "ask-question text-center font-bold leading-snug", style: armsLength(plain(question.jp)) }, plain(question.jp)),
           h("p", { class: "mt-1 text-center text-lg text-ink/80" }, `（${question.zh}）`),
           h("p", { lang: "ja", class: "mt-4 rounded-2xl bg-ai-soft px-3 py-2 text-center text-lg font-bold text-ai" }, plain(TAP_PLEASE)),
           h("div", { class: `mt-4 grid gap-3 ${replies.length > 4 ? "grid-cols-2" : "grid-cols-1"}` }, options),
@@ -307,6 +312,8 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
           h(
             "div",
             { class: "my-auto space-y-3 py-4" },
+            // To the person who answered, before the phone goes back.
+            h("p", { lang: "ja", class: "text-xl font-bold text-ai" }, plain(THANKS)),
             h("p", { class: "text-lg text-muted" }, `你問：${question.zh}`),
             h("p", { class: "font-bold leading-tight", style: armsLength(reply.zh) }, reply.zh),
             h("p", { lang: "ja", class: "text-2xl text-muted" }, plain(reply.jp)),

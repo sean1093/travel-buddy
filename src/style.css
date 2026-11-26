@@ -162,12 +162,42 @@ body {
     overflow: visible;
   }
 
+  .ask-question {
+    font-size: 1.5rem !important;
+  }
+
   .landscape-dock {
     position: absolute;
     top: calc(env(safe-area-inset-top) + 0.5rem);
     right: max(env(safe-area-inset-right), 0.75rem);
     padding: 0;
   }
+}
+
+/*
+ * The phrase page zoomed in (a 390 px phone at 200%, about 195 px wide) or on a
+ * short screen: the docked actions would take most of the height and hide the
+ * Japanese and 給對方看, so the phrase and its actions scroll together, as sideways.
+ */
+@media (max-width: 300px), (max-height: 500px) {
+  .phrase-layout {
+    overflow-y: auto;
+  }
+
+  .phrase-layout > .phrase-scroll {
+    flex: none;
+    overflow: visible;
+  }
+}
+
+/*
+ * Japanese breaks between phrases, not inside words (ホテルグレイスリー新／宿,
+ * 歌舞伎／町): auto-phrase where the browser has it. Strict rules everywhere:
+ * never ー, a small kana or closing punctuation at the start of a line.
+ */
+:lang(ja) {
+  line-break: strict;
+  word-break: auto-phrase;
 }
 
 [tabindex="-1"]:focus {

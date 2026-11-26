@@ -12,7 +12,7 @@ export default {
   icon: "restroom",
   phrases: [
     { id: "toilet-where", zh: "廁所在哪裡？", jp: "トイレ は どこ です か。", answers: "direction" },
-    { id: "toilet-borrow", zh: "可以借廁所嗎？", jp: "トイレ を {借|か}りて も いい です か。", answers: "yesNo" },
+    { id: "toilet-borrow", zh: "可以借廁所嗎？", jp: "トイレ を {借|か}りて も いい です か。", answers: "borrow" },
     { id: "toilet-flush", zh: "我不知道怎麼沖水。", jp: "{水|みず} の {流|なが}し{方|かた} が わかりません。" },
     { id: "toilet-no-paper", zh: "沒有衛生紙了。", jp: "トイレットペーパー が ありません。" },
     {

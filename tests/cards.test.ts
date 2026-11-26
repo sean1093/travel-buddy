@@ -50,7 +50,7 @@ describe("help card", () => {
   it("prints the passport name as the passport does, in capitals", () => {
     const profile = { ...emptyProfile(), passportName: "chen wen-hsiung" };
     expect(helpCard(profile)[0]?.extra).toEqual(["名前：CHEN WEN-HSIUNG"]);
-    expect(medicalCard(profile)[0]?.extra[0]).toBe("名前：CHEN WEN-HSIUNG");
+    expect(medicalCard(profile)[1]?.extra[0]).toBe("名前：CHEN WEN-HSIUNG");
   });
 });
 
@@ -106,11 +106,11 @@ describe("medical and allergy cards", () => {
 
   it("lists health data in Japanese", () => {
     const blocks = medicalCard(sampleProfile(), now);
+    // Allergies first of all, marked: what a doctor must not miss.
+    expect(blocks[0]).toMatchObject({ alert: true, extra: ["薬のアレルギー：ペニシリン", "食物アレルギー：えび、かに"] });
+    expect(plain(blocks[0]!.jp)).toBe("薬と食べ物のアレルギーです。");
     // Only the year is known, so the age is a range.
-    expect(blocks[0]?.extra).toEqual(["名前：LIN MEI-HUA", "生年：1956年（69〜70歳）", "国籍：台湾", "血液型：O型"]);
-    // Allergies first after the person, marked: what a doctor must not miss.
-    expect(blocks[1]).toMatchObject({ alert: true, extra: ["薬のアレルギー：ペニシリン", "食物アレルギー：えび、かに"] });
-    expect(plain(blocks[1]!.jp)).toBe("薬と食べ物のアレルギーです。");
+    expect(blocks[1]?.extra).toEqual(["名前：LIN MEI-HUA", "生年：1956年（69〜70歳）", "国籍：台湾", "血液型：O型"]);
     expect(blocks[2]?.extra).toEqual([
       "持病：高血圧、糖尿病",
       "服用中の薬：",
@@ -125,7 +125,7 @@ describe("medical and allergy cards", () => {
   it("says 未記入 for a question never answered, never なし: a doctor reads なし as 'no allergies'", () => {
     const blocks = medicalCard({ ...emptyProfile(), callName: "雅婷" }, now);
     expect(blocks).toHaveLength(3);
-    expect(blocks[1]?.extra).toEqual(["薬のアレルギー：未記入"]);
+    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：未記入"]);
     expect(blocks[2]?.extra).toEqual(["持病：未記入", "服用中の薬：未記入"]);
   });
 
@@ -134,7 +134,7 @@ describe("medical and allergy cards", () => {
     profile.health.foodAllergies = ["peanut"];
     profile.health.bloodType = "A";
     const blocks = medicalCard(profile, now);
-    expect(blocks[1]?.extra).toEqual(["薬のアレルギー：なし", "食物アレルギー：落花生（ピーナッツ）"]);
+    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：なし", "食物アレルギー：落花生（ピーナッツ）"]);
     expect(blocks[2]?.extra).toEqual(["持病：なし", "服用中の薬：なし"]);
   });
 

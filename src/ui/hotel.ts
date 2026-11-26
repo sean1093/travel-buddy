@@ -57,7 +57,15 @@ export function renderHotel(root: HTMLElement, [index]: string[]): void {
               "a",
               { href: `#/hotel/${i}`, class: "block min-h-14 rounded-2xl bg-card px-4 py-3 text-xl font-bold" },
               h("span", { lang: "ja" }, other.name || other.address),
-              (other.from || other.to) && h("span", { class: "block text-base font-normal text-muted" }, `${other.from} ～ ${other.to}`),
+              (other.from || other.to) &&
+                h(
+                  "span",
+                  { class: "block text-base font-normal text-muted" },
+                  // A date never splits (2026-11-／08); the range may wrap at the ～.
+                  h("span", { class: "whitespace-nowrap" }, other.from),
+                  " ～ ",
+                  h("span", { class: "whitespace-nowrap" }, other.to),
+                ),
             ),
           ),
         ),
