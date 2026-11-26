@@ -207,8 +207,10 @@ describe("import", () => {
     saveProfile({ ...sampleProfile(), callName: "媽媽" });
     await render(encodeProfile({ ...sampleProfile(), callName: "爸爸" }));
     expect(app().textContent).toContain("這支手機裡已經有「媽媽」的資料。換成連結裡「爸爸」的資料");
-    // Nothing saved yet: going back from here must not land on 設定完成.
-    expect(location.hash).toBe("#/");
+    // Nothing saved yet: going back from here must not land on 設定完成, and 保留原本的 (a link
+    // to #/) must still go somewhere.
+    expect(location.hash).toBe("#/import");
+    expect([...app().querySelectorAll("a")].find((a) => a.textContent === "保留原本的")?.getAttribute("href")).toBe("#/");
     [...app().querySelectorAll("button")].find((b) => b.textContent === "換成新的")!.click();
     expect(location.hash).toBe("#/imported");
     expect(stored().callName).toBe("爸爸");

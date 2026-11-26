@@ -207,7 +207,11 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
       more.hidden = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4;
     };
     scroller.addEventListener("scroll", update, { passive: true });
-    if (typeof ResizeObserver === "function") new ResizeObserver(update).observe(scroller);
+    if (typeof ResizeObserver === "function") {
+      // Removing the layer resizes the scroller to nothing: that is when the observer lets go of it.
+      const observer = new ResizeObserver(() => (scroller.isConnected ? update() : observer.disconnect()));
+      observer.observe(scroller);
+    }
     requestAnimationFrame(update);
     return h(
       "div",

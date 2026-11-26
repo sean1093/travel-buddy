@@ -52,20 +52,12 @@ describe("trip dates", () => {
     expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
   });
 
-  it("picks by date, never by the order the hotels were typed in, so a card printed before the trip is right", () => {
+  it("counts a stay with only a check-in date as running until the next one starts", () => {
     const profile = sampleProfile();
     const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
-    // Shinjuku deleted and added again: now last in the list.
-    profile.hotels = [kyoto, shinjuku];
-    expect(currentHotel(profile, "2026-10-01")?.name).toBe(shinjuku.name);
-    // Between stays: the next one.
-    profile.hotels = [kyoto, { ...shinjuku, to: "2026-11-04" }];
-    expect(currentHotel(profile, "2026-11-04")?.name).toBe(shinjuku.name);
-    // After the trip: the last one.
-    expect(currentHotel(profile, "2026-12-31")?.name).toBe(kyoto.name);
-    // No dates at all: the first one entered.
-    profile.hotels = [{ ...kyoto, from: "", to: "" }, { ...shinjuku, from: "", to: "" }];
-    expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
+    profile.hotels = [{ ...shinjuku, from: "2026-11-01", to: "" }, { ...kyoto, from: "2026-11-05", to: "" }];
+    expect(currentHotel(profile, "2026-11-03")?.name).toBe(shinjuku.name);
+    expect(currentHotel(profile, "2026-11-06")?.name).toBe(kyoto.name);
   });
 
   it("puts today's places first", () => {

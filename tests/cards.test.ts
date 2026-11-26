@@ -129,13 +129,29 @@ describe("medical and allergy cards", () => {
     expect(blocks[2]?.extra).toEqual(["持病：未記入", "服用中の薬：未記入"]);
   });
 
+  it("doesn't take a diet, insurance or a blood type as answering allergies or conditions", () => {
+    const profile = emptyProfile();
+    profile.health.diets = ["vegan"];
+    profile.health.bloodType = "B";
+    profile.insurance = { company: "富邦產險", policy: "", phone: "+886 2 2345 6789" };
+    const blocks = medicalCard(profile, now);
+    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：未記入"]);
+    expect(blocks[2]?.extra).toEqual(["持病：未記入", "服用中の薬：未記入"]);
+  });
+
+  it("never shows a negative age", () => {
+    const profile = { ...emptyProfile(), birthYear: 2026 };
+    expect(medicalCard(profile, now)[1]?.extra).toContain("生年：2026年（0歳）");
+  });
+
   it("says なし for the rest of a section the traveller did fill in", () => {
     const profile = emptyProfile();
     profile.health.foodAllergies = ["peanut"];
-    profile.health.bloodType = "A";
+    profile.health.conditions = [];
+    profile.health.meds = [{ ingredient: "Amlodipine", dose: "" }];
     const blocks = medicalCard(profile, now);
     expect(blocks[0]?.extra).toEqual(["薬のアレルギー：なし", "食物アレルギー：落花生（ピーナッツ）"]);
-    expect(blocks[2]?.extra).toEqual(["持病：なし", "服用中の薬：なし"]);
+    expect(blocks[2]?.extra).toEqual(["持病：なし", "服用中の薬：", "・Amlodipine"]);
   });
 
   it("spells out vegetarian types the Japanese have no word for", () => {

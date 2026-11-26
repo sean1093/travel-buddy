@@ -11,9 +11,11 @@ import { setTitle } from "./layout";
  */
 export function renderImport(root: HTMLElement, [payload = ""]: string[]): void {
   const incoming = decodeProfile(payload);
-  // The path alone: a query the link carried (?openExternalBrowser=1 for LINE) goes too. Home until
-  // something is saved (done() says #/imported), so going back after 保留原本的 doesn't say 設定完成.
-  history.replaceState(null, "", `${location.pathname}#/`);
+  // The path alone: a query the link carried (?openExternalBrowser=1 for LINE) goes too. Not
+  // #/imported until something is saved (done()), so going back after 保留原本的 doesn't say
+  // 設定完成; and not #/ either, or 保留原本的 and 回首頁 (links to #/) would change nothing.
+  // #/import is no page: a reload of it shows home.
+  history.replaceState(null, "", `${location.pathname}#/import`);
   if (!incoming) {
     screen(root, "alert", "這個連結好像不完整", "請重新傳一次連結，或重新掃一次 QR code。", [
       h("a", { href: "#/", class: BUTTON.primary }, "回首頁"),

@@ -3,7 +3,6 @@ import type { Jp, Preset } from "../content/types";
 import { plain, userWord } from "../lib/jp";
 import { dialable } from "../lib/phone";
 import { type Contact, currentHotel, type Hotel, type Place, type Profile } from "./profile";
-import { sectionSummaries } from "./summary";
 
 /**
  * The cards built from the saved profile — shown on screen, read aloud and
@@ -118,6 +117,9 @@ export function contactLines(contact: Contact, home: "tw" | "jp"): Line[] {
   return lines.filter(Boolean);
 }
 
+/** An age known only from the birth year: before the birthday they are a year younger. */
+const age = (years: number) => (years <= 0 ? "0歳" : `${years - 1}〜${years}歳`);
+
 /** The name as a passport prints it. */
 const passport = (profile: Profile) => profile.passportName.trim().toUpperCase();
 
@@ -148,7 +150,8 @@ export function hotelCard(hotel: Hotel): CardBlock {
 
 /** Said to a driver: the hotel by name (its reading, when typed), not just "this hotel". */
 export function hotelSay(hotel: Hotel): Jp {
-  return hotel.name.trim() ? `${hotelWord(hotel)} まで お{願|ねが}い します。` : LINES.taxiToHotel;
+  const word = hotelWord(hotel);
+  return plain(word).trim() ? `${word} まで お{願|ねが}い します。` : LINES.taxiToHotel;
 }
 
 const JOIN = "、";
@@ -169,14 +172,16 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
   const person = [
     passport(profile) && `名前：${passport(profile)}`,
     // Only the year is known: before the birthday they are a year younger.
-    profile.birthYear && `生年：${profile.birthYear}年（${year - profile.birthYear - 1}〜${year - profile.birthYear}歳）`,
+    profile.birthYear && `生年：${profile.birthYear}年（${age(year - profile.birthYear)}）`,
     "国籍：台湾",
     h.bloodType && `血液型：${h.bloodType}型`,
   ].filter((line): line is string => Boolean(line));
   // A question never answered is 未記入 (not filled in), never なし (none): a doctor reads なし as
-  // "no allergies". A section the traveller did fill in answers its other questions with none.
-  const answered = new Set(sectionSummaries(profile).filter((s) => s.done).map((s) => s.id));
-  const none = (section: "health" | "allergy") => (answered.has(section) ? "なし" : "未記入");
+  // "no allergies". Once some allergy (or some condition or medicine) is entered, the rest of that
+  // question is taken as none. A diet, insurance or a blood type answers neither.
+  const allergiesAnswered = h.drugAllergies.length > 0 || h.foodAllergies.length > 0 || Boolean(h.allergyOther.trim());
+  const healthAnswered = h.conditions.length > 0 || Boolean(h.conditionsOther.trim()) || h.meds.length > 0;
+  const none = (section: "health" | "allergy") => ((section === "health" ? healthAnswered : allergiesAnswered) ? "なし" : "未記入");
   const conditions = presetLine(CONDITIONS, h.conditions, h.conditionsOther);
   const drugs = presetLine(DRUG_ALLERGIES, h.drugAllergies);
   const foods = presetLine(FOOD_ALLERGIES, h.foodAllergies, h.allergyOther);
