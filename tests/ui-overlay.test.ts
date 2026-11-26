@@ -226,7 +226,10 @@ describe("showToOther", () => {
     ov.showToOther([{ jp, zh: "車站在哪裡？", extra: ["東京都新宿区1-1"] }]);
     const dialog = topDialog();
     expect(dialog.getAttribute("aria-label")).toBe("給對方看");
-    expect(dialog.textContent).toContain("請把畫面拿給對方看");
+    // The bar speaks to the Japanese reader, as on 給對方點選.
+    const hint = button(dialog, "關閉").parentElement!.querySelector("p")!;
+    expect(hint.getAttribute("lang")).toBe("ja");
+    expect(hint.textContent).toBe("こちらをご覧ください");
     const japanese = [...dialog.querySelectorAll('[lang="ja"]')].map((el) => el.textContent);
     expect(japanese).toContain(plain(jp));
     expect(japanese).toContain("東京都新宿区1-1");

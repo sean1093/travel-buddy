@@ -27,7 +27,7 @@ function walletCard(title: string, blocks: CardBlock[], options: { big?: boolean
         "div",
         { class: "wallet-block" },
         h("p", { lang: "ja", class: "font-bold" }, plain(block.jp)),
-        block.extra.map((line) => h("p", { lang: "ja" }, lineText(line))),
+        block.extra.map((line) => h("p", { lang: "ja", class: block.alert ? "font-bold" : undefined }, lineText(line))),
       ),
     ),
   );

@@ -18,7 +18,7 @@ export function cardBlock(block: CardBlock, size = "text-3xl"): HTMLElement {
     block.extra.length > 0 &&
       h(
         "div",
-        { lang: "ja", class: "mt-3 space-y-1 border-l-4 border-shu pl-3 text-2xl font-bold leading-snug" },
+        { lang: "ja", class: `mt-3 space-y-1 border-l-4 border-shu pl-3 text-2xl font-bold leading-snug ${block.alert ? "text-shu" : ""}` },
         block.extra.map((line) => lineNode(line)),
       ),
     h("p", { class: "mt-2 text-lg text-muted" }, block.zh),

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentHotel, emptyProfile, isEmpty, parseProfile, placesForToday } from "../src/profile/profile";
+import { currentHotel, emptyProfile, type Hotel, isEmpty, parseProfile, placesForToday } from "../src/profile/profile";
 import { sampleProfile } from "./fixtures";
 
 describe("parseProfile", () => {
@@ -33,6 +33,39 @@ describe("trip dates", () => {
     // Before the trip: the first hotel.
     expect(currentHotel(profile, "2026-10-01")?.name).toBe("ホテルグレイスリー新宿");
     expect(currentHotel(emptyProfile())).toBeNull();
+  });
+
+  it("picks by date, never by the order the hotels were typed in, so a card printed before the trip is right", () => {
+    const profile = sampleProfile();
+    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
+    // Shinjuku deleted and added again: now last in the list.
+    profile.hotels = [kyoto, shinjuku];
+    expect(currentHotel(profile, "2026-10-01")?.name).toBe(shinjuku.name);
+    // A night between stays: the next one.
+    profile.hotels = [kyoto, { ...shinjuku, to: "2026-11-03" }];
+    expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
+    // After the trip: the last one.
+    profile.hotels = [kyoto, shinjuku];
+    expect(currentHotel(profile, "2026-12-31")?.name).toBe(kyoto.name);
+    // No dates at all: the first one entered.
+    profile.hotels = [{ ...kyoto, from: "", to: "" }, { ...shinjuku, from: "", to: "" }];
+    expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
+  });
+
+  it("picks by date, never by the order the hotels were typed in, so a card printed before the trip is right", () => {
+    const profile = sampleProfile();
+    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
+    // Shinjuku deleted and added again: now last in the list.
+    profile.hotels = [kyoto, shinjuku];
+    expect(currentHotel(profile, "2026-10-01")?.name).toBe(shinjuku.name);
+    // Between stays: the next one.
+    profile.hotels = [kyoto, { ...shinjuku, to: "2026-11-04" }];
+    expect(currentHotel(profile, "2026-11-04")?.name).toBe(shinjuku.name);
+    // After the trip: the last one.
+    expect(currentHotel(profile, "2026-12-31")?.name).toBe(kyoto.name);
+    // No dates at all: the first one entered.
+    profile.hotels = [{ ...kyoto, from: "", to: "" }, { ...shinjuku, from: "", to: "" }];
+    expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
   });
 
   it("puts today's places first", () => {

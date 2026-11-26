@@ -1,7 +1,7 @@
 import type { Jp, Reply } from "../content/types";
 import { plain } from "../lib/jp";
 import type { Line } from "../profile/cards";
-import { announce, BUTTON, h, icon, liveRegion } from "./dom";
+import { announce, BUTTON, type Child, fill, h, icon, liveRegion } from "./dom";
 import { hush, play, playAll, playButton } from "./japanese";
 import { lineNode } from "./lines";
 
@@ -165,12 +165,22 @@ export function overlayBar(
   );
 }
 
+/** `el` with `children` in it, for building inside an expression. */
+function filled<T extends Element>(el: T, ...children: Child[]): T {
+  fill(el, ...children);
+  return el;
+}
+
 export interface ShowBlock {
   jp: Jp;
   /** Chinese for the traveller holding the phone, to check before handing it over. */
   zh?: string;
   /** Extra lines shown as they are: an address, a phone number. */
   extra?: Line[];
+  /** Lines a doctor must not miss (allergies), in the alert colour. */
+  alert?: boolean;
+  /** What 播放 says instead of `jp`. */
+  say?: Jp;
 }
 
 /**
@@ -178,19 +188,33 @@ export interface ShowBlock {
  * romaji — the person reading it is Japanese.
  */
 export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNow = false): void {
-  if (speakNow) void playAll(blocks.map((b) => b.jp));
+  const spoken = blocks.map((b) => b.say ?? b.jp);
+  if (speakNow) void playAll(spoken);
   openOverlay(label, (close) => {
     const many = blocks.length > 1;
     const total = blocks.map((b) => plain(b.jp)).join("");
+    const scroller = h("div", { class: "flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4 text-center" });
+    // A long card (the help card, the medical card at 特大) runs past the screen: say so, in both
+    // languages, until the reader is at the end. Screen readers read on anyway, so it is hidden from them.
+    const more = h(
+      "p",
+      { class: "pointer-events-none border-t border-hair bg-card py-1 text-center text-lg font-bold text-ai", "aria-hidden": "true" },
+      h("span", { lang: "ja" }, "▼ 下に続きます"),
+      "　下面還有",
+    );
+    const update = () => {
+      more.hidden = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4;
+    };
+    scroller.addEventListener("scroll", update, { passive: true });
+    if (typeof ResizeObserver === "function") new ResizeObserver(update).observe(scroller);
+    requestAnimationFrame(update);
     return h(
       "div",
       { class: "flex min-h-0 flex-1 flex-col" },
-      overlayBar(close, "請把畫面拿給對方看", "action", undefined, "landscape-hide"),
-      h(
-        "div",
-        {
-          class: "flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4 text-center",
-        },
+      // To the Japanese reader, as on 給對方點選; whoever holds the phone tapped 給對方看 to get here.
+      overlayBar(close, plain(LOOK_PLEASE), "action", "ja", "landscape-hide"),
+      filled(
+        scroller,
         // Centred with auto margins, not justify-center: when the text is taller than the
         // screen (a phone held sideways), it scrolls from its first line instead of being cut.
         h(
@@ -205,22 +229,20 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
               { lang: "ja", class: "font-bold leading-snug", style: armsLength(many ? total : plain(block.jp)) },
               plain(block.jp),
             ),
-            block.extra?.map((line) => h("div", { lang: "ja" }, lineNode(line, "mt-2 text-3xl font-bold leading-snug"))),
+            block.extra?.map((line) => h("div", { lang: "ja" }, lineNode(line, `mt-2 text-3xl font-bold leading-snug ${block.alert ? "text-shu" : ""}`))),
             block.zh && h("p", { class: "mt-3 text-xl font-bold text-ink/80" }, block.zh),
           ),
           ),
         ),
       ),
+      more,
       // One row, so a phone held sideways still shows the actions.
       h(
         "div",
         // On a phone held sideways this row moves up into the bar (see .landscape-dock), so the text gets the height.
         { class: "landscape-dock pb-safe flex items-center justify-center gap-3 px-5 pt-3" },
-        playButton(blocks.map((b) => b.jp)),
-        playButton(
-          blocks.map((b) => b.jp),
-          "slow",
-        ),
+        playButton(spoken),
+        playButton(spoken, "slow"),
       ),
     );
   });

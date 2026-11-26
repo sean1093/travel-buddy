@@ -217,11 +217,19 @@ export function today(now = new Date()): string {
 
 /**
  * The hotel for tonight: the one whose stay covers `day` (check-out day
- * included, since that morning the bags may still be there), else the first.
+ * included, since that morning the bags may still be there). Otherwise the
+ * next one by date (before the trip: the first night's), then the last one
+ * (after it), and only without any dates the first one entered. The order
+ * the hotels were typed in means nothing: a printed card must be right.
  */
 export function currentHotel(profile: Profile, day = today()): Hotel | null {
-  const covering = profile.hotels.find((h) => h.from && h.to && h.from <= day && day <= h.to);
-  return covering ?? profile.hotels[0] ?? null;
+  const hotels = profile.hotels;
+  const covering = hotels.find((h) => h.from && h.to && h.from <= day && day <= h.to);
+  const next = hotels.filter((h) => h.from && h.from > day).sort((a, b) => a.from.localeCompare(b.from))[0];
+  const last = hotels
+    .filter((h) => (h.to || h.from) && (h.to || h.from) < day)
+    .sort((a, b) => (b.to || b.from).localeCompare(a.to || a.from))[0];
+  return covering ?? next ?? last ?? hotels[0] ?? null;
 }
 
 /** The place is planned for `day`. */
