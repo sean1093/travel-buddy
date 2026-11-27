@@ -44,7 +44,8 @@ export function radioKeys(group: HTMLElement): HTMLElement {
   radios.forEach((radio, i) => (radio.tabIndex = i === checked ? 0 : -1));
   group.addEventListener("keydown", (event) => {
     const at = radios.indexOf(event.target as HTMLElement);
-    if (at < 0) return;
+    // Alt+Left is the browser's Back, and other modified keys belong to the browser too.
+    if (at < 0 || event.altKey || event.ctrlKey || event.metaKey) return;
     const last = radios.length - 1;
     const keys: Record<string, number> = { ArrowRight: at + 1, ArrowDown: at + 1, ArrowLeft: at - 1, ArrowUp: at - 1, Home: 0, End: last };
     const to = keys[event.key];

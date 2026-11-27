@@ -244,12 +244,15 @@ function rescueDock(): HTMLElement[] {
 }
 
 /**
- * Japanese sentences put particles after their words (エレベーターは、ホームへ、出口を).
- * Chinese has none, even with a katakana word (エレベーター在右邊) or a place name in
- * kana (在「みなとみらい」站): a stylish の doesn't count.
+ * Japanese sentences put particles after their words (エレベーターは、改札を) and write
+ * in hiragana. Chinese has no particle after a word, even with a katakana word
+ * (エレベーター在右邊) or a place name in kana (在「みなとみらい」站); a stylish の
+ * doesn't count.
  */
 export function looksJapanese(text: string): boolean {
-  return (text.match(/[\u4e00-\u9fff\u30a1-\u30fa\u30fc0-9A-Za-z][はをへがにで]/g) ?? []).length >= 2;
+  const particles = text.match(/[\u4e00-\u9fff\u30a1-\u30fa\u30fc0-9A-Za-z][はをへがにで]/g) ?? [];
+  const hiragana = (text.match(/[\u3041-\u3096]/g) ?? []).filter((c) => c !== "の");
+  return particles.length >= 1 && hiragana.length >= 2;
 }
 
 /** The picked station's 電梯筆記, ready to enlarge for station staff. */

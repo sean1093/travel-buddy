@@ -61,7 +61,16 @@ describe("trip dates", () => {
     expect(currentHotel(profile, kyoto.to)?.name).toBe(kyoto.name);
   });
 
-  it("dates a stay with only one date by that date alone, so it never covers the days around it", () => {
+  it("keeps a stay with only a check-in date until the next one starts (the check-out isn't typed yet)", () => {
+    const profile = sampleProfile();
+    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
+    profile.hotels = [{ ...shinjuku, from: "2026-12-01", to: "" }, { ...kyoto, from: "2026-12-05", to: "2026-12-07" }];
+    expect(currentHotel(profile, "2026-12-02")?.name).toBe(shinjuku.name);
+    expect(currentHotel(profile, "2026-12-05")?.name).toBe(kyoto.name);
+    expect(currentHotel(profile, "2026-11-26")?.name).toBe(shinjuku.name);
+  });
+
+  it("dates a stay with only a check-out date by that day, so it never covers the days before it", () => {
     const profile = sampleProfile();
     const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
     // B has only a check-out date (12-06); the trip starts at A on 12-01.

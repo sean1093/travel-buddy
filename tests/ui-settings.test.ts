@@ -25,7 +25,8 @@ const app = () => document.getElementById("app")!;
 const render = async () => (await import("../src/ui/settings")).renderSettings(app());
 const group = (name: string) => app().querySelector<HTMLElement>(`[role="radiogroup"][aria-label="${name}"]`)!;
 const radio = (name: string, label: string) => [...group(name).querySelectorAll<HTMLElement>('[role="radio"]')].find((r) => r.textContent === label)!;
-const key = (target: HTMLElement, name: string) => target.dispatchEvent(new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true }));
+const key = (target: HTMLElement, name: string, init: KeyboardEventInit = {}) =>
+  target.dispatchEvent(new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true, ...init }));
 
 describe("settings", () => {
   it("names each choice group after its section", async () => {
@@ -59,5 +60,11 @@ describe("settings", () => {
     key(radio("顏色", "深色"), "ArrowDown");
     expect(document.activeElement).toBe(radio("顏色", "跟手機"));
     expect(JSON.parse(localStorage.getItem("travelbuddy.japan.settings")!).data.theme).toBe("system");
+  });
+
+  it("leaves Alt+Left to the browser (Back)", async () => {
+    await render();
+    expect(key(radio("顏色", "跟手機"), "ArrowLeft", { altKey: true })).toBe(true);
+    expect(radio("顏色", "跟手機").getAttribute("aria-checked")).toBe("true");
   });
 });
