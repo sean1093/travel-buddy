@@ -154,15 +154,7 @@ body {
     display: none;
   }
 
-  /* The phrase page: one scroll for the phrase and its actions, so neither squeezes the other. */
-  .phrase-layout {
-    overflow-y: auto;
-  }
-
-  .phrase-layout > .phrase-scroll {
-    flex: none;
-    overflow: visible;
-  }
+  /* The phrase page scrolls as one: see the short-or-narrow rule below, which covers sideways too. */
 
   .ask-question {
     font-size: 1.5rem !important;

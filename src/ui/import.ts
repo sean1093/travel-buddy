@@ -29,9 +29,9 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
   }
   // Whose is whose: one parent opening the other's link must not wipe their own card unawares.
   // Two profiles named alike would tell nothing apart: then without names.
-  const named = Boolean(name(current) && name(incoming)) && who(current) !== who(incoming);
+  const named = Boolean(name(current) && name(incoming)) && name(current) !== name(incoming);
   const body = named
-    ? `這支手機裡已經有「${who(current)}」的資料。換成連結裡「${who(incoming)}」的資料，原本的就會被取代。`
+    ? `這支手機裡已經有「${name(current)}」的資料。換成連結裡「${name(incoming)}」的資料，原本的就會被取代。`
     : "這支手機裡已經有一份資料。換成連結裡的新資料，原本的就會被取代。";
   screen(root, "swap", "要換成新的資料嗎？", body, [
     h("button", { type: "button", class: BUTTON.primary, onclick: () => done(root, incoming) }, icon("check"), "換成新的"),
@@ -41,13 +41,12 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
 
 /** How a profile is named to the person choosing: its call name, else the passport name. */
 const name = (profile: Profile) => profile.callName.trim() || profile.passportName.trim().toUpperCase();
-const who = (profile: Profile) => name(profile);
 
 function done(root: HTMLElement, profile: Profile): void {
   saveProfile(profile);
   history.replaceState(null, "", `${location.pathname}#/imported`);
-  const name = profile.callName ? `${profile.callName}，` : "";
-  screen(root, "checkcircle", "設定完成", `${name}之後直接打開這個網站就好，不用再點連結。沒有網路也能用。`, [
+  const greeting = profile.callName ? `${profile.callName}，` : "";
+  screen(root, "checkcircle", "設定完成", `${greeting}之後直接打開這個網站就好，不用再點連結。沒有網路也能用。`, [
     ...(homeScreenSharesStorage() ? [h("p", { class: "text-lg leading-relaxed text-muted" }, HOME_SCREEN_TIP)] : []),
     // Asked on a deliberate tap, not as the screen opens: Firefox shows a prompt for it.
     h("a", { href: "#/", class: BUTTON.primary, onclick: keepStorage }, "開始使用"),

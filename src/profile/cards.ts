@@ -106,10 +106,19 @@ const RELATIONS: Record<string, string> = {
 
 export const relationJa = (relation: string) => RELATIONS[relation.trim()] ?? relation.trim();
 
+/**
+ * The relation for a card both sides read: Japanese, then the typed word in brackets, since
+ * 娘 reads as "mother" in Chinese (娘（女兒）). As typed when there is no Japanese for it.
+ */
+const relationBoth = (relation: string) => {
+  const ja = relationJa(relation);
+  return ja === relation.trim() ? ja : `${ja}（${relation.trim()}）`;
+};
+
 /** A contact as lines a Japanese helper can dial from. */
 export function contactLines(contact: Contact, home: "tw" | "jp"): Line[] {
   const phone = dialable(contact.phone, home);
-  const who = [relationJa(contact.relation), contact.name].filter(Boolean).join("　");
+  const who = [relationBoth(contact.relation), contact.name].filter(Boolean).join("　");
   if (!phone) return [who].filter(Boolean);
   const lines: Line[] = [who, { phone: phone.display }];
   // How a Japanese phone reaches a Taiwanese number: the helper will not know.
@@ -195,8 +204,8 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
   const blocks: CardBlock[] = [
     // First, before even the name: what a doctor must not miss, on the first screen at any text size.
     {
-      jp: "{薬|くすり} と {食|た}べ{物|もの} の アレルギー です。",
-      zh: "藥物和食物過敏。",
+      jp: "アレルギー {情報|じょうほう} です。",
+      zh: "過敏資料。",
       extra: [`薬のアレルギー：${drugs || NOT_FILLED}`, `食物アレルギー：${foods || NOT_FILLED}`, other && `その他のアレルギー：${other}`].filter(
         (line): line is string => Boolean(line),
       ),
@@ -209,7 +218,7 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
       extra: [
         `持病：${conditions || NOT_FILLED}`,
         meds.length > 0 ? "服用中の薬：" : `服用中の薬：${NOT_FILLED}`,
-        ...meds.map((m) => `・${[m.ingredient, m.dose].filter(Boolean).join(" ")}`),
+        ...meds.map((m) => `・${[m.ingredient.trim(), m.dose.trim()].filter(Boolean).join(" ")}`),
       ],
     },
   ];

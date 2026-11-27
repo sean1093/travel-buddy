@@ -10,7 +10,7 @@ From user testing with five testers playing a 68-year-old first-time traveller, 
 - **未記入 (not filled in), never なし (none), for an empty line:** setup has no way to say "none", and a card with only a name filled in used to tell a doctor "no allergies".
 - **Allergies first**, in the alert colour, on the first screen at any text size; age shown as a range, since only the birth year is known.
 - **給對方看 (Show them) says when there is more below** (下に続きます／下面還有), and its bar speaks Japanese (こちらをご覧ください, please look at this).
-- **On the card in Japanese:** relations (女兒 → 娘, daughter), passport names in capitals, and the setup form asks for doses in English.
+- **On the card in Japanese:** relations (女兒 → 娘（女兒）, daughter, with the typed word kept for the traveller), passport names in capitals, and the setup form asks for doses in English.
 - **其他過敏 (other allergies) on its own line**, その他のアレルギー: it may be a drug (aspirin) or neither (latex), not a food.
 
 ### Right hotel, right words

@@ -6,7 +6,7 @@ import type { Reply, ReplySet } from "./types";
  */
 export const DONT_KNOW: Reply = { jp: "わかりません", zh: "不知道" };
 
-/** For an answer the list doesn't have: every set but yes/no offers it (see repliesFor). */
+/** For an answer the list doesn't have: the open sets offer it (repliesFor), not the CLOSED ones. */
 export const WRITE_IT: Reply = { jp: "{紙|かみ} に {書|か}きます", zh: "對方會寫給你看（請準備紙筆）" };
 
 /** 1番線 … 27番線, read as station announcements say them. */

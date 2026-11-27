@@ -28,8 +28,9 @@ describe("help card", () => {
     expect(blocks[0]?.extra).toEqual(["名前：LIN MEI-HUA"]);
     expect(blocks[2]?.extra).toContain("京都タワーホテル");
     // Relations in Japanese: 女兒 reads like 女児 (a girl) in a Japanese font.
-    expect(blocks[3]?.extra).toEqual(["娘　林小美", { phone: "+886 912-345-678" }, { phone: "010-886-912-345-678", label: "日本の電話から" }]);
-    expect(blocks[4]?.extra).toEqual(["友人　田中", { phone: "090-1234-5678" }]);
+    // The typed word in brackets: 娘 alone reads as "mother" to the traveller.
+    expect(blocks[3]?.extra).toEqual(["娘（女兒）　林小美", { phone: "+886 912-345-678" }, { phone: "010-886-912-345-678", label: "日本の電話から" }]);
+    expect(blocks[4]?.extra).toEqual(["友人（朋友）　田中", { phone: "090-1234-5678" }]);
     // The number belongs to the acquaintance; the traveller is not one.
     expect(plain(blocks[4]!.jp)).toBe("日本にいる知人の電話番号です。こちらに電話していただけませんか。");
     for (const block of blocks) expect(checkJp(block.jp)).toEqual([]);
@@ -64,7 +65,7 @@ describe("help card", () => {
   });
 
   it("formats contacts without a phone, and keeps a relation it doesn't know as typed", () => {
-    expect(contactLines({ relation: "女兒", name: "", phone: "" }, "tw")).toEqual(["娘"]);
+    expect(contactLines({ relation: "女兒", name: "", phone: "" }, "tw")).toEqual(["娘（女兒）"]);
     expect(contactLines({ relation: "鄰居", name: "", phone: "" }, "tw")).toEqual(["鄰居"]);
   });
 
@@ -129,7 +130,7 @@ describe("medical and allergy cards", () => {
     const blocks = medicalCard(sampleProfile(), now);
     // Allergies first of all, marked: what a doctor must not miss.
     expect(blocks[0]).toMatchObject({ alert: true, extra: ["薬のアレルギー：ペニシリン", "食物アレルギー：えび、かに"] });
-    expect(plain(blocks[0]!.jp)).toBe("薬と食べ物のアレルギーです。");
+    expect(plain(blocks[0]!.jp)).toBe("アレルギー情報です。");
     // Only the year is known, so the age is a range.
     expect(blocks[1]?.extra).toEqual(["名前：LIN MEI-HUA", "生年：1956年（69〜70歳）", "国籍：台湾", "血液型：O型"]);
     expect(blocks[2]?.extra).toEqual([
