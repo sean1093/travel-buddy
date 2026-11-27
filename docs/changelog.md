@@ -41,6 +41,7 @@ From user testing with five testers playing a 68-year-old first-time traveller, 
 - **Import:** before replacing data, the screen names both (這支手機裡已經有「媽媽」的資料… — this phone already has 媽媽's data…). Going back after 保留原本的 (Keep the original) no longer says 設定完成 (Setup complete).
 - **Share tips** explain how to set up a second family member.
 - **Hotel dates** stack at phone width, so the whole date shows.
+- **Printing:** a card too long even folded is named in a warning on the print page, instead of being cut off without a word.
 
 ## 2026-11-23
 

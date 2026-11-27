@@ -62,9 +62,9 @@ export function renderHotel(root: HTMLElement, [index]: string[]): void {
                   "span",
                   { class: "block text-base font-normal text-muted" },
                   // A date never splits (2026-11-／08); the range may wrap at the ～, shown only between two dates.
-                  [other.from, other.to]
-                    .filter(Boolean)
-                    .map((date, i) => [i > 0 && " ～ ", h("span", { class: "whitespace-nowrap" }, date)]),
+                  other.from && h("span", { class: "whitespace-nowrap" }, other.from),
+                  // A check-out alone keeps its ～, so it doesn't read as a check-in.
+                  other.to && [" ～ ", h("span", { class: "whitespace-nowrap" }, other.to)],
                 ),
             ),
           ),

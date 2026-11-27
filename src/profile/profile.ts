@@ -234,6 +234,8 @@ export function currentHotel(profile: Profile, day = today()): Hotel | null {
   const covers = (h: Hotel) => {
     if (!start(h) || start(h) > day) return false;
     if (h.to) return day <= h.to;
+    // Check-in only, inside a dated stay: a night away from it, that night alone.
+    if (hotels.some((base) => base !== h && base.from && base.to && base.from <= h.from && h.from < base.to)) return day === h.from;
     // Check-in only: until another stay has started and still covers the day (a night away, then
     // back to it; or the next hotel, to its check-out morning).
     return !hotels.some((other) => other !== h && start(other) > h.from && start(other) <= day && (!other.to || day <= other.to));

@@ -69,6 +69,8 @@ export function renderPrint(root: HTMLElement): void {
             { href: "#/setup", class: "block rounded-2xl bg-ai-soft p-4 text-lg" },
             "還沒有填資料，卡片上不會有飯店、電話和健康資料。按這裡先填好。",
           ),
+        // Filled in by foldOverflowing when a card can't fit even folded.
+        h("p", { class: "print-too-long rounded-2xl bg-warn-soft p-4 text-lg", role: "status", hidden: true }),
         h("button", { type: "button", class: BUTTON.primary, onclick: () => window.print() }, icon("print"), "列印"),
         h("p", { class: "text-base text-muted" }, "電腦或手機都可以列印；也可以在列印畫面選「另存為 PDF」，傳給家人或自己留一份。"),
       ),
@@ -88,4 +90,11 @@ function foldOverflowing(root: HTMLElement): void {
   const cards = [...root.querySelectorAll<HTMLElement>(".wallet-card")];
   const overflowing = cards.filter((card) => card.scrollHeight > card.clientHeight + 1);
   for (const card of overflowing) card.classList.add("wallet-card-tall");
+  // Still too long folded (many medicines, long notes): the bottom would be cut off. Say which card.
+  const clipped = overflowing.filter((card) => card.scrollHeight > card.clientHeight + 1);
+  const warning = root.querySelector<HTMLElement>(".print-too-long");
+  if (warning && clipped.length > 0) {
+    warning.hidden = false;
+    warning.textContent = `${clipped.map((card) => `「${card.querySelector(".wallet-title")?.textContent ?? ""}」`).join("")}內容太多，對折後還放不下，最下面幾行印不出來。請到設定資料精簡（例如藥只寫成分和劑量）。`;
+  }
 }

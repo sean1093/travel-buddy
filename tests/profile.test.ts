@@ -94,6 +94,8 @@ describe("trip dates", () => {
     expect(currentHotel(profile, "2026-11-07")?.name).toBe(shinjuku.name);
     // But the night away's own first night is there.
     expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
+    // And the base's check-out morning is the base's.
+    expect(currentHotel(profile, "2026-11-10")?.name).toBe(shinjuku.name);
   });
 
   it("ignores a check-out date that isn't a date", () => {

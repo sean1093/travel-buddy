@@ -250,6 +250,26 @@ test.describe("found in user testing", () => {
     });
   });
 
+  test("print: a card too long even folded is named in a warning, never cut off silently", async ({ page, seed }) => {
+    const health = SAMPLE_PROFILE.health as Record<string, unknown>;
+    const meds = Array.from({ length: 12 }, (_, i) => ({ ingredient: `Medicine number ${i + 1} long name`, dose: "500mg, twice a day after meals" }));
+    await seed({ profile: { ...SAMPLE_PROFILE, health: { ...health, meds } } });
+    await page.goto("#/print");
+    const clipped = await page.locator(".wallet-card").evaluateAll((cards) =>
+      cards.filter((c) => c.scrollHeight > c.clientHeight + 1).map((c) => c.querySelector(".wallet-title")?.textContent),
+    );
+    expect(clipped).toContain("醫療卡");
+    await expect(page.locator(".print-too-long")).toBeVisible();
+    await expect(page.locator(".print-too-long")).toContainText("「醫療卡」內容太多");
+  });
+
+  test("print: the sample trip fits, with no warning", async ({ page, seed }) => {
+    await seed({ profile: SAMPLE_PROFILE });
+    await page.goto("#/print");
+    await expect(page.locator(".wallet-card").first()).toBeVisible();
+    await expect(page.locator(".print-too-long")).toBeHidden();
+  });
+
   test("setup: check-in and check-out stack at phone width, so the whole date shows", async ({ page, seed }) => {
     await seed({ profile: SAMPLE_PROFILE });
     await page.goto("#/setup");
