@@ -1,6 +1,6 @@
 import { CONDITIONS, DIETS, DRUG_ALLERGIES, FOOD_ALLERGIES, presetsById } from "../content/medical";
 import type { Jp, Preset } from "../content/types";
-import { plain, userWord } from "../lib/jp";
+import { plain, readings, userWord } from "../lib/jp";
 import { dialable } from "../lib/phone";
 import { type Contact, currentHotel, type Hotel, type Place, type Profile } from "./profile";
 
@@ -171,9 +171,11 @@ export function hotelCard(hotel: Hotel): CardBlock {
  */
 export function hotelSay(hotel: Hotel): Jp {
   const word = hotelWord(hotel);
-  // A reading the voice will use (userWord keeps only a pure-kana one, as ruby), or kana in the name.
+  // The voice reads the text, not the ruby: with a kana reading (userWord keeps only a pure-kana one),
+  // say the reading itself.
+  if (word.includes("|")) return `${readings(word).join("")} まで お{願|ねが}い します。`;
   // Without a reading: a name in Japanese script only (ホテル Gracery 新宿 would mangle Gracery).
-  const sayable = word.includes("|") || (/[\u3041-\u30fa]/.test(hotel.name) && !/[A-Za-z]/.test(hotel.name));
+  const sayable = /[\u3041-\u30fa]/.test(hotel.name) && !/[A-Za-z]/.test(hotel.name);
   return sayable && plain(word).trim() ? `${word} まで お{願|ねが}い します。` : LINES.taxiToHotel;
 }
 

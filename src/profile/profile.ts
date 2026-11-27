@@ -241,7 +241,8 @@ export function currentHotel(profile: Profile, day = today()): Hotel | null {
   // the stay that begins on a changeover day); then the one that started last.
   const covering = hotels
     .filter(covers)
-    .sort((a, b) => Number(a.to === day) - Number(b.to === day) || start(b).localeCompare(start(a)))[0];
+    // A stay with its check-out typed beats one without, inside it (a night away with no check-out).
+    .sort((a, b) => Number(a.to === day) - Number(b.to === day) || Number(!a.to) - Number(!b.to) || start(b).localeCompare(start(a)))[0];
   const next = hotels.filter((h) => start(h) > day).sort((a, b) => start(a).localeCompare(start(b)))[0];
   const last = hotels.filter((h) => start(h) && end(h) < day).sort((a, b) => end(b).localeCompare(end(a)))[0];
   return covering ?? next ?? last ?? hotels[0] ?? null;

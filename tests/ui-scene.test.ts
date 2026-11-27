@@ -318,5 +318,7 @@ describe("lift note language", () => {
     expect(looksJapanese("改札内のエレベーター")).toBe(true);
     expect(looksJapanese("みなとみらい站3號出口有電梯")).toBe(false);
     expect(looksJapanese("おおさか站電梯")).toBe(false);
+    expect(looksJapanese("在来線ホームへはエレベーターをご利用ください")).toBe(true);
+    expect(looksJapanese("到着口の右にエレベーター")).toBe(true);
   });
 });

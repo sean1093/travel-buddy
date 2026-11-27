@@ -244,10 +244,10 @@ function rescueDock(): HTMLElement[] {
 }
 
 /**
- * Characters a Japanese note never has: Traditional Chinese forms (號, 邊, 樓…), Chinese
- * function words (在, 的, 是…) and 電梯 (Japanese says エレベーター).
+ * Characters a Japanese note never has: Traditional Chinese forms Japanese doesn't use (號, 邊,
+ * 樓…) and 電梯 (Japanese says エレベーター). Not 在, 的, 到 or 和: 在来線, 目的, 到着, 和式.
  */
-const CHINESE_ONLY = /[號邊樓這裡個們說會對從與還點為嗎呢臺灣站在的是到往跟和了]|電梯/;
+const CHINESE_ONLY = /[號邊樓這裡們說會對從與還點嗎呢臺灣站]|電梯/;
 
 /**
  * A note is Japanese when it has kana (a stylish の alone doesn't count) and nothing only

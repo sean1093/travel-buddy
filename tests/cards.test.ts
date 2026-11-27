@@ -39,7 +39,8 @@ describe("help card", () => {
   it("makes a taxi card that says the hotel's name, by its reading", () => {
     const card = hotelCard(sampleProfile().hotels[0]!);
     expect(card.extra).toEqual(["ホテルグレイスリー新宿", "住所：東京都新宿区歌舞伎町1-19-1", { phone: "03-6833-2489" }]);
-    expect(card.say).toBe("{ホテルグレイスリー新宿|ほてるぐれいすりーしんじゅく} まで お{願|ねが}い します。");
+    // The reading itself: the voice reads the text, not the ruby.
+    expect(card.say).toBe("ほてるぐれいすりーしんじゅく まで お{願|ねが}い します。");
     expect(checkJp(card.say!)).toEqual([]);
   });
 
@@ -51,6 +52,8 @@ describe("help card", () => {
     expect(hotelCard({ ...hotel, name: "新宿格拉斯麗酒店", kana: "Gracery" }).say).toBe(LINES.taxiToHotel);
     expect(hotelCard({ ...hotel, name: "ホテルグレイスリー新宿", kana: "" }).say).toBe("ホテルグレイスリー新宿 まで お{願|ねが}い します。");
     expect(hotelCard({ ...hotel, name: "ホテル Gracery 新宿", kana: "" }).say).toBe(LINES.taxiToHotel);
+    // An English name with a kana reading: the reading is what's said.
+    expect(plain(hotelCard({ ...hotel, name: "Hotel Gracery Shinjuku", kana: "ほてるぐれいすりー" }).say!)).toBe("ほてるぐれいすりーまでお願いします。");
   });
 
   it("gives an allergy typed in 其他過敏 its own block on the restaurant card, not among the foods", () => {
