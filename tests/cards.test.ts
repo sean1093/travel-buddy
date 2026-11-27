@@ -31,6 +31,8 @@ describe("help card", () => {
     // The typed word in brackets: 娘 alone reads as "mother" to the traveller.
     expect(blocks[3]?.extra).toEqual(["娘（女兒）　林小美", { phone: "+886 912-345-678" }, { phone: "010-886-912-345-678", label: "日本の電話から" }]);
     expect(blocks[4]?.extra).toEqual(["友人（朋友）　田中", { phone: "090-1234-5678" }]);
+    // 播放 names the hotel (by its reading), not just "this hotel".
+    expect(plain(blocks[2]!.say!)).toBe("きょうとたわーほてるに帰りたいです。行き方を教えてください。");
     // The number belongs to the acquaintance; the traveller is not one.
     expect(plain(blocks[4]!.jp)).toBe("日本にいる知人の電話番号です。こちらに電話していただけませんか。");
     for (const block of blocks) expect(checkJp(block.jp)).toEqual([]);
@@ -61,13 +63,13 @@ describe("help card", () => {
     profile.health.allergyOther = "Latex";
     const blocks = allergyCard(profile)!;
     // Alone, so not "also".
-    expect(plain(blocks[0]!.jp)).toBe("次のものにアレルギーがあります。");
+    expect(plain(blocks[0]!.jp)).toBe("次のものにアレルギーがあります。入った料理は食べられません。");
     expect(blocks[0]!.extra).toEqual(["・Latex"]);
     expect(blocks.map((b) => plain(b.jp)).join("")).not.toContain("食物アレルギー");
     for (const block of blocks) expect(checkJp(block.jp)).toEqual([]);
     // After a food allergy: "also".
     profile.health.foodAllergies = ["peanut"];
-    expect(plain(allergyCard(profile)![1]!.jp)).toBe("次のものにもアレルギーがあります。");
+    expect(plain(allergyCard(profile)![1]!.jp)).toBe("次のものにもアレルギーがあります。入った料理は食べられません。");
   });
 
   it("puts an allergy typed in 其他過敏 on its own line, not under food", () => {
@@ -183,6 +185,7 @@ describe("medical and allergy cards", () => {
   it("never shows a negative age", () => {
     const profile = { ...emptyProfile(), birthYear: 2026 };
     expect(medicalCard(profile, now)[1]?.extra).toContain("生年：2026年（0歳）");
+    expect(medicalCard({ ...emptyProfile(), birthYear: 2056 }, now)[1]?.extra).toContain("生年：2056年");
   });
 
   it("says 未記入 for each empty line, even when the lines next to it are filled in", () => {

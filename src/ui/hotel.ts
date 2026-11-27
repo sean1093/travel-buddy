@@ -61,10 +61,10 @@ export function renderHotel(root: HTMLElement, [index]: string[]): void {
                 h(
                   "span",
                   { class: "block text-base font-normal text-muted" },
-                  // A date never splits (2026-11-／08); the range may wrap at the ～.
-                  h("span", { class: "whitespace-nowrap" }, other.from),
-                  " ～ ",
-                  h("span", { class: "whitespace-nowrap" }, other.to),
+                  // A date never splits (2026-11-／08); the range may wrap at the ～, shown only between two dates.
+                  [other.from, other.to]
+                    .filter(Boolean)
+                    .map((date, i) => [i > 0 && " ～ ", h("span", { class: "whitespace-nowrap" }, date)]),
                 ),
             ),
           ),

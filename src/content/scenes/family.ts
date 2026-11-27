@@ -91,7 +91,7 @@ export default {
       group: "eat",
       zh: "有兒童椅嗎？",
       jp: "{子|こ}ども {用|よう} の {椅子|いす} は あります か。",
-      answers: "yesNo",
+      answers: "have",
     },
     {
       id: "family-kids-tableware",
@@ -104,7 +104,7 @@ export default {
       group: "eat",
       zh: "有兒童餐嗎？",
       jp: "お{子|こ}さま メニュー は あります か。",
-      answers: "yesNo",
+      answers: "have",
     },
     {
       id: "family-stroller-inside",

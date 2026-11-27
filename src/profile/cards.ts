@@ -134,7 +134,7 @@ export function contactLines(contact: Contact, home: "tw" | "jp"): Line[] {
 }
 
 /** An age known only from the birth year: before the birthday they are a year younger. */
-const age = (years: number) => (years <= 0 ? "0歳" : `${years - 1}〜${years}歳`);
+const age = (years: number) => (years < 0 ? "" : years === 0 ? "（0歳）" : `（${years - 1}〜${years}歳）`);
 
 /** The name as a passport prints it. */
 const passport = (profile: Profile) => profile.passportName.trim().toUpperCase();
@@ -150,7 +150,15 @@ export function helpCard(profile: Profile, day?: string): CardBlock[] {
     { jp: LINES.lost, zh: "我迷路了，請幫幫我。", extra: [] },
   ];
   const hotel = currentHotel(profile, day);
-  if (hotel) blocks.push({ jp: LINES.backToHotel, zh: "我想回這間飯店，請告訴我怎麼走。", extra: hotelLines(hotel) });
+  if (hotel) {
+    const name = sayableName(hotel);
+    blocks.push({
+      jp: LINES.backToHotel,
+      zh: "我想回這間飯店，請告訴我怎麼走。",
+      extra: hotelLines(hotel),
+      say: name ? `${name} に {帰|かえ}りたい です。{行|い}き{方|かた} を {教|おし}えて ください。` : undefined,
+    });
+  }
   const family = profile.contacts[0];
   if (family) blocks.push({ jp: LINES.callFamily, zh: "可以幫我打電話給家人嗎？", extra: contactLines(family, "tw") });
   if (profile.localContact.phone) {
@@ -170,13 +178,19 @@ export function hotelCard(hotel: Hotel): CardBlock {
  * English or Chinese only would be misread, so then it's "this hotel".
  */
 export function hotelSay(hotel: Hotel): Jp {
+  const name = sayableName(hotel);
+  return name ? `${name} まで お{願|ねが}い します。` : LINES.taxiToHotel;
+}
+
+/** The hotel's name as the voice can say it, or null (then it's この ホテル). */
+function sayableName(hotel: Hotel): Jp | null {
   const word = hotelWord(hotel);
   // The voice reads the text, not the ruby: with a kana reading (userWord keeps only a pure-kana one),
-  // say the reading itself.
-  if (word.includes("|")) return `${readings(word).join("")} まで お{願|ねが}い します。`;
+  // the reading itself.
+  if (word.includes("|")) return readings(word).join("");
   // Without a reading: a name in Japanese script only (ホテル Gracery 新宿 would mangle Gracery).
   const sayable = /[\u3041-\u30fa]/.test(hotel.name) && !/[A-Za-z]/.test(hotel.name);
-  return sayable && plain(word).trim() ? `${word} まで お{願|ねが}い します。` : LINES.taxiToHotel;
+  return sayable && plain(word).trim() ? word : null;
 }
 
 const JOIN = "、";
@@ -197,7 +211,8 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
   const person = [
     passport(profile) && `名前：${passport(profile)}`,
     // Only the year is known: before the birthday they are a year younger.
-    profile.birthYear && `生年：${profile.birthYear}年（${age(year - profile.birthYear)}）`,
+    // A year in the future is a typo: the year as typed, no age.
+    profile.birthYear && `生年：${profile.birthYear}年${age(year - profile.birthYear)}`,
     "国籍：台湾",
     h.bloodType && `血液型：${h.bloodType}型`,
   ].filter((line): line is string => Boolean(line));
@@ -267,8 +282,9 @@ export function allergyCard(profile: Profile): CardBlock[] | null {
     // "Also" only after the food block.
     const also = foods.length > 0;
     blocks.push({
-      jp: also ? "{次|つぎ} の もの に も アレルギー が あります。" : "{次|つぎ} の もの に アレルギー が あります。",
-      zh: `${also ? "我也對這些過敏" : "我對這些過敏"}：${other}`,
+      // Often a food (芒果): the dish must not contain it, whatever it is.
+      jp: `{次|つぎ} の もの ${also ? "に も" : "に"} アレルギー が あります。{入|はい}った {料理|りょうり} は {食|た}べられません。`,
+      zh: `${also ? "我也對這些過敏" : "我對這些過敏"}，有放的料理我不能吃：${other}`,
       extra: [`・${other}`],
     });
   }

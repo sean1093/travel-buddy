@@ -41,7 +41,7 @@ export default {
       group: "order",
       zh: "有中文菜單嗎？",
       jp: "{中国語|ちゅうごくご} の メニュー は あります か。",
-      answers: "yesNo",
+      answers: "have",
     },
     { id: "restaurant-this", group: "order", zh: "我要這個。（指著菜單）", jp: "これ を ください。" },
     { id: "restaurant-same", group: "order", zh: "我要跟那個一樣的。", jp: "あれ と {同|おな}じ もの を ください。" },
@@ -58,7 +58,7 @@ export default {
       group: "diet",
       zh: "有素食的料理嗎？",
       jp: "ベジタリアン {向|む}け の {料理|りょうり} は あります か。",
-      answers: "yesNo",
+      answers: "have",
     },
     {
       id: "restaurant-dashi",
@@ -116,7 +116,7 @@ export default {
       group: "order",
       zh: "我沒辦法用手機掃碼點餐，有紙本菜單嗎？",
       jp: "スマホ で {注文|ちゅうもん} できません。{紙|かみ} の メニュー は あります か。",
-      answers: "yesNo",
+      answers: "have",
     },
     {
       id: "restaurant-no-data",

@@ -22,7 +22,7 @@ export default {
       id: "drugstore-this-product",
       zh: "有這個商品嗎？（給對方看照片）",
       jp: "この {商品|しょうひん} は あります か。",
-      answers: "yesNo",
+      answers: "have",
     },
     {
       id: "drugstore-pharmacist",

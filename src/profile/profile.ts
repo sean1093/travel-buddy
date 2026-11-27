@@ -222,8 +222,9 @@ export function today(now = new Date()): string {
  * next one by date (before the trip: the first night's), then the last one
  * (after it), and only without any dates the first one entered. The order
  * the hotels were typed in means nothing: a printed card must be right.
- * A stay with only a check-in date runs until another stay starts (the
- * check-out isn't typed yet); one with only a check-out date covers that day.
+ * A stay with only a check-in date runs whenever no later stay covers the
+ * day (the check-out isn't typed yet); one with only a check-out date covers
+ * that day.
  */
 export function currentHotel(profile: Profile, day = today()): Hotel | null {
   const hotels = profile.hotels;
@@ -233,9 +234,9 @@ export function currentHotel(profile: Profile, day = today()): Hotel | null {
   const covers = (h: Hotel) => {
     if (!start(h) || start(h) > day) return false;
     if (h.to) return day <= h.to;
-    // Check-in only: until the next stay starts. (A night away from it can't hand back: without its
-    // check-out date there is no telling the trip went back there.)
-    return !hotels.some((other) => other !== h && start(other) > h.from && start(other) <= day);
+    // Check-in only: until another stay has started and still covers the day (a night away, then
+    // back to it; or the next hotel, to its check-out morning).
+    return !hotels.some((other) => other !== h && start(other) > h.from && start(other) <= day && (!other.to || day <= other.to));
   };
   // Of the stays covering the day, one that goes on past it (a base hotel around a night away, or
   // the stay that begins on a changeover day); then the one that started last.

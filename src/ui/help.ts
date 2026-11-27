@@ -54,7 +54,7 @@ export function renderHelp(root: HTMLElement): void {
   const blocks = helpCard(profile);
   const family = profile.contacts[0];
   const familyPhone = family ? dialable(family.phone, "tw") : null;
-  const lines = blocks.map((b) => b.jp);
+  const lines = blocks.map((b) => b.say ?? b.jp);
 
   fill(
     root,

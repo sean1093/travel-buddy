@@ -49,7 +49,7 @@ export default {
       id: "konbini-charger",
       zh: "有賣手機充電器嗎？",
       jp: "スマホ の {充電器|じゅうでんき} は あります か。",
-      answers: "yesNo",
+      answers: "have",
     },
   ],
   heard: [

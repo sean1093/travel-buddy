@@ -15,7 +15,7 @@ From user testing with five testers playing a 68-year-old first-time traveller, 
 
 ### Right hotel, right words
 - **The hotel is chosen by date:** before the trip, the first night's hotel, never the first one typed in. A card printed before the trip was showing the wrong hotel.
-- **播放 (Play) on the hotel card says the hotel's name**, not just "this hotel".
+- **播放 (Play) on the hotel card and the help card says the hotel's name** (by its reading), not just "this hotel".
 - **Help card:** the local contact is now 日本にいる知人の電話番号です (this is the number of an acquaintance in Japan); before, it read as "I am an acquaintance".
 - **Drugstore:** 〜はありますか (do you have…?) instead of the blunt 〜がほしいです (I want…).
 
