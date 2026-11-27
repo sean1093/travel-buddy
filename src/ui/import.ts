@@ -29,7 +29,7 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
   }
   // Whose is whose: one parent opening the other's link must not wipe their own card unawares.
   // Two profiles named alike would tell nothing apart: then without names.
-  const named = who(current) !== who(incoming);
+  const named = Boolean(name(current) && name(incoming)) && who(current) !== who(incoming);
   const body = named
     ? `這支手機裡已經有「${who(current)}」的資料。換成連結裡「${who(incoming)}」的資料，原本的就會被取代。`
     : "這支手機裡已經有一份資料。換成連結裡的新資料，原本的就會被取代。";
@@ -40,7 +40,8 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
 }
 
 /** How a profile is named to the person choosing: its call name, else the passport name. */
-const who = (profile: Profile) => profile.callName.trim() || profile.passportName.trim().toUpperCase() || "沒有稱呼";
+const name = (profile: Profile) => profile.callName.trim() || profile.passportName.trim().toUpperCase();
+const who = (profile: Profile) => name(profile);
 
 function done(root: HTMLElement, profile: Profile): void {
   saveProfile(profile);

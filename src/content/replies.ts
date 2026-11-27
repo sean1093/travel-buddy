@@ -85,7 +85,6 @@ export const REPLY_SETS: Record<ReplySet, Reply[]> = {
     { jp: "{南口|みなみぐち}", zh: "南口" },
     { jp: "{北口|きたぐち}", zh: "北口" },
     { jp: "{中央口|ちゅうおうぐち}", zh: "中央口" },
-    WRITE_IT,
     DONT_KNOW,
   ],
   // Do you have …? — for 〜はありますか at a shop.

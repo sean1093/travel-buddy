@@ -189,13 +189,17 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
   const meds = h.meds.filter((m) => m.ingredient.trim() || m.dose.trim());
   const conditions = presetLine(CONDITIONS, h.conditions, h.conditionsOther);
   const drugs = presetLine(DRUG_ALLERGIES, h.drugAllergies);
-  const foods = presetLine(FOOD_ALLERGIES, h.foodAllergies, h.allergyOther);
+  const foods = presetLine(FOOD_ALLERGIES, h.foodAllergies);
+  // Free text may be a drug, a food or neither (the form's example is Latex): its own line, not food's.
+  const other = h.allergyOther.trim();
   const blocks: CardBlock[] = [
     // First, before even the name: what a doctor must not miss, on the first screen at any text size.
     {
       jp: "{薬|くすり} と {食|た}べ{物|もの} の アレルギー です。",
       zh: "藥物和食物過敏。",
-      extra: [`薬のアレルギー：${drugs || NOT_FILLED}`, `食物アレルギー：${foods || NOT_FILLED}`],
+      extra: [`薬のアレルギー：${drugs || NOT_FILLED}`, `食物アレルギー：${foods || NOT_FILLED}`, other && `その他のアレルギー：${other}`].filter(
+        (line): line is string => Boolean(line),
+      ),
       alert: true,
     },
     { jp: "{私|わたし} の {医療|いりょう} {情報|じょうほう} です。", zh: "這是我的醫療資料。", extra: person },

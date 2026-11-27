@@ -51,6 +51,12 @@ describe("help card", () => {
     expect(hotelCard({ ...hotel, name: "ホテルグレイスリー新宿", kana: "" }).say).toBe("ホテルグレイスリー新宿 まで お{願|ねが}い します。");
   });
 
+  it("puts an allergy typed in 其他過敏 on its own line, not under food", () => {
+    const profile = emptyProfile();
+    profile.health.allergyOther = "Aspirin";
+    expect(medicalCard(profile)[0]?.extra).toEqual(["薬のアレルギー：未記入", "食物アレルギー：未記入", "その他のアレルギー：Aspirin"]);
+  });
+
   it("leaves an empty medicine card off the medical card", () => {
     const profile = emptyProfile();
     profile.health.meds = [{ ingredient: " ", dose: "" }];

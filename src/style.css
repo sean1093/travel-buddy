@@ -199,6 +199,17 @@ body {
   }
 }
 
+/* A phone number on one line (src/ui/lines.ts): sized to its line where cqi is known, else to the screen. */
+.fit-number {
+  font-size: min(1em, 7vw);
+}
+
+@supports (width: 1cqi) {
+  .fit-number {
+    font-size: min(1em, 8.4cqi);
+  }
+}
+
 [tabindex="-1"]:focus {
   outline: none;
 }

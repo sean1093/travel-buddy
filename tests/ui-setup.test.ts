@@ -216,6 +216,12 @@ describe("import", () => {
     expect(stored().callName).toBe("爸爸");
   });
 
+  it("doesn't name either profile when one has no name", async () => {
+    saveProfile({ ...sampleProfile(), callName: "媽媽" });
+    await render(encodeProfile({ ...sampleProfile(), callName: "", passportName: "" }));
+    expect(app().textContent).toContain("這支手機裡已經有一份資料。");
+  });
+
   it("doesn't name two profiles that are named alike", async () => {
     saveProfile({ ...sampleProfile(), callName: "", passportName: "", hotels: [] });
     await render(encodeProfile({ ...sampleProfile(), callName: "", passportName: "" }));
