@@ -259,9 +259,11 @@ export function allergyCard(profile: Profile): CardBlock[] | null {
     });
   }
   if (other) {
+    // "Also" only after the food block.
+    const also = foods.length > 0;
     blocks.push({
-      jp: "{次|つぎ} の もの に も アレルギー が あります。",
-      zh: `我也對這些過敏：${other}`,
+      jp: also ? "{次|つぎ} の もの に も アレルギー が あります。" : "{次|つぎ} の もの に アレルギー が あります。",
+      zh: `${also ? "我也對這些過敏" : "我對這些過敏"}：${other}`,
       extra: [`・${other}`],
     });
   }

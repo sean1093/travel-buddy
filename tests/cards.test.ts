@@ -57,10 +57,14 @@ describe("help card", () => {
     const profile = emptyProfile();
     profile.health.allergyOther = "Latex";
     const blocks = allergyCard(profile)!;
-    expect(plain(blocks[0]!.jp)).toBe("次のものにもアレルギーがあります。");
+    // Alone, so not "also".
+    expect(plain(blocks[0]!.jp)).toBe("次のものにアレルギーがあります。");
     expect(blocks[0]!.extra).toEqual(["・Latex"]);
     expect(blocks.map((b) => plain(b.jp)).join("")).not.toContain("食物アレルギー");
     for (const block of blocks) expect(checkJp(block.jp)).toEqual([]);
+    // After a food allergy: "also".
+    profile.health.foodAllergies = ["peanut"];
+    expect(plain(allergyCard(profile)![1]!.jp)).toBe("次のものにもアレルギーがあります。");
   });
 
   it("puts an allergy typed in 其他過敏 on its own line, not under food", () => {

@@ -70,6 +70,15 @@ describe("trip dates", () => {
     expect(currentHotel(profile, "2026-11-26")?.name).toBe(shinjuku.name);
   });
 
+  it("keeps a base hotel without a check-out date through a night away", () => {
+    const profile = sampleProfile();
+    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
+    profile.hotels = [{ ...shinjuku, from: "2026-11-01", to: "" }, { ...kyoto, from: "2026-11-03", to: "2026-11-04" }];
+    expect(currentHotel(profile, "2026-11-03")?.name).toBe(kyoto.name);
+    expect(currentHotel(profile, "2026-11-04")?.name).toBe(shinjuku.name);
+    expect(currentHotel(profile, "2026-11-05")?.name).toBe(shinjuku.name);
+  });
+
   it("keeps the base hotel on the day a night away ends", () => {
     const profile = sampleProfile();
     const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];

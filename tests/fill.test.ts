@@ -127,7 +127,7 @@ describe("repliesFor", () => {
     for (const name of ["yesNo", "borrow", "medicineOk", "have"] as const) expect(repliesFor(name), name).not.toContainEqual(WRITE_IT);
   });
 
-  it("lists platforms 1 to 27 with their readings (Shin-Osaka's Shinkansen go to 27)", () => {
+  it("lists platforms 1 to 27 with their readings", () => {
     const platforms = repliesFor("platform");
     expect(platforms).toHaveLength(29);
     expect(platforms[0]).toEqual({ jp: "{1番線|いちばんせん}", zh: "1 號月台" });

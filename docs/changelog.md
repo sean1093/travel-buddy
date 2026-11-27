@@ -20,7 +20,7 @@ From user testing with five testers playing a 68-year-old first-time traveller, 
 - **Drugstore:** 〜はありますか (do you have…?) instead of the blunt 〜がほしいです (I want…).
 
 ### 給對方點選 (Let them tap)
-- **Platforms up to 27 (the Shinkansen platforms at Tokyo and Shin-Osaka);** 紙に書きます (I'll write it on paper) in every list of places, times and numbers, and in a long list it and わかりません (I don't know) come first.
+- **Platforms up to 27;** 紙に書きます (I'll write it on paper) in every list of places, times and numbers, and in a long list it and わかりません (I don't know) come first.
 - **Answers that fit the question:**
   - May I use the toilet? どうぞ／お貸しできません／トイレはありません (go ahead / sorry, you can't / there's no toilet).
   - Is this medicine OK with my allergy? 飲んでも大丈夫です／飲まないでください／薬剤師に確認します (it's fine / don't take it / I'll ask the pharmacist).
