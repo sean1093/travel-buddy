@@ -39,8 +39,15 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
   ]);
 }
 
-/** How a profile is named to the person choosing: its call name, else the passport name. */
-const name = (profile: Profile) => profile.callName.trim() || profile.passportName.trim().toUpperCase();
+/**
+ * How a profile is named to the person choosing: call name and passport name, so two 阿嬤 are
+ * told apart (阿嬤（LIN MEI-HUA）), else whichever there is.
+ */
+const name = (profile: Profile) => {
+  const call = profile.callName.trim();
+  const passport = profile.passportName.trim().toUpperCase();
+  return call && passport ? `${call}（${passport}）` : call || passport;
+};
 
 function done(root: HTMLElement, profile: Profile): void {
   saveProfile(profile);

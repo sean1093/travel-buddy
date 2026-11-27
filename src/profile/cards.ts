@@ -35,7 +35,10 @@ export interface CardBlock {
   extra: Line[];
   /** What a doctor must not miss (allergies): shown in the alert colour. */
   alert?: boolean;
-  /** What 播放 says, when it is more than `jp` (the hotel's name after "this hotel"). */
+  /**
+   * What 播放 says, when it is more than `jp`: the hotel by name, where the card shows この ホテル
+   * with the name in large type right under it. Audio only, so the card isn't the name twice.
+   */
   say?: Jp;
 }
 

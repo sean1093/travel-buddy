@@ -330,6 +330,10 @@ describe("medical", () => {
     expect(prompt.textContent).toContain("還沒有過敏卡");
     await new Promise((resolve) => requestAnimationFrame(resolve));
     expect(document.activeElement).toBe(prompt);
+    // With only a drug allergy: it's on the medical card.
+    saveProfile({ callName: "雅婷", health: { ...sampleProfile().health, foodAllergies: [], allergyOther: "", diets: [] } });
+    (await import("../src/ui/medical")).renderMedical(app(), ["allergy"]);
+    expect(app().querySelector("a.allergy-missing")?.textContent).toContain("藥物過敏在下面的醫療卡上");
     // Not on the plain medical page.
     (await import("../src/ui/medical")).renderMedical(app(), []);
     expect(app().querySelector("a.allergy-missing")).toBeNull();

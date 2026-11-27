@@ -206,7 +206,7 @@ describe("import", () => {
   it("names whose data is on the phone and whose is in the link before replacing it", async () => {
     saveProfile({ ...sampleProfile(), callName: "媽媽" });
     await render(encodeProfile({ ...sampleProfile(), callName: "爸爸" }));
-    expect(app().textContent).toContain("這支手機裡已經有「媽媽」的資料。換成連結裡「爸爸」的資料");
+    expect(app().textContent).toContain("這支手機裡已經有「媽媽（LIN MEI-HUA）」的資料。換成連結裡「爸爸（LIN MEI-HUA）」的資料");
     // Nothing saved yet: going back from here must not land on 設定完成, and 保留原本的 (a link
     // to #/) must still go somewhere.
     expect(location.hash).toBe("#/import");
@@ -214,6 +214,12 @@ describe("import", () => {
     [...app().querySelectorAll("button")].find((b) => b.textContent === "換成新的")!.click();
     expect(location.hash).toBe("#/imported");
     expect(stored().callName).toBe("爸爸");
+  });
+
+  it("tells two people with the same call name apart by their passport names", async () => {
+    saveProfile({ ...sampleProfile(), callName: "阿嬤", passportName: "LIN MEI-HUA" });
+    await render(encodeProfile({ ...sampleProfile(), callName: "阿嬤", passportName: "CHEN YU-LAN" }));
+    expect(app().textContent).toContain("「阿嬤（LIN MEI-HUA）」的資料。換成連結裡「阿嬤（CHEN YU-LAN）」的資料");
   });
 
   it("doesn't name either profile when one has no name", async () => {

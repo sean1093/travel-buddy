@@ -129,7 +129,10 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
       h(
         "a",
         { href: "#/setup", class: "allergy-missing mt-2 block rounded-2xl bg-warn-soft p-4 text-lg" },
-        "還沒有過敏卡。按這裡在設定資料填過敏或飲食習慣（例如蛋奶素），就會產生給餐廳看的日文過敏卡。",
+        // Drug allergies go on the medical card, not the restaurant's: say so, or they'd look lost.
+        profile.health.drugAllergies.length > 0
+          ? "還沒有給餐廳看的過敏卡：藥物過敏在下面的醫療卡上。按這裡在設定資料填食物過敏或飲食習慣（例如蛋奶素），就會產生過敏卡。"
+          : "還沒有過敏卡。按這裡在設定資料填過敏或飲食習慣（例如蛋奶素），就會產生給餐廳看的日文過敏卡。",
       ),
     section("哪裡不舒服？點選症狀", symptomPicker()),
     allergy && section("過敏卡（給餐廳看）", cardWithActions(allergy, "過敏卡")),

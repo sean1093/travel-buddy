@@ -244,19 +244,18 @@ function rescueDock(): HTMLElement[] {
 }
 
 /**
- * Japanese sentences put particles after their words (エレベーターは、改札を) and write
- * in hiragana. Chinese has no particle after a word, even with a katakana word
- * (エレベーター在右邊) or a place name in kana (在「みなとみらい」站); a stylish の
- * doesn't count.
+ * Characters a Japanese note never has: Traditional Chinese forms (號, 邊, 樓…), Chinese
+ * function words (在, 的, 是…) and 電梯 (Japanese says エレベーター).
+ */
+const CHINESE_ONLY = /[號邊樓這裡個們說會對從與還點為嗎呢臺灣站在的是到往跟和了]|電梯/;
+
+/**
+ * A note is Japanese when it has kana (a stylish の alone doesn't count) and nothing only
+ * Chinese has: エレベーターは改札内 is; エレベーター在右邊 and みなとみらい站3號出口 are not.
  */
 export function looksJapanese(text: string): boolean {
-  const particles = text.match(/[\u4e00-\u9fff\u30a1-\u30fa\u30fc0-9A-Za-z][はをへがにで]/g) ?? [];
-  const hiragana = (text.match(/[\u3041-\u3096]/g) ?? []).filter((c) => c !== "の");
-  // A short note (エレベーターは改札内, エレベーターあり) has little of either: Japanese unless it
-  // has Chinese function words.
-  const chinese = /[在的是到從往跟與和嗎了個]/.test(text);
-  if (particles.length >= 1 && hiragana.length >= 2) return true;
-  return !chinese && (particles.length >= 1 || hiragana.length >= 2);
+  const kana = (text.match(/[\u3041-\u3096\u30a1-\u30fa]/g) ?? []).filter((c) => c !== "の");
+  return kana.length > 0 && !CHINESE_ONLY.test(text);
 }
 
 /** The picked station's 電梯筆記, ready to enlarge for station staff. */
