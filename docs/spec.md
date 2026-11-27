@@ -42,7 +42,7 @@ Design baseline:
 | Section | Fields | Used in |
 |---|---|---|
 | Traveller | Name to call them by, passport name in English, birth year | Home greeting (「媽媽，旅途平安」, "Mom, have a safe trip"), help card, medical card |
-| Hotels (multiple allowed) | Japanese name, reading, address, phone, check-in to check-out date | The "current hotel" is chosen from today's date; if no dates match, the first one is used |
+| Hotels (multiple allowed) | Japanese name, reading, address, phone, check-in to check-out date | The "current hotel" is chosen from today's date: the stay covering today (on a changeover day the new one), else the next one (before the trip: the first night's), else the last one. Only with no dates at all is the first one entered used |
 | Daily plans (multiple allowed) | Type (station / place), Japanese name, reading, Chinese name, date, elevator notes | Station slot in transport phrases; 「今天要去」 (Going today) on the home page |
 | Contacts | Family (relationship, name, phone; multiple allowed, the first is primary), local contact in Japan | Help card, one-tap calling |
 | Health | Chronic conditions (checkboxes + free text), regular medications (active ingredient + dose), blood type | Medical card |
@@ -55,9 +55,9 @@ Design baseline:
 
 **When the traveller opens the link**:
 
-1. Decode and validate. On failure → 「這個連結好像不完整，請重新傳一次」 ("This link seems incomplete. Please send it again.").
-2. If different data is already stored on the device → 「要換成新的資料嗎？」 ("Replace with the new data?") (換新的 Replace / 保留原本的 Keep existing).
-3. Save to localStorage and change the URL to `#/imported` (so no data stays in the address bar or bookmarks).
+1. Decode and validate, and change the URL to `#/import` at once (so no data stays in the address bar, history or bookmarks; a reload of it shows home). On failure → 「這個連結好像不完整，請重新傳一次」 ("This link seems incomplete. Please send it again.").
+2. If different data is already stored on the device → 「要換成新的資料嗎？」 ("Replace with the new data?"), naming whose data is on the phone and whose is in the link (換成新的 Replace / 保留原本的 Keep existing).
+3. Save to localStorage and change the URL to `#/imported`.
 4. Show 「設定完成」 ("Setup complete"): from now on, just open the site; no need to tap the link again.
 
 ### 2.2 我需要幫忙 (I need help) (`#/help`)

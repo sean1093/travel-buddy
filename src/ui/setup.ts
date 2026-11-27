@@ -136,11 +136,12 @@ function listEditor<T>(options: {
       options.items.map((item, i) =>
         h(
           "div",
-          { class: CARD },
+          // A group per card: its fields read "藥 2, 成分名稱（英文）", not the same name on every card.
+          { class: CARD, role: "group", "aria-label": `${options.noun} ${i + 1}` },
           h(
             "div",
             { class: "flex items-center justify-between" },
-            h("p", { class: "text-lg font-bold text-muted" }, `${options.noun} ${i + 1}`),
+            h("p", { class: "text-lg font-bold text-muted", "aria-hidden": "true" }, `${options.noun} ${i + 1}`),
             h(
               "button",
               {
@@ -212,9 +213,10 @@ function hotelRow(hotel: Hotel, save: () => void): HTMLElement[] {
       placeholder: "例：東京都新宿区歌舞伎町1-19-1",
     }),
     field("飯店電話", hotel.phone, (v) => ((hotel.phone = v), save()), { type: "tel", placeholder: "例：03-1234-5678" }),
+    // Side by side only when there is room: at phone width a date field shows "/2026" and cuts the rest.
     h(
       "div",
-      { class: "grid grid-cols-2 gap-3" },
+      { class: "grid grid-cols-1 gap-3 min-[480px]:grid-cols-2" },
       field("入住日", hotel.from, (v) => ((hotel.from = v), save()), { type: "date" }),
       field("退房日", hotel.to, (v) => ((hotel.to = v), save()), { type: "date" }),
     ),
@@ -297,7 +299,11 @@ function medRow(med: Med, save: () => void): HTMLElement[] {
       placeholder: "例：Amlodipine",
       hint: "藥袋或藥盒上的英文成分名，日本醫師看得懂；不要寫商品名。",
     }),
-    field("劑量與次數", med.dose, (v) => ((med.dose = v), save()), { placeholder: "例：5mg，一天一次" }),
+    // Shown as typed on the Japanese medical card: English, which Japanese doctors read, not Chinese.
+    field("劑量與次數（英文）", med.dose, (v) => ((med.dose = v), save()), {
+      placeholder: "例：5mg, once a day",
+      hint: "請寫英文和數字，例如 twice a day；醫療卡上會照原樣給日本醫師看。",
+    }),
   ];
 }
 

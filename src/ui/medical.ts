@@ -36,6 +36,8 @@ function cardWithActions(blocks: CardBlock[], label: string): HTMLElement {
         },
         icon("expand"),
         "給對方看",
+        // Two of these on the page: say which card each one shows.
+        h("span", { class: "sr-only" }, `（${label}）`),
       ),
     ),
     blocks.map((block) => cardBlock(block, "text-2xl")),
@@ -120,11 +122,26 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
         { href: "#/setup", class: "mt-2 block rounded-2xl bg-ai-soft p-4 text-lg" },
         "還沒有填健康資料。按這裡填慢性病、常吃的藥和過敏，醫療卡和過敏卡就會自動產生。症狀卡現在就能用。",
       ),
+    // From 打開過敏卡 (a restaurant phrase) with no allergy card yet: say so, and how to make one.
+    target === "allergy" &&
+      !allergy &&
+      !isEmpty(profile) &&
+      h(
+        "a",
+        { href: "#/setup", class: "allergy-missing mt-2 block rounded-2xl bg-warn-soft p-4 text-lg" },
+        // Drug allergies go on the medical card, not the restaurant's: say so, or they'd look lost.
+        profile.health.drugAllergies.length > 0
+          ? "還沒有給餐廳看的過敏卡：藥物過敏在下面的醫療卡上。按這裡在設定資料填食物過敏或飲食習慣（例如蛋奶素），就會產生過敏卡。"
+          : "還沒有過敏卡。按這裡在設定資料填過敏或飲食習慣（例如蛋奶素），就會產生給餐廳看的日文過敏卡。",
+      ),
     section("哪裡不舒服？點選症狀", symptomPicker()),
     allergy && section("過敏卡（給餐廳看）", cardWithActions(allergy, "過敏卡")),
     section("醫療卡（給醫生、救護人員看）", cardWithActions(medicalCard(profile), "醫療卡")),
     section("常用句", rowGroup(phrases.map((p) => phraseRow(p, { jp: p.jp, zh: p.zh }, "醫療・過敏")))),
   ]);
+  // 打開過敏卡 with no allergy card: start on the notice that says so (a screen reader hears it first).
+  const missing = root.querySelector<HTMLElement>("a.allergy-missing");
+  if (missing) requestAnimationFrame(() => missing.focus());
   const start = Object.hasOwn(TARGETS, target) ? TARGETS[target] : undefined;
   // Only to a card with something on it: otherwise the symptom cards at the top help more.
   // What the medical card (profile/cards.ts) shows beyond its fixed lines. The allergy card: `allergy`.
@@ -135,7 +152,7 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
     profile.birthYear,
     health.bloodType,
     health.conditions.length || health.conditionsOther.trim(),
-    health.meds.length,
+    health.meds.some((m) => m.ingredient.trim() || m.dose.trim()),
     health.drugAllergies.length || health.foodAllergies.length || health.allergyOther.trim(),
     profile.contacts[0]?.name.trim() || profile.contacts[0]?.phone.trim() || profile.contacts[0]?.relation.trim(),
     ins.company.trim() || ins.policy.trim() || ins.phone.trim(),

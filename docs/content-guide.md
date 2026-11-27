@@ -54,13 +54,16 @@ A phrase with a slot must have `fallback` and `fallbackZh`. When there is no dat
 | Answer set | Contents |
 |---|---|
 | `yesNo` | Yes, no |
-| `platform` | Platforms 1–14 |
+| `have` | We have it, we don't, it's over here (for 〜はありますか, do you have…?) |
+| `borrow` | Go ahead, sorry you can't, there's no toilet (for トイレを借りてもいいですか, may I use the toilet?) |
+| `medicineOk` | It's fine to take, please don't take it, I'll check with the pharmacist |
+| `platform` | Platforms 1–27 |
 | `direction` | Right, left, straight on, behind, upstairs, downstairs, right here |
 | `time` | Right away, about 5/10/30 minutes, about 1 hour |
 | `place` | Nearby, far, inside the station, outside the station, there isn't one |
-| `exit` | East exit, west exit, south exit, north exit, central exit, they write it for you |
+| `exit` | East exit, west exit, south exit, north exit, central exit |
 
-Every set ends with 「不知道」 (I don't know).
+Every set ends with 「不知道」 (I don't know), except `borrow`: a clerk always knows whether the toilet can be used. The open sets (`platform`, `direction`, `time`, `place`, `exit`) also get 「紙に書きます」 (I'll write it on paper) just before it, added by `repliesFor`: an answer the list lacks can still be given. Don't add it to them by hand.
 
 Custom answer sets need at least 2 answers. End with 「不知道」 (I don't know) or 「寫在紙上」 (write it on paper) so the other person has a way out.
 

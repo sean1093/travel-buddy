@@ -25,6 +25,8 @@ const VARIANTS: Variant[] = [
   { name: "phone", viewport: { width: 390, height: 844 } },
   { name: "narrow", viewport: { width: 320, height: 640 } },
   { name: "xlarge", viewport: { width: 390, height: 844 }, settings: { textSize: "xlarge" } },
+  // The narrowest phone at 特大: where long numbers and labels are tightest.
+  { name: "narrow-xlarge", viewport: { width: 320, height: 640 }, settings: { textSize: "xlarge" } },
   // The most common Android width, at 特大: where half-width buttons are tightest.
   { name: "xlarge-360", viewport: { width: 360, height: 780 }, settings: { textSize: "xlarge" } },
   { name: "dark", viewport: { width: 390, height: 844 }, settings: { theme: "dark" } },

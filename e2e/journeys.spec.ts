@@ -69,7 +69,8 @@ test("konbini heard tab: a reply opens 我的回答 in Japanese", async ({ page,
   await card.getByRole("button", { name: "不用" }).click();
   const answer = page.getByRole("dialog", { name: "我的回答" });
   await expect(answer).toBeVisible();
-  await expect(answer.locator('[lang="ja"]').first()).toHaveText("いいえ、大丈夫です。");
+  // The card's Japanese, below the bar (whose hint, こちらをご覧ください, is Japanese too).
+  await expect(answer.locator('.overflow-y-auto [lang="ja"]').first()).toHaveText("いいえ、大丈夫です。");
   await expect(answer).toContainText("不用");
 });
 
@@ -207,3 +208,75 @@ for (const theme of ["light", "dark"] as const) {
     expect(meta).toBe(background);
   });
 }
+
+test.describe("found in user testing", () => {
+  test("medical card for a doctor: allergies on the first screen, a cue while more is below", async ({ page, seed }) => {
+    await seed({ profile: SAMPLE_PROFILE, textSize: "xlarge" });
+    await page.goto("#/medical/card");
+    await page.getByRole("button", { name: /^給對方看\s*（醫療卡）$/ }).click();
+    const dialog = page.getByRole("dialog", { name: "醫療卡" });
+    await expect(dialog.getByText("薬のアレルギー：ペニシリン")).toBeInViewport();
+    const cue = dialog.getByText("下に続きます");
+    await expect(cue).toBeVisible();
+    // Scrolled to the end, the cue goes.
+    await dialog.locator(".overflow-y-auto").evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    await expect(cue).toBeHidden();
+  });
+
+  test.describe("sideways", () => {
+    test.use({ viewport: { width: 844, height: 390 } });
+
+    test("給對方點選: answers start on the first screen", async ({ page, seed }) => {
+      await seed({ profile: SAMPLE_PROFILE });
+      await page.goto("#/scene/transport");
+      await page.getByRole("button", { name: /幾號月台/ }).first().click();
+      await page.getByRole("button", { name: "給對方點選答案" }).click();
+      await expect(page.getByRole("dialog", { name: "給對方點選" }).getByRole("button", { name: "1番線", exact: true })).toBeInViewport();
+    });
+  });
+
+  test.describe("zoomed to 200% (195 px wide) at 特大", () => {
+    test.use({ viewport: { width: 195, height: 422 } });
+
+    test("the phrase page scrolls to its Japanese and to 給對方看", async ({ page, seed }) => {
+      await seed({ profile: SAMPLE_PROFILE, textSize: "xlarge" });
+      await page.goto("#/scene/transport");
+      await page.getByRole("button", { name: /這班車有停/ }).first().click();
+      const dialog = page.getByRole("dialog");
+      for (const target of [dialog.locator('.phrase-scroll [lang="ja"]').first(), dialog.getByRole("button", { name: "給對方看", exact: true })]) {
+        await target.scrollIntoViewIfNeeded();
+        await expect(target).toBeInViewport();
+      }
+    });
+  });
+
+  test("print: a card too long even folded is named in a warning, never cut off silently", async ({ page, seed }) => {
+    const health = SAMPLE_PROFILE.health as Record<string, unknown>;
+    const meds = Array.from({ length: 12 }, (_, i) => ({ ingredient: `Medicine number ${i + 1} long name`, dose: "500mg, twice a day after meals" }));
+    await seed({ profile: { ...SAMPLE_PROFILE, health: { ...health, meds } } });
+    await page.goto("#/print");
+    const clipped = await page.locator(".wallet-card").evaluateAll((cards) =>
+      cards.filter((c) => c.scrollHeight > c.clientHeight + 1).map((c) => c.querySelector(".wallet-title")?.textContent),
+    );
+    expect(clipped).toContain("醫療卡");
+    await expect(page.locator(".print-too-long")).toBeVisible();
+    await expect(page.locator(".print-too-long")).toContainText("「醫療卡」內容太多");
+  });
+
+  test("print: the sample trip fits, with no warning", async ({ page, seed }) => {
+    await seed({ profile: SAMPLE_PROFILE });
+    await page.goto("#/print");
+    await expect(page.locator(".wallet-card").first()).toBeVisible();
+    await expect(page.locator(".print-too-long")).toBeHidden();
+  });
+
+  test("setup: check-in and check-out stack at phone width, so the whole date shows", async ({ page, seed }) => {
+    await seed({ profile: SAMPLE_PROFILE });
+    await page.goto("#/setup");
+    await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
+    const from = await page.getByLabel("入住日").first().boundingBox();
+    const to = await page.getByLabel("退房日").first().boundingBox();
+    expect(to!.y).toBeGreaterThan(from!.y + from!.height - 1);
+    expect(from!.width).toBeGreaterThan(250);
+  });
+});

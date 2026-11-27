@@ -1,6 +1,7 @@
 import { GUIDES, guideById } from "../content/guides";
+import { sceneById } from "../content/scenes";
 import { TOOLS } from "../content/tools";
-import { h, icon } from "./dom";
+import { BUTTON, h, icon } from "./dom";
 import { heading, page, section } from "./layout";
 
 function row(href: string, title: string, summary: string): HTMLElement {
@@ -81,6 +82,14 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
     location.replace("#/");
     return;
   }
+  const scene = sceneById(guide.scene);
+  // Every source, each a link; a site cited twice is told apart by number (www.mlit.go.jp 2).
+  const sources = guide.sources.map((url, i, all) => {
+    const host = new URL(url).hostname;
+    const same = all.filter((other) => new URL(other).hostname === host).length;
+    const before = all.slice(0, i).filter((other) => new URL(other).hostname === host).length;
+    return { url, label: same > 1 ? `${host} ${before + 1}` : host };
+  });
   // The heading says 旅遊小抄; the tab and history name the guide itself.
   page(root, "旅遊小抄", [
     h("h2", { class: "mt-2 text-2xl font-bold leading-snug" }, guide.title),
@@ -113,12 +122,25 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
         heading("注意", "shu"),
         h("ul", { class: "list-disc space-y-2 pl-6 text-lg leading-relaxed" }, guide.notes.map((note) => h("li", null, note))),
       ),
+    // The Japanese to say it, a tap away (the guide tells what to do; the scene says it).
+    scene &&
+      h(
+        "a",
+        { href: `#/scene/${scene.id}`, class: `${BUTTON.soft} mt-6` },
+        icon("next", "h-6 w-6 shrink-0"),
+        `用日文說：打開「${scene.title}」情境`,
+      ),
     section(
       null,
+      h("p", { class: "text-base text-muted" }, `查證日期：${guide.verified}。規定可能會改，以現場人員的說明為準。`),
+      h("p", { class: "mt-1 text-base text-muted" }, "資料來源："),
+      // Each a full-height target.
       h(
-        "p",
-        { class: "text-base text-muted" },
-        `查證日期：${guide.verified}。來源：${guide.sources.map((url) => new URL(url).hostname).join("、")}。規定可能會改，以現場人員的說明為準。`,
+        "ul",
+        { class: "flex flex-wrap gap-x-4" },
+        sources.map(({ url, label }) =>
+          h("li", null, h("a", { href: url, target: "_blank", rel: "noopener", class: "inline-flex min-h-11 items-center text-base text-ai underline" }, label)),
+        ),
       ),
     ),
   ], { docTitle: guide.title });

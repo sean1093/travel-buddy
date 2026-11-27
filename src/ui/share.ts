@@ -109,6 +109,8 @@ export function renderShare(root: HTMLElement): void {
           h("li", null, "打開連結後資料就存在旅客的手機裡，之後直接開網站就好，沒有網路也能用。"),
           h("li", null, "資料有改的話，這裡會產生新的連結，請重新傳一次。"),
           h("li", null, "也可以印一份護貝小卡帶著，手機沒電也不怕。"),
+          // One traveller per phone: how to do the second one.
+          h("li", null, "要幫第二位家人設定：先把這一份傳出去，再到「設定資料」最下面按「清除所有資料」，重新填另一位。已經傳出去的連結不受影響。"),
         ),
         h("a", { href: "#/print", class: `${BUTTON.secondary} mt-4` }, icon("print"), "列印護貝小卡"),
       ),

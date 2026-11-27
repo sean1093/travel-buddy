@@ -1,15 +1,15 @@
 import { japaneseVoices, voiceStatus } from "../lib/speech";
 import { settings, saveSettings, type TextSize, type Theme } from "../state";
-import { h } from "./dom";
+import { h, radioKeys } from "./dom";
 import { playButton } from "./japanese";
 import { page, section } from "./layout";
 import { voiceHelp } from "./voice-help";
 
-/** Big buttons for one choice; the chosen one is filled. */
-function choice<T extends string>(options: [T, string][], current: T, pick: (value: T) => void): HTMLElement {
-  return h(
+/** Big buttons for one choice, named `name`; the chosen one is filled. One Tab stop, arrows choose. */
+function choice<T extends string>(name: string, options: [T, string][], current: T, pick: (value: T) => void): HTMLElement {
+  const group = h(
     "div",
-    { class: `grid gap-3 ${options.length > 2 ? "grid-cols-3" : "grid-cols-2"}`, role: "radiogroup" },
+    { class: `grid gap-3 ${options.length > 2 ? "grid-cols-3" : "grid-cols-2"}`, role: "radiogroup", "aria-label": name },
     options.map(([value, label]) =>
       h(
         "button",
@@ -26,16 +26,22 @@ function choice<T extends string>(options: [T, string][], current: T, pick: (val
       ),
     ),
   );
+  return radioKeys(group);
 }
 
 export function renderSettings(root: HTMLElement): void {
-  const rerender = () => renderSettings(root);
+  // Applying a size or theme redraws the page: keep focus on the choice just made, not on <body>.
+  const rerender = (group: string) => {
+    renderSettings(root);
+    root.querySelector<HTMLElement>(`[role="radiogroup"][aria-label="${group}"] [aria-checked="true"]`)?.focus({ preventScroll: true });
+  };
   const voices = japaneseVoices();
   const status = voiceStatus();
   page(root, "字體與聲音", [
     section(
       "字體大小",
       choice<TextSize>(
+        "字體大小",
         [
           ["large", "大"],
           ["xlarge", "特大"],
@@ -44,13 +50,14 @@ export function renderSettings(root: HTMLElement): void {
         (value) => {
           settings.textSize = value;
           saveSettings();
-          rerender();
+          rerender("字體大小");
         },
       ),
     ),
     section(
       "顏色",
       choice<Theme>(
+        "顏色",
         [
           ["system", "跟手機"],
           ["light", "淺色"],
@@ -60,7 +67,7 @@ export function renderSettings(root: HTMLElement): void {
         (value) => {
           settings.theme = value;
           saveSettings();
-          rerender();
+          rerender("顏色");
         },
       ),
     ),

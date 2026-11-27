@@ -11,8 +11,11 @@ import { setTitle } from "./layout";
  */
 export function renderImport(root: HTMLElement, [payload = ""]: string[]): void {
   const incoming = decodeProfile(payload);
-  // The path alone: a query the link carried (?openExternalBrowser=1 for LINE) goes too.
-  history.replaceState(null, "", `${location.pathname}#/imported`);
+  // The path alone: a query the link carried (?openExternalBrowser=1 for LINE) goes too. Not
+  // #/imported until something is saved (done()), so going back after 保留原本的 doesn't say
+  // 設定完成; and not #/ either, or 保留原本的 and 回首頁 (links to #/) would change nothing.
+  // #/import is no page: a reload of it shows home.
+  history.replaceState(null, "", `${location.pathname}#/import`);
   if (!incoming) {
     screen(root, "alert", "這個連結好像不完整", "請重新傳一次連結，或重新掃一次 QR code。", [
       h("a", { href: "#/", class: BUTTON.primary }, "回首頁"),
@@ -24,16 +27,33 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
     done(root, incoming);
     return;
   }
-  screen(root, "swap", "要換成新的資料嗎？", "這支手機裡已經有一份資料。換成連結裡的新資料，舊的就會被取代。", [
+  // Whose is whose: one parent opening the other's link must not wipe their own card unawares.
+  // Two profiles named alike would tell nothing apart: then without names.
+  const named = Boolean(name(current) && name(incoming)) && name(current) !== name(incoming);
+  const body = named
+    ? `這支手機裡已經有「${name(current)}」的資料。換成連結裡「${name(incoming)}」的資料，原本的就會被取代。`
+    : "這支手機裡已經有一份資料。換成連結裡的新資料，原本的就會被取代。";
+  screen(root, "swap", "要換成新的資料嗎？", body, [
     h("button", { type: "button", class: BUTTON.primary, onclick: () => done(root, incoming) }, icon("check"), "換成新的"),
     h("a", { href: "#/", class: BUTTON.secondary }, "保留原本的"),
   ]);
 }
 
+/**
+ * How a profile is named to the person choosing: call name and passport name, so two 阿嬤 are
+ * told apart (阿嬤（LIN MEI-HUA）), else whichever there is.
+ */
+const name = (profile: Profile) => {
+  const call = profile.callName.trim();
+  const passport = profile.passportName.trim().toUpperCase();
+  return call && passport ? `${call}（${passport}）` : call || passport;
+};
+
 function done(root: HTMLElement, profile: Profile): void {
   saveProfile(profile);
-  const name = profile.callName ? `${profile.callName}，` : "";
-  screen(root, "checkcircle", "設定完成", `${name}之後直接打開這個網站就好，不用再點連結。沒有網路也能用。`, [
+  history.replaceState(null, "", `${location.pathname}#/imported`);
+  const greeting = profile.callName ? `${profile.callName}，` : "";
+  screen(root, "checkcircle", "設定完成", `${greeting}之後直接打開這個網站就好，不用再點連結。沒有網路也能用。`, [
     ...(homeScreenSharesStorage() ? [h("p", { class: "text-lg leading-relaxed text-muted" }, HOME_SCREEN_TIP)] : []),
     // Asked on a deliberate tap, not as the screen opens: Firefox shows a prompt for it.
     h("a", { href: "#/", class: BUTTON.primary, onclick: keepStorage }, "開始使用"),

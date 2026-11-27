@@ -2,6 +2,47 @@
 
 Newest first. Every item goes through the "issue → development → PR → review → testing → merge" process. The PR links have the full changes and how they were verified.
 
+## 2026-11-26
+
+From user testing with five testers playing a 68-year-old first-time traveller, a son setting it up for his parents, an independent traveller, a screen-reader user, and the Japanese staff on the other side of the phone (issues #53–#64).
+
+### Medical card
+- **未記入 (not filled in), never なし (none), for an empty line:** setup has no way to say "none", and a card with only a name filled in used to tell a doctor "no allergies".
+- **Allergies first**, in the alert colour, on the first screen at any text size; age shown as a range, since only the birth year is known.
+- **給對方看 (Show them) says when there is more below** (下に続きます／下面還有, continued below), and its bar speaks Japanese (こちらをご覧ください, please look at this).
+- **On the card in Japanese:** relations (女兒 → 娘（女兒）, daughter, with the typed word kept for the traveller), passport names in capitals, and the setup form asks for doses in English.
+- **其他過敏 (other allergies) on its own line**, その他のアレルギー (other allergies): it may be a drug (aspirin) or neither (latex), not a food.
+
+### Right hotel, right words
+- **The hotel is chosen by date:** before the trip, the first night's hotel, never the first one typed in. A card printed before the trip was showing the wrong hotel.
+- **播放 (Play) on the hotel card and the help card says the hotel's name** (by its reading), not just "this hotel".
+- **Help card:** the local contact is now 日本にいる知人の電話番号です (this is the number of an acquaintance in Japan); before, it read as "I am an acquaintance".
+- **Drugstore:** 〜はありますか (do you have…?) instead of the blunt 〜がほしいです (I want…).
+
+### 給對方點選 (Let them tap)
+- **Platforms up to 27;** 紙に書きます (I'll write it on paper) in every list of places, times and numbers, and in a long list it and わかりません (I don't know) come first.
+- **Answers that fit the question:**
+  - May I use the toilet? どうぞ／お貸しできません／トイレはありません (go ahead / sorry, you can't / there's no toilet).
+  - Is this medicine OK with my allergy? 飲んでも大丈夫です／飲まないでください／薬剤師に確認します (it's fine / don't take it / I'll ask the pharmacist).
+- **After the tap:** ありがとうございました。スマホを持ち主にお返しください。 (Thank you. Please hand the phone back to its owner.)
+- **Sideways:** the answers start on the first screen.
+
+### Reading and zoom
+- **Japanese breaks between phrases**, not inside words (ホテルグレイスリー新／宿). TEL and the 010 number stay on one line with their numbers; dates never split.
+- **At large zoom:** the phrase page scrolls to its Japanese and to 給對方看, and the top bar no longer squeezes its Japanese into one column.
+
+### Keyboard and screen readers
+- **Settings:** choosing a text size or theme keeps focus on the choice; each group is named, and the arrow keys move the choice.
+- **Setup:** each card's fields are grouped under its name (藥 2, medicine 2). The two 給對方看 on the medical page say which card they show. Lift notes in Japanese are read in Japanese.
+
+### Dead ends and family setup
+- **打開過敏卡 (Open allergy card) without an allergy card** says so, and links to setup.
+- **Guides link their scene,** e.g. Shinkansen luggage → 行李 (Luggage); sources are links, one per site.
+- **Import:** before replacing data, the screen names both (這支手機裡已經有「媽媽」的資料… — this phone already has 媽媽's data…). Going back after 保留原本的 (Keep the original) no longer says 設定完成 (Setup complete).
+- **Share tips** explain how to set up a second family member.
+- **Hotel dates** stack at phone width, so the whole date shows.
+- **Printing:** a card too long even folded is named in a warning on the print page, instead of being cut off without a word.
+
 ## 2026-11-23
 
 From an expert panel review (UX for older travellers, Japanese content, accessibility, offline engineering, product), debated and narrowed to the changes below.

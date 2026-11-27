@@ -322,6 +322,30 @@ describe("medical", () => {
     expect(document.activeElement?.textContent).toBe("醫療卡（給醫生、救護人員看）");
   });
 
+  it("says there is no allergy card yet, and how to make one, when 打開過敏卡 finds none", async () => {
+    saveProfile({ callName: "雅婷" });
+    (await import("../src/ui/medical")).renderMedical(app(), ["allergy"]);
+    const prompt = app().querySelector<HTMLAnchorElement>("a.allergy-missing")!;
+    expect(prompt.getAttribute("href")).toBe("#/setup");
+    expect(prompt.textContent).toContain("還沒有過敏卡");
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement).toBe(prompt);
+    // With only a drug allergy: it's on the medical card.
+    saveProfile({ callName: "雅婷", health: { ...sampleProfile().health, foodAllergies: [], allergyOther: "", diets: [] } });
+    (await import("../src/ui/medical")).renderMedical(app(), ["allergy"]);
+    expect(app().querySelector("a.allergy-missing")?.textContent).toContain("藥物過敏在下面的醫療卡上");
+    // Not on the plain medical page.
+    (await import("../src/ui/medical")).renderMedical(app(), []);
+    expect(app().querySelector("a.allergy-missing")).toBeNull();
+  });
+
+  it("names its two 給對方看 buttons after their cards", async () => {
+    saveProfile(sampleProfile());
+    (await import("../src/ui/medical")).renderMedical(app());
+    const names = [...app().querySelectorAll("button")].map((b) => b.textContent ?? "").filter((t) => t.startsWith("給對方看（") && !/項/.test(t));
+    expect(names).toEqual(["給對方看（過敏卡）", "給對方看（醫療卡）"]);
+  });
+
   it("opens at the allergy card from 打開過敏卡", async () => {
     saveProfile(sampleProfile());
     (await import("../src/ui/medical")).renderMedical(app(), ["allergy"]);
@@ -425,5 +449,30 @@ describe("help", () => {
     location.hash = "#/";
     await tick();
     expect(dialogs()).toHaveLength(0);
+  });
+});
+
+describe("travel cheat sheet", () => {
+  it("links the scene with its Japanese, and every source, told apart when a site has several", async () => {
+    const { guideById } = await import("../src/content/guides");
+    const { renderGuide } = await import("../src/ui/guide");
+    try {
+      renderGuide(app(), ["shinkansen-luggage"]);
+      expect(links(app()).find((a) => a.getAttribute("href") === "#/scene/luggage")?.textContent).toContain("打開「行李」情境");
+      renderGuide(app(), ["tax-refund"]);
+      const sources = links(app()).filter((a) => a.getAttribute("href")?.startsWith("https://"));
+      expect(sources.map((a) => a.href)).toEqual(guideById("tax-refund")!.sources);
+      const labels = sources.map((a) => a.textContent);
+      expect(new Set(labels).size).toBe(labels.length);
+      expect(labels).toContain("www.mlit.go.jp 2");
+    } finally {
+      document.title = "";
+    }
+  });
+
+  it("has a scene for every guide that names one", async () => {
+    const { GUIDES } = await import("../src/content/guides");
+    const { sceneById } = await import("../src/content/scenes");
+    for (const guide of GUIDES) if (guide.scene) expect(sceneById(guide.scene), guide.id).toBeDefined();
   });
 });

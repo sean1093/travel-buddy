@@ -303,3 +303,24 @@ describe("萬用句 dock", () => {
     expect(app().querySelector('nav[aria-label="萬用句"] button')).not.toBeNull();
   });
 });
+
+describe("lift note language", () => {
+  it("reads a note in Japanese only when it is Japanese, not Chinese with a katakana word", async () => {
+    const { looksJapanese } = await import("../src/ui/scene");
+    expect(looksJapanese("エレベーターはA3出口（改札外）。ホームへは3番線中央のエレベーター。")).toBe(true);
+    expect(looksJapanese("出口在南口旁邊，エレベーター在右邊")).toBe(false);
+    expect(looksJapanese("南口の電梯")).toBe(false);
+    expect(looksJapanese("在「みなとみらい」站搭電梯到3樓")).toBe(false);
+    expect(looksJapanese("改札を出て右のエレベーター")).toBe(true);
+    expect(looksJapanese("エレベーターは改札内")).toBe(true);
+    expect(looksJapanese("電扶梯在みなとみらい線出口")).toBe(false);
+    expect(looksJapanese("搭みなとみらい線到出口")).toBe(false);
+    // Katakana and kanji only: could be either, so not marked.
+    expect(looksJapanese("出口旁有エレベーター")).toBe(false);
+    expect(looksJapanese("エレベーター在南口旁")).toBe(false);
+    expect(looksJapanese("みなとみらい站3號出口有電梯")).toBe(false);
+    expect(looksJapanese("おおさか站電梯")).toBe(false);
+    expect(looksJapanese("在来線ホームへはエレベーターをご利用ください")).toBe(true);
+    expect(looksJapanese("到着口の右にエレベーター")).toBe(true);
+  });
+});

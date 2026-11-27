@@ -1,7 +1,8 @@
+import { DONT_KNOW, WRITE_IT } from "../content/replies";
 import type { Jp, Reply } from "../content/types";
 import { plain } from "../lib/jp";
 import type { Line } from "../profile/cards";
-import { announce, BUTTON, h, icon, liveRegion } from "./dom";
+import { announce, BUTTON, type Child, fill, h, icon, liveRegion } from "./dom";
 import { hush, play, playAll, playButton } from "./japanese";
 import { lineNode } from "./lines";
 
@@ -149,7 +150,7 @@ export function overlayBar(
 ): HTMLElement {
   return h(
     "div",
-    { class: "pt-safe flex items-center gap-3 border-b border-hair bg-card px-3 pb-2" },
+    { class: "pt-safe flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-hair bg-card px-3 pb-2" },
     h(
       "button",
       {
@@ -161,8 +162,15 @@ export function overlayBar(
       icon("close", "h-6 w-6"),
       "關閉",
     ),
-    h("p", { lang, class: `min-w-0 flex-1 text-right ${HINT_TONES[tone]} ${hintClass}` }, hint),
+    // At least 6em wide, or it goes under the close button: a column of single characters can't be read.
+    h("p", { lang, class: `min-w-[6em] flex-1 text-right ${HINT_TONES[tone]} ${hintClass}` }, hint),
   );
+}
+
+/** `el` with `children` in it, for building inside an expression. */
+function filled<T extends Element>(el: T, ...children: Child[]): T {
+  fill(el, ...children);
+  return el;
 }
 
 export interface ShowBlock {
@@ -171,6 +179,10 @@ export interface ShowBlock {
   zh?: string;
   /** Extra lines shown as they are: an address, a phone number. */
   extra?: Line[];
+  /** Lines a doctor must not miss (allergies), in the alert colour. */
+  alert?: boolean;
+  /** What 播放 says instead of `jp`. */
+  say?: Jp;
 }
 
 /**
@@ -178,19 +190,43 @@ export interface ShowBlock {
  * romaji — the person reading it is Japanese.
  */
 export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNow = false): void {
-  if (speakNow) void playAll(blocks.map((b) => b.jp));
+  const spoken = blocks.map((b) => b.say ?? b.jp);
+  if (speakNow) void playAll(spoken);
   openOverlay(label, (close) => {
     const many = blocks.length > 1;
     const total = blocks.map((b) => plain(b.jp)).join("");
+    const scroller = h("div", { class: "flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4 text-center" });
+    // A long card (the help card, the medical card at 特大) runs past the screen: say so, in both
+    // languages, until the reader is at the end. Screen readers read on anyway, so it is hidden from them.
+    const more = h(
+      "p",
+      // Hidden until measured: a card that fits never flashes it.
+      { class: "pointer-events-none border-t border-hair bg-card py-1 text-center text-lg font-bold text-ai", "aria-hidden": "true", hidden: true },
+      h("span", { lang: "ja" }, "▼ 下に続きます"),
+      "　下面還有",
+    );
+    const update = () => {
+      more.hidden = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4;
+    };
+    scroller.addEventListener("scroll", update, { passive: true });
+    // Removing the layer resizes the scroller to nothing: that is when the observer lets go of it.
+    const observer =
+      typeof ResizeObserver === "function" ? new ResizeObserver(() => (scroller.isConnected ? update() : observer?.disconnect())) : null;
+    observer?.observe(scroller);
+    requestAnimationFrame(() => {
+      update();
+      // And the text inside, there by now: it can grow without the scroller changing size (a late font).
+      if (scroller.firstElementChild) observer?.observe(scroller.firstElementChild);
+    });
     return h(
       "div",
       { class: "flex min-h-0 flex-1 flex-col" },
-      overlayBar(close, "請把畫面拿給對方看", "action", undefined, "landscape-hide"),
-      h(
-        "div",
-        {
-          class: "flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4 text-center",
-        },
+      // To the Japanese reader, as on 給對方點選; whoever holds the phone tapped 給對方看 to get here.
+      overlayBar(close, plain(LOOK_PLEASE), "action", "ja", "landscape-hide"),
+      filled(
+        scroller,
+        // The one line for the traveller, before the phone changes hands (as on 給對方點選).
+        h("p", { class: "landscape-hide mb-3 text-center text-base text-muted" }, "請把畫面拿給對方看"),
         // Centred with auto margins, not justify-center: when the text is taller than the
         // screen (a phone held sideways), it scrolls from its first line instead of being cut.
         h(
@@ -205,22 +241,20 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
               { lang: "ja", class: "font-bold leading-snug", style: armsLength(many ? total : plain(block.jp)) },
               plain(block.jp),
             ),
-            block.extra?.map((line) => h("div", { lang: "ja" }, lineNode(line, "mt-2 text-3xl font-bold leading-snug"))),
+            block.extra?.map((line) => h("div", { lang: "ja" }, lineNode(line, `mt-2 text-3xl font-bold leading-snug ${block.alert ? "text-shu" : ""}`))),
             block.zh && h("p", { class: "mt-3 text-xl font-bold text-ink/80" }, block.zh),
           ),
           ),
         ),
       ),
+      more,
       // One row, so a phone held sideways still shows the actions.
       h(
         "div",
         // On a phone held sideways this row moves up into the bar (see .landscape-dock), so the text gets the height.
         { class: "landscape-dock pb-safe flex items-center justify-center gap-3 px-5 pt-3" },
-        playButton(blocks.map((b) => b.jp)),
-        playButton(
-          blocks.map((b) => b.jp),
-          "slow",
-        ),
+        playButton(spoken),
+        playButton(spoken, "slow"),
       ),
     );
   });
@@ -232,6 +266,9 @@ const LOOK_PLEASE: Jp = "こちら を ご{覧|らん} ください";
 /** Asks the person in front of you to tap one of `replies`. */
 const TAP_PLEASE: Jp = "{下|した} の {答|こた}え を {指|ゆび} で {押|お}して ください。";
 
+/** Once they have answered: they are done, and the phone goes back. */
+const THANKS: Jp = "ありがとう ございました。スマホ を {持|も}ち{主|ぬし} に お{返|かえ}し ください。";
+
 /**
  * 給對方點選: the question in Japanese on top, Japanese answers to tap
  * below; once tapped, the traveller sees the answer in Chinese.
@@ -240,15 +277,21 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
   openOverlay("給對方點選", (close) => {
     const root = h("div", { class: "flex min-h-0 flex-1 flex-col" });
 
+    // A long list (platforms 1–27) puts its ways out first, so 紙に書きます and わかりません are on the first screen.
+    const isWayOut = (reply: Reply) => reply.jp === WRITE_IT.jp || reply.jp === DONT_KNOW.jp;
+    const ordered = replies.length > 10 ? [...replies.filter(isWayOut), ...replies.filter((r) => !isWayOut(r))] : replies;
+
     function asking(): void {
-      const options = replies.map((reply) =>
+      const options = ordered.map((reply) =>
         h(
           "button",
           {
             type: "button",
             lang: "ja",
-            class:
-              "min-h-16 rounded-2xl bg-ai-soft px-3 py-3 text-2xl font-bold text-ink transition active:scale-95 active:bg-ai active:text-on-accent",
+            // Ahead of a long list, the ways out are quieter, and one line however narrow (わかりま／せん).
+            class: `min-h-16 rounded-2xl px-3 py-3 font-bold text-ink transition active:scale-95 active:bg-ai active:text-on-accent ${
+              ordered !== replies && isWayOut(reply) ? "whitespace-nowrap bg-sand text-[min(1.5rem,5vw)]" : "bg-ai-soft text-2xl"
+            }`,
             onclick: () => answered(reply),
           },
           plain(reply.jp),
@@ -261,8 +304,9 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
           "div",
           { class: "min-h-0 flex-1 overflow-y-auto px-5 pb-safe pt-4" },
           // The one line for the traveller, before the phone changes hands.
-          h("p", { class: "mb-3 text-center text-base text-muted" }, "把手機交給對方，請對方點答案"),
-          h("p", { lang: "ja", class: "text-center font-bold leading-snug", style: armsLength(plain(question.jp)) }, plain(question.jp)),
+          h("p", { class: "landscape-hide mb-3 text-center text-base text-muted" }, "把手機交給對方，請對方點答案"),
+          // ask-question: smaller on a phone held sideways, so the answers start on the first screen.
+          h("p", { lang: "ja", class: "ask-question text-center font-bold leading-snug", style: armsLength(plain(question.jp)) }, plain(question.jp)),
           h("p", { class: "mt-1 text-center text-lg text-ink/80" }, `（${question.zh}）`),
           h("p", { lang: "ja", class: "mt-4 rounded-2xl bg-ai-soft px-3 py-2 text-center text-lg font-bold text-ai" }, plain(TAP_PLEASE)),
           h("div", { class: `mt-4 grid gap-3 ${replies.length > 4 ? "grid-cols-2" : "grid-cols-1"}` }, options),
@@ -285,6 +329,8 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
           h(
             "div",
             { class: "my-auto space-y-3 py-4" },
+            // To the person who answered, before the phone goes back.
+            h("p", { lang: "ja", class: "text-xl font-bold text-ai" }, plain(THANKS)),
             h("p", { class: "text-lg text-muted" }, `你問：${question.zh}`),
             h("p", { class: "font-bold leading-tight", style: armsLength(reply.zh) }, reply.zh),
             h("p", { lang: "ja", class: "text-2xl text-muted" }, plain(reply.jp)),

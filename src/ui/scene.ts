@@ -6,7 +6,7 @@ import { plain, slotsOf } from "../lib/jp";
 import { LINES } from "../profile/cards";
 import { type Ready, ready } from "../profile/fill";
 import { loadProfile, type Place, placesForToday } from "../profile/profile";
-import { fill, h, icon, pictogram } from "./dom";
+import { fill, h, icon, pictogram, radioKeys } from "./dom";
 import { SLOW_RATE } from "../state";
 import { jpText, PLAY_SIZES, play, playButton, spokenName } from "./japanese";
 import { dock, heading, page } from "./layout";
@@ -243,14 +243,31 @@ function rescueDock(): HTMLElement[] {
   );
 }
 
-/** Big buttons for the saved destinations; the picked one fills every 〇〇. */
+/**
+ * Characters a Japanese note never has: Traditional Chinese forms Japanese doesn't use (號, 邊,
+ * 樓…) and 電梯 (Japanese says エレベーター). Not 在, 的, 到 or 和: 在来線, 目的, 到着, 和式.
+ */
+const CHINESE_ONLY = /[號邊樓這裡們說會對從與點嗎呢臺灣站]|電梯/;
+
+/**
+ * A note is Japanese when a particle follows a word (エレベーターは, 右に, 改札を) and it has
+ * nothing only Chinese has. A place name in kana inside Chinese (搭みなとみらい線到出口) has
+ * no particle after a word, so it isn't. When unsure, it isn't: a Chinese note read in a
+ * Japanese voice is worse than the other way round.
+ */
+export function looksJapanese(text: string): boolean {
+  const particles = text.match(/[\u4e00-\u9fff\u30a1-\u30fa\u30fc0-9A-Za-z][はをへがにで]/g) ?? [];
+  return particles.length > 0 && !CHINESE_ONLY.test(text);
+}
+
 /** The picked station's 電梯筆記, ready to enlarge for station staff. */
 function elevatorNote(place: Place): HTMLElement {
   return h(
     "div",
     { class: "mt-3 rounded-2xl bg-card p-3" },
     h("p", { class: "flex items-center gap-2 text-lg font-bold" }, pictogram("elevator", "exit", "sm"), `${place.zh || place.name}・電梯筆記`),
-    h("p", { class: "mt-1 whitespace-pre-line break-words text-lg" }, place.note),
+    // Usually pasted from the station's site in Japanese: read it in a Japanese voice then.
+    h("p", { class: "mt-1 whitespace-pre-line break-words text-lg", lang: looksJapanese(place.note) ? "ja" : undefined }, place.note),
     h(
       "button",
       {
@@ -269,12 +286,13 @@ function elevatorNote(place: Place): HTMLElement {
   );
 }
 
+/** Big buttons for the saved destinations; the picked one fills every 〇〇. */
 function placePicker(places: Place[], picked: Place | null, pick: (place: Place) => void): HTMLElement {
   return h(
     "div",
     { class: "mt-3 rounded-2xl bg-ai-soft p-3" },
     h("p", { class: "text-lg font-bold" }, "要去哪裡？點一下換進句子"),
-    h(
+    radioKeys(h(
       "div",
       { class: "-mx-3 mt-2 flex gap-2 overflow-x-auto px-3 pb-1", role: "radiogroup", "aria-label": "目的地" },
       places.map((place) =>
@@ -295,7 +313,7 @@ function placePicker(places: Place[], picked: Place | null, pick: (place: Place)
           place.note && icon("elevator", "h-5 w-5"),
         ),
       ),
-    ),
+    )),
     picked?.note && elevatorNote(picked),
   );
 }
@@ -389,7 +407,15 @@ export function renderScene(root: HTMLElement, [id, view]: string[]): void {
           "先在「設定資料」填好要去的車站，句子裡的〇〇就會自動換成站名。",
         )
       : pickerSlot,
-    heard && h("p", { class: "mt-3 text-lg text-muted" }, "聽到對方這樣說 → 點你的回答，手機會念給對方聽。喇叭可以再聽一次，第二次是慢速。"),
+    // One line, so the first card's answers start on the first screen at 特大.
+    heard &&
+      h(
+        "p",
+        { class: "mt-3 text-lg text-muted" },
+        "聽到這句 → 點你的回答，手機會念給對方聽。",
+        // Short and smaller, so the first card's answers still start on the first screen.
+        h("span", { class: "block text-base" }, "喇叭：再聽一次，第二次是慢速。"),
+      ),
     list,
     rescueDock(),
     ],

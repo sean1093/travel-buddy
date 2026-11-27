@@ -217,11 +217,54 @@ export function today(now = new Date()): string {
 
 /**
  * The hotel for tonight: the one whose stay covers `day` (check-out day
- * included, since that morning the bags may still be there), else the first.
+ * included, for the last morning of a trip; on a day one stay ends and
+ * another goes on or begins, that other one, since that is where tonight is). Otherwise the
+ * next one by date (before the trip: the first night's), then the last one
+ * (after it), and only without any dates the first one entered. The order
+ * the hotels were typed in means nothing: a printed card must be right.
+ * A stay with only a check-in date runs whenever no later stay covers the
+ * day (the check-out isn't typed yet); one with only a check-out date covers
+ * that day.
  */
 export function currentHotel(profile: Profile, day = today()): Hotel | null {
-  const covering = profile.hotels.find((h) => h.from && h.to && h.from <= day && day <= h.to);
-  return covering ?? profile.hotels[0] ?? null;
+  const hotels = profile.hotels;
+  // A stay with only a check-out date began at the latest the night before it.
+  const start = (h: Hotel) => h.from || (h.to && dayBefore(h.to));
+  const end = (h: Hotel) => h.to || h.from;
+  const covers = (h: Hotel) => {
+    if (!start(h) || start(h) > day) return false;
+    if (h.to) return day <= h.to;
+    // Check-in only, inside a dated stay: a night away from it, that night alone.
+    if (hotels.some((base) => base !== h && base.from && base.to && base.from <= h.from && h.from < base.to)) return day === h.from;
+    // Check-in only: until another stay has started and still covers the day (a night away, then
+    // back to it; or the next hotel, to its check-out morning).
+    return !hotels.some((other) => other !== h && start(other) > h.from && start(other) <= day && (!other.to || day <= other.to));
+  };
+  // Of the stays covering the day, one that goes on past it (a base hotel around a night away, or
+  // the stay that begins on a changeover day); then the one that started last.
+  const covering = hotels
+    .filter(covers)
+    // In order: a stay checked into today (that is where tonight is); one that goes on past today
+    // (not the one being left); one with its check-out typed (a base hotel around a night away
+    // with no check-out); the one that started last.
+    .sort(
+      (a, b) =>
+        Number(start(b) === day) - Number(start(a) === day) ||
+        Number(a.to === day) - Number(b.to === day) ||
+        Number(!a.to) - Number(!b.to) ||
+        start(b).localeCompare(start(a)),
+    )[0];
+  const next = hotels.filter((h) => start(h) > day).sort((a, b) => start(a).localeCompare(start(b)))[0];
+  const last = hotels.filter((h) => start(h) && end(h) < day).sort((a, b) => end(b).localeCompare(end(a)))[0];
+  return covering ?? next ?? last ?? hotels[0] ?? null;
+}
+
+/** YYYY-MM-DD of the day before, or "" for anything that isn't such a date (an old or odd profile). */
+function dayBefore(day: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return "";
+  const date = new Date(`${day}T12:00:00`);
+  date.setDate(date.getDate() - 1);
+  return today(date);
 }
 
 /** The place is planned for `day`. */

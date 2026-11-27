@@ -116,6 +116,7 @@ In the Claude Code cloud environment, run e2e with `CHROMIUM=/opt/pw-browsers/ch
 | `ui-japanese.test.ts` | Ruby and romaji rendering, play buttons and their speaking state |
 | `ui-scene.test.ts` | Scene pages: tabs, phrase page actions, heard cards, destination picker, 萬用句 (All-purpose phrases) |
 | `ui-pages.test.ts` | Home, page header, medical symptom picker and card shortcut, help page and call buttons |
+| `ui-settings.test.ts` | 字體與聲音 (Text and voice): named radio groups, focus kept on the choice, arrow keys and one Tab stop |
 | `ui-setup.test.ts` | 設定資料 (Set up info): named delete buttons and focus after a delete, 已儲存 (Saved) said on change, persistent storage; the share-link import |
 
 The `ui-*` files run in happy-dom (`// @vitest-environment happy-dom`); the rest run in Node.

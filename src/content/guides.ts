@@ -1,3 +1,5 @@
+import type { SceneId } from "./types";
+
 /**
  * 旅遊小抄: short step-by-step guides for procedures that trip travellers up.
  * Like the emergency numbers, every guide names its sources and the date it
@@ -28,11 +30,14 @@ export interface Guide {
   verified: string;
   /** A known date the facts change on; see `Checked.recheckBy` in validate.ts. */
   recheckBy?: string;
+  /** The scene with the Japanese for this procedure, linked under the guide. */
+  scene?: SceneId;
 }
 
 export const GUIDES: Guide[] = [
   {
     id: "tax-refund",
+    scene: "shopping",
     title: "出境退稅新制",
     summary: "2026 年 11 月 1 日起買的東西，先付含稅價，出境時在機場確認後才退稅。",
     steps: [
@@ -91,6 +96,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "shinkansen-luggage",
+    scene: "luggage",
     title: "新幹線大型行李",
     summary: "東海道、山陽、九州新幹線：三邊加起來超過 160 公分的行李要先訂位。",
     steps: [
@@ -126,6 +132,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "medical-claim",
+    scene: "emergency",
     title: "看病與保險理賠",
     summary: "在日本看病是自費。當場拿齊文件，回台灣才申請得到保險和健保。",
     steps: [

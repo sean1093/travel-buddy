@@ -1,6 +1,6 @@
 import { CONDITIONS, DIETS, DRUG_ALLERGIES, FOOD_ALLERGIES, presetsById } from "../content/medical";
 import type { Jp, Preset } from "../content/types";
-import { plain, userWord } from "../lib/jp";
+import { plain, readings, userWord } from "../lib/jp";
 import { dialable } from "../lib/phone";
 import { type Contact, currentHotel, type Hotel, type Place, type Profile } from "./profile";
 
@@ -15,6 +15,8 @@ import { type Contact, currentHotel, type Hotel, type Place, type Profile } from
  */
 export interface PhoneLine {
   phone: string;
+  /** What the number is, before it (default TEL), e.g. 日本の電話から for the 010 form. */
+  label?: string;
 }
 
 /** One extra line of a card: plain text, or a phone number. */
@@ -22,7 +24,8 @@ export type Line = string | PhoneLine;
 
 /** The line as plain text, for print and copying. */
 export function lineText(line: Line): string {
-  return typeof line === "string" ? line : `TEL ${line.phone}`;
+  if (typeof line === "string") return line;
+  return line.label ? `（${line.label}：${line.phone}）` : `TEL ${line.phone}`;
 }
 
 export interface CardBlock {
@@ -30,6 +33,13 @@ export interface CardBlock {
   zh: string;
   /** Lines shown as they are (names, addresses, numbers); never read aloud. */
   extra: Line[];
+  /** What a doctor must not miss (allergies): shown in the alert colour. */
+  alert?: boolean;
+  /**
+   * What 播放 says, when it is more than `jp`: the hotel by name, where the card shows この ホテル
+   * with the name in large type right under it. Audio only, so the card isn't the name twice.
+   */
+  say?: Jp;
 }
 
 export const LINES = {
@@ -39,7 +49,8 @@ export const LINES = {
   backToHotel: "この ホテル に {帰|かえ}りたい です。{行|い}き{方|かた} を {教|おし}えて ください。",
   taxiToHotel: "この ホテル まで お{願|ねが}い します。",
   callFamily: "{家族|かぞく} に {電話|でんわ} を して いただけません か。",
-  callLocal: "{日本|にほん} に いる {知|し}り{合|あ}い です。{電話|でんわ} を して いただけません か。",
+  // The number's owner, not the traveller, is the acquaintance: 「知り合いです」 alone read as "I am".
+  callLocal: "{日本|にほん} に いる {知人|ちじん} の {電話番号|でんわばんごう} です。こちら に {電話|でんわ} して いただけません か。",
   koban: "{近|ちか}く の {交番|こうばん} は どこ です か。",
   callPolice: "{警察|けいさつ} を {呼|よ}んで ください。",
   wantElevator: "エレベーター を {使|つか}いたい です。",
@@ -66,18 +77,71 @@ export function hotelLines(hotel: Hotel): Line[] {
   );
 }
 
+/**
+ * Relations as a Japanese reader reads them. Typed in Chinese, 女兒 looks like
+ * 女児 (a girl child) in a Japanese font; anything not listed stays as typed.
+ */
+const RELATIONS: Record<string, string> = {
+  女兒: "娘",
+  兒子: "息子",
+  先生: "夫",
+  老公: "夫",
+  丈夫: "夫",
+  太太: "妻",
+  老婆: "妻",
+  妻子: "妻",
+  爸爸: "父",
+  父親: "父",
+  媽媽: "母",
+  母親: "母",
+  哥哥: "兄",
+  弟弟: "弟",
+  姊姊: "姉",
+  姐姐: "姉",
+  妹妹: "妹",
+  朋友: "友人",
+  家人: "家族",
+  孫子: "孫",
+  孫女: "孫",
+  媳婦: "義理の娘",
+  女婿: "義理の息子",
+};
+
+// hasOwn: the word comes from the profile (or a share link), and "constructor" must not reach Object.prototype.
+export const relationJa = (relation: string) => {
+  const key = relation.trim();
+  return Object.hasOwn(RELATIONS, key) ? RELATIONS[key]! : key;
+};
+
+/**
+ * The relation for a card both sides read: Japanese, then the typed word in brackets, since
+ * 娘 reads as "mother" in Chinese (娘（女兒）). As typed when there is no Japanese for it.
+ */
+const relationBoth = (relation: string) => {
+  const ja = relationJa(relation);
+  const typed = relation.trim();
+  // No bracket for a word that means something else in Japanese: 先生 (a doctor), 丈夫 (sturdy).
+  return ja === typed || MISLEADING_IN_JA.has(typed) ? ja : `${ja}（${typed}）`;
+};
+
+const MISLEADING_IN_JA = new Set(["先生", "丈夫", "妻子"]);
+
 /** A contact as lines a Japanese helper can dial from. */
 export function contactLines(contact: Contact, home: "tw" | "jp"): Line[] {
   const phone = dialable(contact.phone, home);
-  const who = [contact.relation, contact.name].filter(Boolean).join("　");
+  const who = [relationBoth(contact.relation), contact.name].filter(Boolean).join("　");
   if (!phone) return [who].filter(Boolean);
-  return [
-    who,
-    { phone: phone.display },
-    // How a Japanese phone reaches a Taiwanese number: the helper will not know.
-    phone.fromJapan ? `（日本の電話から：${phone.fromJapan}）` : "",
-  ].filter((line): line is Line => Boolean(line));
+  const lines: Line[] = [who, { phone: phone.display }];
+  // How a Japanese phone reaches a Taiwanese number: the helper will not know.
+  if (phone.fromJapan) lines.push({ phone: phone.fromJapan, label: "日本の電話から" });
+  return lines.filter(Boolean);
 }
+
+/** An age known only from the birth year: before the birthday they are a year younger. */
+const age = (years: number) => (years < 0 ? "" : years === 0 ? "（0歳）" : `（${years - 1}〜${years}歳）`);
+
+/** The name as a passport prints it. */
+const passport = (profile: Profile) => profile.passportName.trim().toUpperCase();
 
 /** The "I need help" card: who I am, I'm lost, my hotel, call my family. */
 export function helpCard(profile: Profile, day?: string): CardBlock[] {
@@ -85,12 +149,20 @@ export function helpCard(profile: Profile, day?: string): CardBlock[] {
     {
       jp: `${LINES.sorry} ${LINES.fromTaiwan}`,
       zh: "不好意思，我不會說日文。我是從台灣來的旅客。",
-      extra: profile.passportName ? [`名前：${profile.passportName}`] : [],
+      extra: passport(profile) ? [`名前：${passport(profile)}`] : [],
     },
     { jp: LINES.lost, zh: "我迷路了，請幫幫我。", extra: [] },
   ];
   const hotel = currentHotel(profile, day);
-  if (hotel) blocks.push({ jp: LINES.backToHotel, zh: "我想回這間飯店，請告訴我怎麼走。", extra: hotelLines(hotel) });
+  if (hotel) {
+    const name = sayableName(hotel);
+    blocks.push({
+      jp: LINES.backToHotel,
+      zh: "我想回這間飯店，請告訴我怎麼走。",
+      extra: hotelLines(hotel),
+      say: name ? `${name} に {帰|かえ}りたい です。{行|い}き{方|かた} を {教|おし}えて ください。` : undefined,
+    });
+  }
   const family = profile.contacts[0];
   if (family) blocks.push({ jp: LINES.callFamily, zh: "可以幫我打電話給家人嗎？", extra: contactLines(family, "tw") });
   if (profile.localContact.phone) {
@@ -101,7 +173,28 @@ export function helpCard(profile: Profile, day?: string): CardBlock[] {
 
 /** For a taxi driver or anyone giving directions. */
 export function hotelCard(hotel: Hotel): CardBlock {
-  return { jp: LINES.taxiToHotel, zh: "請載我到這間飯店。", extra: hotelLines(hotel) };
+  return { jp: LINES.taxiToHotel, zh: "請載我到這間飯店。", extra: hotelLines(hotel), say: hotelSay(hotel) };
+}
+
+/**
+ * Said to a driver: the hotel by name, not just "this hotel", when the voice
+ * can say it: with a kana reading, or a name in Japanese script. A name in
+ * English or Chinese only would be misread, so then it's "this hotel".
+ */
+export function hotelSay(hotel: Hotel): Jp {
+  const name = sayableName(hotel);
+  return name ? `${name} まで お{願|ねが}い します。` : LINES.taxiToHotel;
+}
+
+/** The hotel's name as the voice can say it, or null (then it's この ホテル). */
+function sayableName(hotel: Hotel): Jp | null {
+  const word = hotelWord(hotel);
+  // The voice reads the text, not the ruby: with a kana reading (userWord keeps only a pure-kana one),
+  // the reading itself.
+  if (word.includes("|")) return readings(word).join("");
+  // Without a reading: a name in Japanese script only (ホテル Gracery 新宿 would mangle Gracery).
+  const sayable = /[\u3041-\u30fa]/.test(hotel.name) && !/[A-Za-z]/.test(hotel.name);
+  return sayable && plain(word).trim() ? word : null;
 }
 
 const JOIN = "、";
@@ -118,25 +211,45 @@ function presetLine(list: Preset[], ids: string[], other = ""): string {
  */
 export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
   const h = profile.health;
+  const year = now.getFullYear();
   const person = [
-    profile.passportName && `名前：${profile.passportName}`,
-    profile.birthYear && `生年：${profile.birthYear}年（${now.getFullYear() - profile.birthYear}歳）`,
+    passport(profile) && `名前：${passport(profile)}`,
+    // Only the year is known: before the birthday they are a year younger.
+    // A year in the future is a typo: the year as typed, no age.
+    profile.birthYear && `生年：${profile.birthYear}年${age(year - profile.birthYear)}`,
     "国籍：台湾",
     h.bloodType && `血液型：${h.bloodType}型`,
   ].filter((line): line is string => Boolean(line));
+  // An empty line is 未記入 (not filled in), never なし (none): setup has no way to say "none", so an
+  // empty field only means nobody wrote anything, and a doctor reads なし as "no allergies".
+  const NOT_FILLED = "未記入";
+  // A medicine card added but left empty is no medicine.
+  const meds = h.meds.filter((m) => m.ingredient.trim() || m.dose.trim());
   const conditions = presetLine(CONDITIONS, h.conditions, h.conditionsOther);
   const drugs = presetLine(DRUG_ALLERGIES, h.drugAllergies);
-  const foods = presetLine(FOOD_ALLERGIES, h.foodAllergies, h.allergyOther);
-  const health = [
-    `持病：${conditions || "なし"}`,
-    h.meds.length > 0 ? "服用中の薬：" : "服用中の薬：なし",
-    ...h.meds.map((m) => `・${[m.ingredient, m.dose].filter(Boolean).join(" ")}`),
-    `薬のアレルギー：${drugs || "なし"}`,
-    foods && `食物アレルギー：${foods}`,
-  ].filter(Boolean);
+  const foods = presetLine(FOOD_ALLERGIES, h.foodAllergies);
+  // Free text may be a drug, a food or neither (the form's example is Latex): its own line, not food's.
+  const other = h.allergyOther.trim();
   const blocks: CardBlock[] = [
+    // First, before even the name: what a doctor must not miss, on the first screen at any text size.
+    {
+      jp: "アレルギー {情報|じょうほう} です。",
+      zh: "過敏資料。",
+      extra: [`薬のアレルギー：${drugs || NOT_FILLED}`, `食物アレルギー：${foods || NOT_FILLED}`, other && `その他のアレルギー：${other}`].filter(
+        (line): line is string => Boolean(line),
+      ),
+      alert: true,
+    },
     { jp: "{私|わたし} の {医療|いりょう} {情報|じょうほう} です。", zh: "這是我的醫療資料。", extra: person },
-    { jp: "{持病|じびょう} と {薬|くすり} です。", zh: "慢性病、常吃的藥和過敏。", extra: health },
+    {
+      jp: "{持病|じびょう} と {服用中|ふくようちゅう} の {薬|くすり} です。",
+      zh: "慢性病和常吃的藥。",
+      extra: [
+        `持病：${conditions || NOT_FILLED}`,
+        meds.length > 0 ? "服用中の薬：" : `服用中の薬：${NOT_FILLED}`,
+        ...meds.map((m) => `・${[m.ingredient.trim(), m.dose.trim()].filter(Boolean).join(" ")}`),
+      ],
+    },
   ];
   const family = profile.contacts[0];
   if (family) blocks.push({ jp: "{家族|かぞく} の {連絡先|れんらくさき} です。", zh: "家人的聯絡方式。", extra: contactLines(family, "tw") });
@@ -157,17 +270,26 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
 /** The allergy and diet card for restaurants, or null when nothing applies. */
 export function allergyCard(profile: Profile): CardBlock[] | null {
   const h = profile.health;
-  const foods = [...presetsById(FOOD_ALLERGIES, h.foodAllergies).map((p) => plain(p.jp)), h.allergyOther.trim()].filter(Boolean);
+  const foods = presetsById(FOOD_ALLERGIES, h.foodAllergies);
+  // Free text may be a food, a drug or neither (Latex): its own block, not among the foods.
+  const other = h.allergyOther.trim();
   const diets = presetsById(DIETS, h.diets);
   const blocks: CardBlock[] = [];
   if (foods.length > 0) {
     blocks.push({
       jp: "{食物|しょくもつ} アレルギー が あります。{次|つぎ} の もの が {入|はい}った {料理|りょうり} は {食|た}べられません。",
-      zh: `我對食物過敏，有放這些東西的料理我不能吃：${presetsById(FOOD_ALLERGIES, h.foodAllergies)
-        .map((p) => p.zh)
-        .concat(h.allergyOther.trim() ? [h.allergyOther.trim()] : [])
-        .join("、")}`,
-      extra: foods.map((food) => `・${food}`),
+      zh: `我對食物過敏，有放這些東西的料理我不能吃：${foods.map((p) => p.zh).join("、")}`,
+      extra: foods.map((food) => `・${plain(food.jp)}`),
+    });
+  }
+  if (other) {
+    // "Also" only after the food block.
+    const also = foods.length > 0;
+    blocks.push({
+      // Often a food (芒果): the dish must not contain it, whatever it is.
+      jp: `{次|つぎ} の もの ${also ? "に も" : "に"} アレルギー が あります。{入|はい}った {料理|りょうり} は {食|た}べられません。`,
+      zh: `${also ? "我也對這些過敏" : "我對這些過敏"}，有放的料理我不能吃：${other}`,
+      extra: [`・${other}`],
     });
   }
   for (const diet of diets) blocks.push({ jp: diet.jp, zh: diet.zh, extra: [] });

@@ -1,6 +1,6 @@
 import { plain } from "../lib/jp";
 import { dialable } from "../lib/phone";
-import { hotelCard, LINES } from "../profile/cards";
+import { hotelCard } from "../profile/cards";
 import { currentHotel, loadProfile } from "../profile/profile";
 import { BUTTON, h, icon } from "./dom";
 import { callButton, cardBlock } from "./help";
@@ -33,7 +33,7 @@ export function renderHotel(root: HTMLElement, [index]: string[]): void {
       "div",
       // One per row: 給對方看 doesn't fit half the width on a 360 px phone at 特大.
       { class: "mt-4 grid grid-cols-1 gap-2" },
-      playButton(LINES.taxiToHotel, "normal", "md", "whitespace-nowrap"),
+      playButton(card.say ?? card.jp, "normal", "md", "whitespace-nowrap"),
       h(
         "button",
         {
@@ -57,7 +57,15 @@ export function renderHotel(root: HTMLElement, [index]: string[]): void {
               "a",
               { href: `#/hotel/${i}`, class: "block min-h-14 rounded-2xl bg-card px-4 py-3 text-xl font-bold" },
               h("span", { lang: "ja" }, other.name || other.address),
-              (other.from || other.to) && h("span", { class: "block text-base font-normal text-muted" }, `${other.from} ～ ${other.to}`),
+              (other.from || other.to) &&
+                h(
+                  "span",
+                  { class: "block text-base font-normal text-muted" },
+                  // A date never splits (2026-11-／08); the range may wrap at the ～, shown only between two dates.
+                  other.from && h("span", { class: "whitespace-nowrap" }, other.from),
+                  // A check-out alone keeps its ～, so it doesn't read as a check-in.
+                  other.to && [" ～ ", h("span", { class: "whitespace-nowrap" }, other.to)],
+                ),
             ),
           ),
         ),

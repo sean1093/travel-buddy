@@ -25,7 +25,7 @@ export default {
       group: "store",
       zh: "有放得下大行李箱的置物櫃嗎？",
       jp: "{大|おお}きい スーツケース が {入|はい}る ロッカー は あります か。",
-      answers: "yesNo",
+      answers: "have",
     },
     {
       id: "luggage-left-luggage",

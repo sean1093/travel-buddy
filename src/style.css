@@ -91,6 +91,8 @@ body {
     "Meiryo", system-ui, sans-serif;
   /* Break between phrases, not inside one, where the browser knows how (ください, not くださ／い). */
   word-break: auto-phrase;
+  /* Never ー, a small kana or closing punctuation at the start of a line (ホテルグレイスリ／ー新宿). */
+  line-break: strict;
 }
 
 /* Lines break only between the words of the markup, never inside one. */
@@ -152,7 +154,26 @@ body {
     display: none;
   }
 
-  /* The phrase page: one scroll for the phrase and its actions, so neither squeezes the other. */
+  /* The phrase page scrolls as one: see the short-or-narrow rule below, which covers sideways too. */
+
+  .ask-question {
+    font-size: 1.5rem !important;
+  }
+
+  .landscape-dock {
+    position: absolute;
+    top: calc(env(safe-area-inset-top) + 0.5rem);
+    right: max(env(safe-area-inset-right), 0.75rem);
+    padding: 0;
+  }
+}
+
+/*
+ * The phrase page zoomed in (a 390 px phone at 200%, about 195 px wide) or on a
+ * short screen: the docked actions would take most of the height and hide the
+ * Japanese and 給對方看, so the phrase and its actions scroll together, as sideways.
+ */
+@media (max-width: 300px), (max-height: 500px) {
   .phrase-layout {
     overflow-y: auto;
   }
@@ -161,12 +182,23 @@ body {
     flex: none;
     overflow: visible;
   }
+}
 
-  .landscape-dock {
-    position: absolute;
-    top: calc(env(safe-area-inset-top) + 0.5rem);
-    right: max(env(safe-area-inset-right), 0.75rem);
-    padding: 0;
+/* Home's scene tiles on a 320 px phone at 特大: two per row would break 廁所・問路 one character a line. */
+@media (max-width: 340px) {
+  :root[data-text-size="xlarge"] .scene-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A phone number on one line (src/ui/lines.ts): sized to its line where cqi is known, else to the screen. */
+.fit-number {
+  font-size: min(1em, 7vw);
+}
+
+@supports (width: 1cqi) {
+  .fit-number {
+    font-size: min(1em, 7.8cqi);
   }
 }
 
