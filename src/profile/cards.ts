@@ -148,10 +148,14 @@ export function hotelCard(hotel: Hotel): CardBlock {
   return { jp: LINES.taxiToHotel, zh: "請載我到這間飯店。", extra: hotelLines(hotel), say: hotelSay(hotel) };
 }
 
-/** Said to a driver: the hotel by name (its reading, when typed), not just "this hotel". */
+/**
+ * Said to a driver: the hotel by name, not just "this hotel", when the voice
+ * can say it: with a kana reading, or a name in Japanese script. A name in
+ * English or Chinese only would be misread, so then it's "this hotel".
+ */
 export function hotelSay(hotel: Hotel): Jp {
-  const word = hotelWord(hotel);
-  return plain(word).trim() ? `${word} まで お{願|ねが}い します。` : LINES.taxiToHotel;
+  const sayable = hotel.kana.trim() || /[\u3041-\u30fa]/.test(hotel.name);
+  return sayable && plain(hotelWord(hotel)).trim() ? `${hotelWord(hotel)} まで お{願|ねが}い します。` : LINES.taxiToHotel;
 }
 
 const JOIN = "、";
@@ -179,6 +183,8 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
   // An empty line is 未記入 (not filled in), never なし (none): setup has no way to say "none", so an
   // empty field only means nobody wrote anything, and a doctor reads なし as "no allergies".
   const NOT_FILLED = "未記入";
+  // A medicine card added but left empty is no medicine.
+  const meds = h.meds.filter((m) => m.ingredient.trim() || m.dose.trim());
   const conditions = presetLine(CONDITIONS, h.conditions, h.conditionsOther);
   const drugs = presetLine(DRUG_ALLERGIES, h.drugAllergies);
   const foods = presetLine(FOOD_ALLERGIES, h.foodAllergies, h.allergyOther);
@@ -196,8 +202,8 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
       zh: "慢性病和常吃的藥。",
       extra: [
         `持病：${conditions || NOT_FILLED}`,
-        h.meds.length > 0 ? "服用中の薬：" : `服用中の薬：${NOT_FILLED}`,
-        ...h.meds.map((m) => `・${[m.ingredient, m.dose].filter(Boolean).join(" ")}`),
+        meds.length > 0 ? "服用中の薬：" : `服用中の薬：${NOT_FILLED}`,
+        ...meds.map((m) => `・${[m.ingredient, m.dose].filter(Boolean).join(" ")}`),
       ],
     },
   ];

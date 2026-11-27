@@ -216,6 +216,13 @@ describe("import", () => {
     expect(stored().callName).toBe("爸爸");
   });
 
+  it("doesn't name two profiles that are named alike", async () => {
+    saveProfile({ ...sampleProfile(), callName: "", passportName: "", hotels: [] });
+    await render(encodeProfile({ ...sampleProfile(), callName: "", passportName: "" }));
+    expect(app().textContent).toContain("這支手機裡已經有一份資料。");
+    expect(app().textContent).not.toContain("沒有稱呼");
+  });
+
   it("clears the payload and LINE's query from the address bar", async () => {
     history.replaceState(null, "", `${location.pathname}?openExternalBrowser=1#/s/${encodeProfile(sampleProfile())}`);
     await render(encodeProfile(sampleProfile()));

@@ -44,7 +44,7 @@ const PLATFORM_KANA = [
 export const REPLY_SETS: Record<ReplySet, Reply[]> = {
   yesNo: [{ jp: "はい", zh: "是／對" }, { jp: "いいえ", zh: "不是／不對" }, DONT_KNOW],
   platform: [
-    // Up to the Shinkansen platforms of Tokyo (to 23) and Shin-Osaka (to 27); 紙に書きます for anything else.
+    // A generous range for the biggest stations, Shinkansen platforms included; 紙に書きます for anything else.
     ...PLATFORM_KANA.map((_, i) => i + 1).map((n) => ({
       jp: `{${n}番線|${PLATFORM_KANA[n - 1]}}`,
       zh: `${n} 號月台`,

@@ -403,7 +403,14 @@ export function renderScene(root: HTMLElement, [id, view]: string[]): void {
         )
       : pickerSlot,
     // One line, so the first card's answers start on the first screen at 特大.
-    heard && h("p", { class: "mt-3 text-lg text-muted" }, "聽到這句 → 點你的回答，手機會念給對方聽。"),
+    heard &&
+      h(
+        "p",
+        { class: "mt-3 text-lg text-muted" },
+        "聽到這句 → 點你的回答，手機會念給對方聽。",
+        // Short and smaller, so the first card's answers still start on the first screen.
+        h("span", { class: "block text-base" }, "喇叭：再聽一次，第二次是慢速。"),
+      ),
     list,
     rescueDock(),
     ],

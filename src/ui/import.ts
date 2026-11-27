@@ -28,7 +28,12 @@ export function renderImport(root: HTMLElement, [payload = ""]: string[]): void 
     return;
   }
   // Whose is whose: one parent opening the other's link must not wipe their own card unawares.
-  screen(root, "swap", "要換成新的資料嗎？", `這支手機裡已經有「${who(current)}」的資料。換成連結裡「${who(incoming)}」的資料，原本的就會被取代。`, [
+  // Two profiles named alike would tell nothing apart: then without names.
+  const named = who(current) !== who(incoming);
+  const body = named
+    ? `這支手機裡已經有「${who(current)}」的資料。換成連結裡「${who(incoming)}」的資料，原本的就會被取代。`
+    : "這支手機裡已經有一份資料。換成連結裡的新資料，原本的就會被取代。";
+  screen(root, "swap", "要換成新的資料嗎？", body, [
     h("button", { type: "button", class: BUTTON.primary, onclick: () => done(root, incoming) }, icon("check"), "換成新的"),
     h("a", { href: "#/", class: BUTTON.secondary }, "保留原本的"),
   ]);

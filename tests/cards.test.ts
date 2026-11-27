@@ -42,6 +42,19 @@ describe("help card", () => {
     expect(checkJp(card.say!)).toEqual([]);
   });
 
+  it("says the hotel's name only when the voice can read it: otherwise 'this hotel'", () => {
+    const hotel = sampleProfile().hotels[0]!;
+    expect(hotelCard({ ...hotel, name: "Hotel Gracery Shinjuku", kana: "" }).say).toBe(LINES.taxiToHotel);
+    expect(hotelCard({ ...hotel, name: "新宿華盛頓酒店", kana: "" }).say).toBe(LINES.taxiToHotel);
+    expect(hotelCard({ ...hotel, name: "ホテルグレイスリー新宿", kana: "" }).say).toBe("ホテルグレイスリー新宿 まで お{願|ねが}い します。");
+  });
+
+  it("leaves an empty medicine card off the medical card", () => {
+    const profile = emptyProfile();
+    profile.health.meds = [{ ingredient: " ", dose: "" }];
+    expect(medicalCard(profile)[2]?.extra).toEqual(["持病：未記入", "服用中の薬：未記入"]);
+  });
+
   it("formats contacts without a phone, and keeps a relation it doesn't know as typed", () => {
     expect(contactLines({ relation: "女兒", name: "", phone: "" }, "tw")).toEqual(["娘"]);
     expect(contactLines({ relation: "鄰居", name: "", phone: "" }, "tw")).toEqual(["鄰居"]);
