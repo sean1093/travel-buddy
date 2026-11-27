@@ -88,6 +88,8 @@ describe("help card", () => {
     expect(contactLines({ relation: "女兒", name: "", phone: "" }, "tw")).toEqual(["娘（女兒）"]);
     expect(contactLines({ relation: "鄰居", name: "", phone: "" }, "tw")).toEqual(["鄰居"]);
     expect(contactLines({ relation: "constructor", name: "", phone: "" }, "tw")).toEqual(["constructor"]);
+    // 先生 is a doctor to a Japanese reader: just 夫.
+    expect(contactLines({ relation: "先生", name: "", phone: "" }, "tw")).toEqual(["夫"]);
   });
 
   it("prints the passport name as the passport does, in capitals", () => {

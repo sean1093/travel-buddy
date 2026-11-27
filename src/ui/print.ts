@@ -2,7 +2,7 @@ import { EMERGENCY_NUMBERS } from "../content/emergency";
 import { plain } from "../lib/jp";
 import { allergyCard, type CardBlock, helpCard, hotelCard, lineText, medicalCard } from "../profile/cards";
 import { isEmpty, loadProfile } from "../profile/profile";
-import { BUTTON, h, icon } from "./dom";
+import { announce, BUTTON, h, icon } from "./dom";
 import { page } from "./layout";
 
 /** Numbers worth a place on the paper card: the first four, and TECRO Tokyo. */
@@ -13,10 +13,10 @@ const PRINTED_NUMBERS = ["police", "ambulance", "jnto-hotline", "tecro-tokyo"];
  * Japanese for the helper, a small Chinese title for the traveller. `big`
  * is for cards read at a distance, such as by a taxi driver.
  */
-function walletCard(title: string, blocks: CardBlock[], options: { big?: boolean; accent?: string } = {}): HTMLElement {
+function walletCard(title: string, blocks: CardBlock[], options: { big?: boolean; accent?: string; name?: string } = {}): HTMLElement {
   return h(
     "article",
-    { class: `wallet-card ${options.big ? "wallet-card-big" : ""} bg-white text-black` },
+    { class: `wallet-card ${options.big ? "wallet-card-big" : ""} bg-white text-black`, "data-name": options.name },
     h(
       "p",
       { class: "wallet-title", style: options.accent ? `background:${options.accent}` : undefined },
@@ -46,7 +46,7 @@ export function renderPrint(root: HTMLElement): void {
   };
   const cards = [
     walletCard("求救卡", help, { accent: "#fde2de" }),
-    ...profile.hotels.map((hotel) => walletCard("飯店卡（給計程車司機看）", [hotelCard(hotel)], { big: true })),
+    ...profile.hotels.map((hotel) => walletCard("飯店卡（給計程車司機看）", [hotelCard(hotel)], { big: true, name: `飯店卡：${hotel.name}` })),
     walletCard("醫療卡", medicalCard(profile), { accent: "#e3e9f8" }),
     allergy && walletCard("過敏卡（給餐廳看）", allergy, { accent: "#fdf3d2" }),
     walletCard("緊急電話", [emergencyBlock], { big: true }),
@@ -70,7 +70,7 @@ export function renderPrint(root: HTMLElement): void {
             "還沒有填資料，卡片上不會有飯店、電話和健康資料。按這裡先填好。",
           ),
         // Filled in by foldOverflowing when a card can't fit even folded.
-        h("p", { class: "print-too-long rounded-2xl bg-warn-soft p-4 text-lg", role: "status", hidden: true }),
+        h("p", { class: "print-too-long rounded-2xl bg-warn-soft p-4 text-lg", hidden: true }),
         h("button", { type: "button", class: BUTTON.primary, onclick: () => window.print() }, icon("print"), "列印"),
         h("p", { class: "text-base text-muted" }, "電腦或手機都可以列印；也可以在列印畫面選「另存為 PDF」，傳給家人或自己留一份。"),
       ),
@@ -94,7 +94,11 @@ function foldOverflowing(root: HTMLElement): void {
   const clipped = overflowing.filter((card) => card.scrollHeight > card.clientHeight + 1);
   const warning = root.querySelector<HTMLElement>(".print-too-long");
   if (warning && clipped.length > 0) {
+    // Named by its title, and a hotel card by its hotel: they all share one title.
+    const names = clipped.map((card) => `「${card.dataset.name ?? card.querySelector(".wallet-title")?.textContent ?? ""}」`);
+    warning.textContent = `${names.join("")}內容太多，對折後還放不下，最下面幾行印不出來。請到設定資料精簡（例如藥只寫成分和劑量）。`;
     warning.hidden = false;
-    warning.textContent = `${clipped.map((card) => `「${card.querySelector(".wallet-title")?.textContent ?? ""}」`).join("")}內容太多，對折後還放不下，最下面幾行印不出來。請到設定資料精簡（例如藥只寫成分和劑量）。`;
+    // Shown as the page appears, so a screen reader may miss it: say it too.
+    announce(warning.textContent);
   }
 }

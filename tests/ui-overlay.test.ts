@@ -251,6 +251,8 @@ describe("showToOther", () => {
     const hint = button(dialog, "關閉").parentElement!.querySelector("p")!;
     expect(hint.getAttribute("lang")).toBe("ja");
     expect(hint.textContent).toBe("こちらをご覧ください");
+    // And one quiet line in Chinese for the traveller.
+    expect(dialog.textContent).toContain("請把畫面拿給對方看");
     const japanese = [...dialog.querySelectorAll('[lang="ja"]')].map((el) => el.textContent);
     expect(japanese).toContain(plain(jp));
     expect(japanese).toContain("東京都新宿区1-1");

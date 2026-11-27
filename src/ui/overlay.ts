@@ -225,6 +225,8 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
       overlayBar(close, plain(LOOK_PLEASE), "action", "ja", "landscape-hide"),
       filled(
         scroller,
+        // The one line for the traveller, before the phone changes hands (as on 給對方點選).
+        h("p", { class: "landscape-hide mb-3 text-center text-base text-muted" }, "請把畫面拿給對方看"),
         // Centred with auto margins, not justify-center: when the text is taller than the
         // screen (a phone held sideways), it scrolls from its first line instead of being cut.
         h(

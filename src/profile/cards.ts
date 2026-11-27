@@ -119,8 +119,12 @@ export const relationJa = (relation: string) => {
  */
 const relationBoth = (relation: string) => {
   const ja = relationJa(relation);
-  return ja === relation.trim() ? ja : `${ja}（${relation.trim()}）`;
+  const typed = relation.trim();
+  // No bracket for a word that means something else in Japanese: 先生 (a doctor), 丈夫 (sturdy).
+  return ja === typed || MISLEADING_IN_JA.has(typed) ? ja : `${ja}（${typed}）`;
 };
+
+const MISLEADING_IN_JA = new Set(["先生", "丈夫", "妻子"]);
 
 /** A contact as lines a Japanese helper can dial from. */
 export function contactLines(contact: Contact, home: "tw" | "jp"): Line[] {
