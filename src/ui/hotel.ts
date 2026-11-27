@@ -1,6 +1,6 @@
 import { plain } from "../lib/jp";
 import { dialable } from "../lib/phone";
-import { hotelCard, LINES } from "../profile/cards";
+import { hotelCard } from "../profile/cards";
 import { currentHotel, loadProfile } from "../profile/profile";
 import { BUTTON, h, icon } from "./dom";
 import { callButton, cardBlock } from "./help";

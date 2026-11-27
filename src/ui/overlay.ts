@@ -1,3 +1,4 @@
+import { DONT_KNOW, WRITE_IT } from "../content/replies";
 import type { Jp, Reply } from "../content/types";
 import { plain } from "../lib/jp";
 import type { Line } from "../profile/cards";
@@ -274,8 +275,12 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
   openOverlay("給對方點選", (close) => {
     const root = h("div", { class: "flex min-h-0 flex-1 flex-col" });
 
+    // A long list (platforms 1–27) puts its ways out first, so 紙に書きます and わかりません are on the first screen.
+    const isWayOut = (reply: Reply) => reply.jp === WRITE_IT.jp || reply.jp === DONT_KNOW.jp;
+    const ordered = replies.length > 10 ? [...replies.filter(isWayOut), ...replies.filter((r) => !isWayOut(r))] : replies;
+
     function asking(): void {
-      const options = replies.map((reply) =>
+      const options = ordered.map((reply) =>
         h(
           "button",
           {

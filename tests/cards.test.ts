@@ -50,6 +50,7 @@ describe("help card", () => {
     // A reading that isn't kana is not used by the voice, so it doesn't make the name sayable.
     expect(hotelCard({ ...hotel, name: "新宿格拉斯麗酒店", kana: "Gracery" }).say).toBe(LINES.taxiToHotel);
     expect(hotelCard({ ...hotel, name: "ホテルグレイスリー新宿", kana: "" }).say).toBe("ホテルグレイスリー新宿 まで お{願|ねが}い します。");
+    expect(hotelCard({ ...hotel, name: "ホテル Gracery 新宿", kana: "" }).say).toBe(LINES.taxiToHotel);
   });
 
   it("puts an allergy typed in 其他過敏 on its own line, not under food", () => {
@@ -67,6 +68,7 @@ describe("help card", () => {
   it("formats contacts without a phone, and keeps a relation it doesn't know as typed", () => {
     expect(contactLines({ relation: "女兒", name: "", phone: "" }, "tw")).toEqual(["娘（女兒）"]);
     expect(contactLines({ relation: "鄰居", name: "", phone: "" }, "tw")).toEqual(["鄰居"]);
+    expect(contactLines({ relation: "constructor", name: "", phone: "" }, "tw")).toEqual(["constructor"]);
   });
 
   it("prints the passport name as the passport does, in capitals", () => {

@@ -252,10 +252,11 @@ function rescueDock(): HTMLElement[] {
 export function looksJapanese(text: string): boolean {
   const particles = text.match(/[\u4e00-\u9fff\u30a1-\u30fa\u30fc0-9A-Za-z][はをへがにで]/g) ?? [];
   const hiragana = (text.match(/[\u3041-\u3096]/g) ?? []).filter((c) => c !== "の");
-  // A short note (エレベーターは改札内) has one particle and little else: Japanese unless it has
-  // Chinese function words.
+  // A short note (エレベーターは改札内, エレベーターあり) has little of either: Japanese unless it
+  // has Chinese function words.
   const chinese = /[在的是到從往跟與和嗎了個]/.test(text);
-  return particles.length >= 1 && (hiragana.length >= 2 || !chinese);
+  if (particles.length >= 1 && hiragana.length >= 2) return true;
+  return !chinese && (particles.length >= 1 || hiragana.length >= 2);
 }
 
 /** The picked station's 電梯筆記, ready to enlarge for station staff. */

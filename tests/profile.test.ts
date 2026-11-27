@@ -70,6 +70,13 @@ describe("trip dates", () => {
     expect(currentHotel(profile, "2026-11-26")?.name).toBe(shinjuku.name);
   });
 
+  it("orders a check-out-only stay by the night before, so a first night's hotel stays first", () => {
+    const profile = sampleProfile();
+    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
+    profile.hotels = [{ ...kyoto, from: "2026-12-03", to: "2026-12-05" }, { ...shinjuku, from: "", to: "2026-12-03" }];
+    expect(currentHotel(profile, "2026-11-26")?.name).toBe(shinjuku.name);
+  });
+
   it("dates a stay with only a check-out date by that day, so it never covers the days before it", () => {
     const profile = sampleProfile();
     const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];

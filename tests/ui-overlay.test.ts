@@ -297,6 +297,13 @@ describe("askOther", () => {
     for (const reply of replies) expect(button(dialog, plain(reply.jp)).getAttribute("lang")).toBe("ja");
   });
 
+  it("puts the ways out first in a long list, so they show without scrolling", async () => {
+    const { repliesFor } = await import("../src/content/replies");
+    ov.askOther(question, repliesFor("platform"));
+    const answers = buttons(topDialog()).filter((b) => b.getAttribute("lang") === "ja").map((b) => b.textContent);
+    expect(answers.slice(0, 3)).toEqual(["紙に書きます", "わかりません", "1番線"]);
+  });
+
   it("thanks the person who answered, in Japanese, and asks for the phone back", () => {
     ov.askOther(question, replies);
     button(topDialog(), "1番線").click();

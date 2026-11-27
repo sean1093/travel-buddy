@@ -227,7 +227,8 @@ export function today(now = new Date()): string {
  */
 export function currentHotel(profile: Profile, day = today()): Hotel | null {
   const hotels = profile.hotels;
-  const start = (h: Hotel) => h.from || h.to;
+  // A stay with only a check-out date began at the latest the night before it.
+  const start = (h: Hotel) => h.from || (h.to && dayBefore(h.to));
   const end = (h: Hotel) => h.to || h.from;
   const covers = (h: Hotel) => {
     if (!start(h) || start(h) > day) return false;
@@ -240,6 +241,13 @@ export function currentHotel(profile: Profile, day = today()): Hotel | null {
   const next = hotels.filter((h) => start(h) > day).sort((a, b) => start(a).localeCompare(start(b)))[0];
   const last = hotels.filter((h) => start(h) && end(h) < day).sort((a, b) => end(b).localeCompare(end(a)))[0];
   return covering ?? next ?? last ?? hotels[0] ?? null;
+}
+
+/** YYYY-MM-DD of the day before. */
+function dayBefore(day: string): string {
+  const date = new Date(`${day}T12:00:00`);
+  date.setDate(date.getDate() - 1);
+  return today(date);
 }
 
 /** The place is planned for `day`. */

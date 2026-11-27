@@ -104,7 +104,11 @@ const RELATIONS: Record<string, string> = {
   女婿: "義理の息子",
 };
 
-export const relationJa = (relation: string) => RELATIONS[relation.trim()] ?? relation.trim();
+// hasOwn: the word comes from the profile (or a share link), and "constructor" must not reach Object.prototype.
+export const relationJa = (relation: string) => {
+  const key = relation.trim();
+  return Object.hasOwn(RELATIONS, key) ? RELATIONS[key]! : key;
+};
 
 /**
  * The relation for a card both sides read: Japanese, then the typed word in brackets, since
@@ -165,7 +169,8 @@ export function hotelCard(hotel: Hotel): CardBlock {
 export function hotelSay(hotel: Hotel): Jp {
   const word = hotelWord(hotel);
   // A reading the voice will use (userWord keeps only a pure-kana one, as ruby), or kana in the name.
-  const sayable = word.includes("|") || /[\u3041-\u30fa]/.test(hotel.name);
+  // Without a reading: a name in Japanese script only (ホテル Gracery 新宿 would mangle Gracery).
+  const sayable = word.includes("|") || (/[\u3041-\u30fa]/.test(hotel.name) && !/[A-Za-z]/.test(hotel.name));
   return sayable && plain(word).trim() ? `${word} まで お{願|ねが}い します。` : LINES.taxiToHotel;
 }
 
