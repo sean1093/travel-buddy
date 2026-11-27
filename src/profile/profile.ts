@@ -217,25 +217,23 @@ export function today(now = new Date()): string {
 
 /**
  * The hotel for tonight: the one whose stay covers `day` (check-out day
- * included, since that morning the bags may still be there). Otherwise the
+ * included, for the last morning of a trip; on a day one stay ends and the
+ * next begins, the new one, since that is where tonight is). Otherwise the
  * next one by date (before the trip: the first night's), then the last one
  * (after it), and only without any dates the first one entered. The order
  * the hotels were typed in means nothing: a printed card must be right.
+ * A stay with only one date covers that day alone.
  */
 export function currentHotel(profile: Profile, day = today()): Hotel | null {
   const hotels = profile.hotels;
-  // A stay covers from check-in through check-out; with only one of the dates, it runs from (or to)
-  // that one. Of the stays covering the day, the one being checked out of wins (the bags may still
-  // be there that morning), then the one that started last: an open-ended stay ends when the next
-  // begins.
-  const covers = (h: Hotel) => (h.from || h.to) && (!h.from || h.from <= day) && (!h.to || day <= h.to);
+  const start = (h: Hotel) => h.from || h.to;
+  const end = (h: Hotel) => h.to || h.from;
+  // Of the stays covering the day, the one that started last.
   const covering = hotels
-    .filter(covers)
-    .sort((a, b) => Number(b.to === day) - Number(a.to === day) || (b.from || "").localeCompare(a.from || ""))[0];
-  const next = hotels.filter((h) => h.from && h.from > day).sort((a, b) => a.from.localeCompare(b.from))[0];
-  const last = hotels
-    .filter((h) => (h.to || h.from) && (h.to || h.from) < day)
-    .sort((a, b) => (b.to || b.from).localeCompare(a.to || a.from))[0];
+    .filter((h) => start(h) && start(h) <= day && day <= end(h))
+    .sort((a, b) => start(b).localeCompare(start(a)))[0];
+  const next = hotels.filter((h) => start(h) > day).sort((a, b) => start(a).localeCompare(start(b)))[0];
+  const last = hotels.filter((h) => start(h) && end(h) < day).sort((a, b) => end(b).localeCompare(end(a)))[0];
   return covering ?? next ?? last ?? hotels[0] ?? null;
 }
 

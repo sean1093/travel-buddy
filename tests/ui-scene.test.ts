@@ -310,5 +310,6 @@ describe("lift note language", () => {
     expect(looksJapanese("エレベーターはA3出口（改札外）。ホームへは3番線中央のエレベーター。")).toBe(true);
     expect(looksJapanese("出口在南口旁邊，エレベーター在右邊")).toBe(false);
     expect(looksJapanese("南口の電梯")).toBe(false);
+    expect(looksJapanese("在「みなとみらい」站搭電梯到3樓")).toBe(false);
   });
 });

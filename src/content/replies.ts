@@ -9,7 +9,7 @@ export const DONT_KNOW: Reply = { jp: "わかりません", zh: "不知道" };
 /** For an answer the list doesn't have: every set but yes/no offers it (see repliesFor). */
 export const WRITE_IT: Reply = { jp: "{紙|かみ} に {書|か}きます", zh: "對方會寫給你看（請準備紙筆）" };
 
-/** 1番線 … 16番線, read as station announcements say them. */
+/** 1番線 … 23番線, read as station announcements say them. */
 const PLATFORM_KANA = [
   "いちばんせん",
   "にばんせん",
@@ -27,13 +27,20 @@ const PLATFORM_KANA = [
   "じゅうよんばんせん",
   "じゅうごばんせん",
   "じゅうろくばんせん",
+  "じゅうななばんせん",
+  "じゅうはちばんせん",
+  "じゅうきゅうばんせん",
+  "にじゅうばんせん",
+  "にじゅういちばんせん",
+  "にじゅうにばんせん",
+  "にじゅうさんばんせん",
 ];
 
 /** Ready-made answers for "給對方點選", shared by many phrases. */
 export const REPLY_SETS: Record<ReplySet, Reply[]> = {
   yesNo: [{ jp: "はい", zh: "是／對" }, { jp: "いいえ", zh: "不是／不對" }, DONT_KNOW],
   platform: [
-    // Big stations (JR Shinjuku) go up to 16; a higher number is what 紙に書きます is for.
+    // Up to Tokyo Station's Shinkansen platforms (14–23); a higher number is what 紙に書きます is for.
     ...PLATFORM_KANA.map((_, i) => i + 1).map((n) => ({
       jp: `{${n}番線|${PLATFORM_KANA[n - 1]}}`,
       zh: `${n} 號月台`,

@@ -187,9 +187,7 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
     {
       jp: "{薬|くすり} と {食|た}べ{物|もの} の アレルギー です。",
       zh: "藥物和食物過敏。",
-      extra: [`薬のアレルギー：${drugs || NOT_FILLED}`, foods && `食物アレルギー：${foods}`].filter(
-        (line): line is string => Boolean(line),
-      ),
+      extra: [`薬のアレルギー：${drugs || NOT_FILLED}`, `食物アレルギー：${foods || NOT_FILLED}`],
       alert: true,
     },
     { jp: "{私|わたし} の {医療|いりょう} {情報|じょうほう} です。", zh: "這是我的醫療資料。", extra: person },

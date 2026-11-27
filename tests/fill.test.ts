@@ -127,11 +127,11 @@ describe("repliesFor", () => {
     for (const name of ["yesNo", "borrow", "medicineOk"] as const) expect(repliesFor(name), name).not.toContainEqual(WRITE_IT);
   });
 
-  it("lists platforms 1 to 16 with their readings (JR Shinjuku has 16)", () => {
+  it("lists platforms 1 to 23 with their readings (Tokyo Station's Shinkansen go to 23)", () => {
     const platforms = repliesFor("platform");
-    expect(platforms).toHaveLength(18);
+    expect(platforms).toHaveLength(25);
     expect(platforms[0]).toEqual({ jp: "{1番線|いちばんせん}", zh: "1 號月台" });
-    expect(platforms[15]).toEqual({ jp: "{16番線|じゅうろくばんせん}", zh: "16 號月台" });
+    expect(platforms[22]).toEqual({ jp: "{23番線|にじゅうさんばんせん}", zh: "23 號月台" });
   });
 
   it("resolves the named sets used by scene phrases", () => {

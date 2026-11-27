@@ -125,7 +125,7 @@ describe("medical and allergy cards", () => {
   it("says 未記入 for a question never answered, never なし: a doctor reads なし as 'no allergies'", () => {
     const blocks = medicalCard({ ...emptyProfile(), callName: "雅婷" }, now);
     expect(blocks).toHaveLength(3);
-    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：未記入"]);
+    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：未記入", "食物アレルギー：未記入"]);
     expect(blocks[2]?.extra).toEqual(["持病：未記入", "服用中の薬：未記入"]);
   });
 
@@ -135,7 +135,7 @@ describe("medical and allergy cards", () => {
     profile.health.bloodType = "B";
     profile.insurance = { company: "富邦產險", policy: "", phone: "+886 2 2345 6789" };
     const blocks = medicalCard(profile, now);
-    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：未記入"]);
+    expect(blocks[0]?.extra).toEqual(["薬のアレルギー：未記入", "食物アレルギー：未記入"]);
     expect(blocks[2]?.extra).toEqual(["持病：未記入", "服用中の薬：未記入"]);
   });
 

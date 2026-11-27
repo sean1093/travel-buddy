@@ -208,12 +208,15 @@ export function showToOther(blocks: ShowBlock[], label = "給對方看", speakNo
       more.hidden = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4;
     };
     scroller.addEventListener("scroll", update, { passive: true });
-    if (typeof ResizeObserver === "function") {
-      // Removing the layer resizes the scroller to nothing: that is when the observer lets go of it.
-      const observer = new ResizeObserver(() => (scroller.isConnected ? update() : observer.disconnect()));
-      observer.observe(scroller);
-    }
-    requestAnimationFrame(update);
+    // Removing the layer resizes the scroller to nothing: that is when the observer lets go of it.
+    const observer =
+      typeof ResizeObserver === "function" ? new ResizeObserver(() => (scroller.isConnected ? update() : observer?.disconnect())) : null;
+    observer?.observe(scroller);
+    requestAnimationFrame(() => {
+      update();
+      // And the text inside, there by now: it can grow without the scroller changing size (a late font).
+      if (scroller.firstElementChild) observer?.observe(scroller.firstElementChild);
+    });
     return h(
       "div",
       { class: "flex min-h-0 flex-1 flex-col" },

@@ -52,27 +52,23 @@ describe("trip dates", () => {
     expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
   });
 
-  it("on a day one stay ends and the next begins, keeps the one being checked out of (the bags are there)", () => {
+  it("on a day one stay ends and the next begins, takes the new one: that is where tonight is", () => {
     const profile = sampleProfile();
     const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
-    profile.hotels = [kyoto, shinjuku];
     expect(shinjuku.to).toBe(kyoto.from);
-    expect(currentHotel(profile, shinjuku.to)?.name).toBe(shinjuku.name);
+    expect(currentHotel(profile, shinjuku.to)?.name).toBe(kyoto.name);
+    // The last morning of the trip: still the last hotel.
+    expect(currentHotel(profile, kyoto.to)?.name).toBe(kyoto.name);
   });
 
-  it("counts a stay with only a check-out date as running until then", () => {
+  it("dates a stay with only one date by that date alone, so it never covers the days around it", () => {
     const profile = sampleProfile();
     const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
-    profile.hotels = [{ ...shinjuku, from: "", to: "2026-11-10" }, { ...kyoto, from: "2026-11-12", to: "" }];
-    expect(currentHotel(profile, "2026-11-08")?.name).toBe(shinjuku.name);
-  });
-
-  it("counts a stay with only a check-in date as running until the next one starts", () => {
-    const profile = sampleProfile();
-    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
-    profile.hotels = [{ ...shinjuku, from: "2026-11-01", to: "" }, { ...kyoto, from: "2026-11-05", to: "" }];
-    expect(currentHotel(profile, "2026-11-03")?.name).toBe(shinjuku.name);
-    expect(currentHotel(profile, "2026-11-06")?.name).toBe(kyoto.name);
+    // B has only a check-out date (12-06); the trip starts at A on 12-01.
+    profile.hotels = [{ ...kyoto, from: "", to: "2026-12-06" }, { ...shinjuku, from: "2026-12-01", to: "2026-12-03" }];
+    expect(currentHotel(profile, "2026-11-26")?.name).toBe(shinjuku.name);
+    expect(currentHotel(profile, "2026-12-06")?.name).toBe(kyoto.name);
+    expect(currentHotel(profile, "2026-12-31")?.name).toBe(kyoto.name);
   });
 
   it("puts today's places first", () => {

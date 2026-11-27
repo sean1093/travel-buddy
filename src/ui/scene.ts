@@ -243,16 +243,16 @@ function rescueDock(): HTMLElement[] {
   );
 }
 
-/** Big buttons for the saved destinations; the picked one fills every 〇〇. */
-/** The picked station's 電梯筆記, ready to enlarge for station staff. */
 /**
- * Japanese sentences need hiragana (は、を、へ、の…); Chinese with a katakana word
- * (エレベーター在右邊) has none, or only a stylish の.
+ * Japanese sentences put particles after their words (エレベーターは、ホームへ、出口を).
+ * Chinese has none, even with a katakana word (エレベーター在右邊) or a place name in
+ * kana (在「みなとみらい」站): a stylish の doesn't count.
  */
 export function looksJapanese(text: string): boolean {
-  return (text.match(/[\u3041-\u3096]/g) ?? []).filter((c) => c !== "の").length >= 2;
+  return (text.match(/[\u4e00-\u9fff\u30a1-\u30fa\u30fc0-9A-Za-z][はをへがにで]/g) ?? []).length >= 2;
 }
 
+/** The picked station's 電梯筆記, ready to enlarge for station staff. */
 function elevatorNote(place: Place): HTMLElement {
   return h(
     "div",
@@ -278,6 +278,7 @@ function elevatorNote(place: Place): HTMLElement {
   );
 }
 
+/** Big buttons for the saved destinations; the picked one fills every 〇〇. */
 function placePicker(places: Place[], picked: Place | null, pick: (place: Place) => void): HTMLElement {
   return h(
     "div",

@@ -86,8 +86,9 @@ export function renderGuide(root: HTMLElement, [id]: string[]): void {
   // Every source, each a link; a site cited twice is told apart by number (www.mlit.go.jp 2).
   const sources = guide.sources.map((url, i, all) => {
     const host = new URL(url).hostname;
-    const same = all.filter((other) => new URL(other).hostname === host);
-    return { url, label: same.length > 1 ? `${host} ${same.indexOf(url) + 1}` : host };
+    const same = all.filter((other) => new URL(other).hostname === host).length;
+    const before = all.slice(0, i).filter((other) => new URL(other).hostname === host).length;
+    return { url, label: same > 1 ? `${host} ${before + 1}` : host };
   });
   // The heading says 旅遊小抄; the tab and history name the guide itself.
   page(root, "旅遊小抄", [
