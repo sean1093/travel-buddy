@@ -250,12 +250,14 @@ function rescueDock(): HTMLElement[] {
 const CHINESE_ONLY = /[號邊樓這裡們說會對從與還點嗎呢臺灣站]|電梯/;
 
 /**
- * A note is Japanese when it has kana (a stylish の alone doesn't count) and nothing only
- * Chinese has: エレベーターは改札内 is; エレベーター在右邊 and みなとみらい站3號出口 are not.
+ * A note is Japanese when it has hiragana (Japanese grammar: は, を, あり…; a stylish の
+ * alone doesn't count) and nothing only Chinese has. エレベーターは改札内 is;
+ * エレベーター在南口旁 and みなとみらい站3號出口 are not. When unsure, it isn't: a Chinese
+ * note read in a Japanese voice is worse than the other way round.
  */
 export function looksJapanese(text: string): boolean {
-  const kana = (text.match(/[\u3041-\u3096\u30a1-\u30fa]/g) ?? []).filter((c) => c !== "の");
-  return kana.length > 0 && !CHINESE_ONLY.test(text);
+  const hiragana = (text.match(/[\u3041-\u3096]/g) ?? []).filter((c) => c !== "の");
+  return hiragana.length > 0 && !CHINESE_ONLY.test(text);
 }
 
 /** The picked station's 電梯筆記, ready to enlarge for station staff. */

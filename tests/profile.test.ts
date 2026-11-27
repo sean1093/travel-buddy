@@ -84,6 +84,15 @@ describe("trip dates", () => {
     const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
     profile.hotels = [{ ...shinjuku, from: "2026-11-01", to: "2026-11-10" }, { ...kyoto, from: "2026-11-04", to: "" }];
     expect(currentHotel(profile, "2026-11-07")?.name).toBe(shinjuku.name);
+    // But the night away's own first night is there.
+    expect(currentHotel(profile, "2026-11-04")?.name).toBe(kyoto.name);
+  });
+
+  it("ignores a check-out date that isn't a date", () => {
+    const profile = sampleProfile();
+    const [shinjuku, kyoto] = profile.hotels as [Hotel, Hotel];
+    profile.hotels = [{ ...kyoto, from: "", to: "2026/12/03" }, { ...shinjuku, from: "2026-12-01", to: "2026-12-02" }];
+    expect(currentHotel(profile, "2026-11-26")?.name).toBe(shinjuku.name);
   });
 
   it("keeps the base hotel on the day a night away ends", () => {

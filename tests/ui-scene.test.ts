@@ -315,7 +315,9 @@ describe("lift note language", () => {
     expect(looksJapanese("エレベーターは改札内")).toBe(true);
     expect(looksJapanese("エレベーターあり（改札内）")).toBe(true);
     expect(looksJapanese("えきのなかにあります")).toBe(true);
-    expect(looksJapanese("改札内のエレベーター")).toBe(true);
+    // Katakana and kanji only: could be either, so not marked.
+    expect(looksJapanese("出口旁有エレベーター")).toBe(false);
+    expect(looksJapanese("エレベーター在南口旁")).toBe(false);
     expect(looksJapanese("みなとみらい站3號出口有電梯")).toBe(false);
     expect(looksJapanese("おおさか站電梯")).toBe(false);
     expect(looksJapanese("在来線ホームへはエレベーターをご利用ください")).toBe(true);
