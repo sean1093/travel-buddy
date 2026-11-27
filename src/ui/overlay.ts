@@ -286,8 +286,10 @@ export function askOther(question: { jp: Jp; zh: string }, replies: Reply[]): vo
           {
             type: "button",
             lang: "ja",
-            class:
-              "min-h-16 rounded-2xl bg-ai-soft px-3 py-3 text-2xl font-bold text-ink transition active:scale-95 active:bg-ai active:text-on-accent",
+            // Ahead of a long list, the ways out are quieter, and one line however narrow (わかりま／せん).
+            class: `min-h-16 rounded-2xl px-3 py-3 font-bold text-ink transition active:scale-95 active:bg-ai active:text-on-accent ${
+              ordered !== replies && isWayOut(reply) ? "whitespace-nowrap bg-sand text-[min(1.5rem,5vw)]" : "bg-ai-soft text-2xl"
+            }`,
             onclick: () => answered(reply),
           },
           plain(reply.jp),
