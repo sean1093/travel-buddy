@@ -88,6 +88,13 @@ export const REPLY_SETS: Record<ReplySet, Reply[]> = {
     WRITE_IT,
     DONT_KNOW,
   ],
+  // Do you have …? — for 〜はありますか at a shop.
+  have: [
+    { jp: "あります", zh: "有" },
+    { jp: "ありません", zh: "沒有" },
+    { jp: "こちら です", zh: "在這裡（對方會指給你看）" },
+    DONT_KNOW,
+  ],
   // May I use the toilet? — a clerk says yes or no, never "I don't know".
   borrow: [
     { jp: "どうぞ", zh: "可以，請用" },
@@ -105,7 +112,7 @@ export const REPLY_SETS: Record<ReplySet, Reply[]> = {
 
 
 /** Sets whose answers are all there is: nothing to write down. */
-const CLOSED: ReplySet[] = ["yesNo", "borrow", "medicineOk"];
+const CLOSED: ReplySet[] = ["yesNo", "borrow", "medicineOk", "have"];
 
 /**
  * The answers to offer. A named set of places, times or numbers also offers

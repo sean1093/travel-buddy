@@ -192,6 +192,13 @@ body {
   }
 }
 
+/* Home's scene tiles on a 320 px phone at 特大: two per row would break 廁所・問路 one character a line. */
+@media (max-width: 340px) {
+  :root[data-text-size="xlarge"] .scene-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 [tabindex="-1"]:focus {
   outline: none;
 }

@@ -46,6 +46,8 @@ describe("help card", () => {
     const hotel = sampleProfile().hotels[0]!;
     expect(hotelCard({ ...hotel, name: "Hotel Gracery Shinjuku", kana: "" }).say).toBe(LINES.taxiToHotel);
     expect(hotelCard({ ...hotel, name: "新宿華盛頓酒店", kana: "" }).say).toBe(LINES.taxiToHotel);
+    // A reading that isn't kana is not used by the voice, so it doesn't make the name sayable.
+    expect(hotelCard({ ...hotel, name: "新宿格拉斯麗酒店", kana: "Gracery" }).say).toBe(LINES.taxiToHotel);
     expect(hotelCard({ ...hotel, name: "ホテルグレイスリー新宿", kana: "" }).say).toBe("ホテルグレイスリー新宿 まで お{願|ねが}い します。");
   });
 

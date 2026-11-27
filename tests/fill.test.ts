@@ -109,7 +109,7 @@ describe("repliesFor", () => {
 
   it("resolves every named set to a non-empty list ending with わかりません, but the toilet's yes or no", () => {
     const names = Object.keys(REPLY_SETS) as ReplySet[];
-    expect(names.sort()).toEqual(["borrow", "direction", "exit", "medicineOk", "place", "platform", "time", "yesNo"]);
+    expect(names.sort()).toEqual(["borrow", "direction", "exit", "have", "medicineOk", "place", "platform", "time", "yesNo"]);
     for (const name of names) {
       const replies = repliesFor(name);
       expect(replies.length, name).toBeGreaterThan(0);
@@ -124,7 +124,7 @@ describe("repliesFor", () => {
       expect(repliesFor(name).at(-2), name).toEqual(WRITE_IT);
       expect(repliesFor(name).filter((r) => r.jp === WRITE_IT.jp), name).toHaveLength(1);
     }
-    for (const name of ["yesNo", "borrow", "medicineOk"] as const) expect(repliesFor(name), name).not.toContainEqual(WRITE_IT);
+    for (const name of ["yesNo", "borrow", "medicineOk", "have"] as const) expect(repliesFor(name), name).not.toContainEqual(WRITE_IT);
   });
 
   it("lists platforms 1 to 27 with their readings (Shin-Osaka's Shinkansen go to 27)", () => {

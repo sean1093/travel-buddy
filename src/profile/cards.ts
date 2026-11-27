@@ -154,8 +154,10 @@ export function hotelCard(hotel: Hotel): CardBlock {
  * English or Chinese only would be misread, so then it's "this hotel".
  */
 export function hotelSay(hotel: Hotel): Jp {
-  const sayable = hotel.kana.trim() || /[\u3041-\u30fa]/.test(hotel.name);
-  return sayable && plain(hotelWord(hotel)).trim() ? `${hotelWord(hotel)} まで お{願|ねが}い します。` : LINES.taxiToHotel;
+  const word = hotelWord(hotel);
+  // A reading the voice will use (userWord keeps only a pure-kana one, as ruby), or kana in the name.
+  const sayable = word.includes("|") || /[\u3041-\u30fa]/.test(hotel.name);
+  return sayable && plain(word).trim() ? `${word} まで お{願|ねが}い します。` : LINES.taxiToHotel;
 }
 
 const JOIN = "、";

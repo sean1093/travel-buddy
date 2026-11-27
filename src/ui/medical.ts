@@ -149,7 +149,7 @@ export function renderMedical(root: HTMLElement, [target = ""]: string[] = []): 
     profile.birthYear,
     health.bloodType,
     health.conditions.length || health.conditionsOther.trim(),
-    health.meds.length,
+    health.meds.some((m) => m.ingredient.trim() || m.dose.trim()),
     health.drugAllergies.length || health.foodAllergies.length || health.allergyOther.trim(),
     profile.contacts[0]?.name.trim() || profile.contacts[0]?.phone.trim() || profile.contacts[0]?.relation.trim(),
     ins.company.trim() || ins.policy.trim() || ins.phone.trim(),

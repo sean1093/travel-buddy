@@ -76,7 +76,7 @@ export function renderHome(root: HTMLElement): void {
         "a",
         {
           href: "#/help",
-          class: "mt-3 flex min-h-28 items-center gap-4 rounded-2xl bg-sos px-5 py-4 text-sos-on transition active:scale-[0.98]",
+          class: "mt-3 flex min-h-28 items-center gap-3 rounded-2xl bg-sos px-4 py-4 text-sos-on transition active:scale-[0.98]",
         },
         icon("help", "h-11 w-11 shrink-0"),
         h(
@@ -120,7 +120,8 @@ export function renderHome(root: HTMLElement): void {
         heading("情境"),
         h(
           "div",
-          { class: "grid grid-cols-2 gap-2" },
+          // scene-grid: one column on the narrowest phone at 特大, where half a row fits two characters (style.css).
+          { class: "scene-grid grid grid-cols-2 gap-2" },
           SCENES.map((scene, i) =>
             h(
               "a",

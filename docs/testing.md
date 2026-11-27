@@ -60,7 +60,7 @@ Rules of thumb:
 
 - phone 390×844
 - narrow 320×640
-- 特大 (extra-large) text, at 390×844 and at 360×780 (the most common Android width)
+- 特大 (extra-large) text, at 390×844, at 360×780 (the most common Android width) and at 320×640
 - dark theme
 - landscape 844×390, also at 特大
 
