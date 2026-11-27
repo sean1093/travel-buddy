@@ -217,8 +217,8 @@ export function today(now = new Date()): string {
 
 /**
  * The hotel for tonight: the one whose stay covers `day` (check-out day
- * included, for the last morning of a trip; on a day one stay ends and the
- * next begins, the new one, since that is where tonight is). Otherwise the
+ * included, for the last morning of a trip; on a day one stay ends and
+ * another goes on or begins, that other one, since that is where tonight is). Otherwise the
  * next one by date (before the trip: the first night's), then the last one
  * (after it), and only without any dates the first one entered. The order
  * the hotels were typed in means nothing: a printed card must be right.
@@ -236,8 +236,11 @@ export function currentHotel(profile: Profile, day = today()): Hotel | null {
     // Check-in only: until another stay has started by `day`.
     return !hotels.some((other) => other !== h && start(other) > h.from && start(other) <= day);
   };
-  // Of the stays covering the day, the one that started last.
-  const covering = hotels.filter(covers).sort((a, b) => start(b).localeCompare(start(a)))[0];
+  // Of the stays covering the day, one that goes on past it (a base hotel around a night away, or
+  // the stay that begins on a changeover day); then the one that started last.
+  const covering = hotels
+    .filter(covers)
+    .sort((a, b) => Number(a.to === day) - Number(b.to === day) || start(b).localeCompare(start(a)))[0];
   const next = hotels.filter((h) => start(h) > day).sort((a, b) => start(a).localeCompare(start(b)))[0];
   const last = hotels.filter((h) => start(h) && end(h) < day).sort((a, b) => end(b).localeCompare(end(a)))[0];
   return covering ?? next ?? last ?? hotels[0] ?? null;

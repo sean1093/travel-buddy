@@ -246,17 +246,23 @@ export function medicalCard(profile: Profile, now = new Date()): CardBlock[] {
 /** The allergy and diet card for restaurants, or null when nothing applies. */
 export function allergyCard(profile: Profile): CardBlock[] | null {
   const h = profile.health;
-  const foods = [...presetsById(FOOD_ALLERGIES, h.foodAllergies).map((p) => plain(p.jp)), h.allergyOther.trim()].filter(Boolean);
+  const foods = presetsById(FOOD_ALLERGIES, h.foodAllergies);
+  // Free text may be a food, a drug or neither (Latex): its own block, not among the foods.
+  const other = h.allergyOther.trim();
   const diets = presetsById(DIETS, h.diets);
   const blocks: CardBlock[] = [];
   if (foods.length > 0) {
     blocks.push({
       jp: "{食物|しょくもつ} アレルギー が あります。{次|つぎ} の もの が {入|はい}った {料理|りょうり} は {食|た}べられません。",
-      zh: `我對食物過敏，有放這些東西的料理我不能吃：${presetsById(FOOD_ALLERGIES, h.foodAllergies)
-        .map((p) => p.zh)
-        .concat(h.allergyOther.trim() ? [h.allergyOther.trim()] : [])
-        .join("、")}`,
-      extra: foods.map((food) => `・${food}`),
+      zh: `我對食物過敏，有放這些東西的料理我不能吃：${foods.map((p) => p.zh).join("、")}`,
+      extra: foods.map((food) => `・${plain(food.jp)}`),
+    });
+  }
+  if (other) {
+    blocks.push({
+      jp: "{次|つぎ} の もの に も アレルギー が あります。",
+      zh: `我也對這些過敏：${other}`,
+      extra: [`・${other}`],
     });
   }
   for (const diet of diets) blocks.push({ jp: diet.jp, zh: diet.zh, extra: [] });

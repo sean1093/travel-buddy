@@ -34,7 +34,7 @@ export default {
       jp: "もう {少|すこ}し {小|ちい}さい サイズ は あります か。",
       answers: "yesNo",
     },
-    { id: "shopping-other-color", group: "shop", zh: "有別的顏色嗎？", jp: "{他|ほか} の {色|いろ} は あります か。", answers: "yesNo" },
+    { id: "shopping-other-color", group: "shop", zh: "有別的顏色嗎？", jp: "{他|ほか} の {色|いろ} は あります か。", answers: "have" },
     { id: "shopping-write-price", group: "pay", zh: "請把價錢寫下來。", jp: "{値段|ねだん} を {書|か}いて ください。" },
     {
       id: "shopping-tax-free", group: "tax",

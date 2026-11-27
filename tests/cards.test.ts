@@ -53,6 +53,16 @@ describe("help card", () => {
     expect(hotelCard({ ...hotel, name: "ホテル Gracery 新宿", kana: "" }).say).toBe(LINES.taxiToHotel);
   });
 
+  it("gives an allergy typed in 其他過敏 its own block on the restaurant card, not among the foods", () => {
+    const profile = emptyProfile();
+    profile.health.allergyOther = "Latex";
+    const blocks = allergyCard(profile)!;
+    expect(plain(blocks[0]!.jp)).toBe("次のものにもアレルギーがあります。");
+    expect(blocks[0]!.extra).toEqual(["・Latex"]);
+    expect(blocks.map((b) => plain(b.jp)).join("")).not.toContain("食物アレルギー");
+    for (const block of blocks) expect(checkJp(block.jp)).toEqual([]);
+  });
+
   it("puts an allergy typed in 其他過敏 on its own line, not under food", () => {
     const profile = emptyProfile();
     profile.health.allergyOther = "Aspirin";
